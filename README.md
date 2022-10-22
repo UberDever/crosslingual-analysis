@@ -45,6 +45,9 @@
 
 # Планируемые курсы к изучению
 Введение в искусственный интеллект https://openedu.ru/course/hse/INTRAI/
+
 C# https://www.udemy.com/course/c-sharp-oop-ultimate-guide-project-master-class/
+
 Compilers https://www.edx.org/course/compilers
+
 Typescript https://www.udemy.com/course/typescript-the-complete-developers-guide
