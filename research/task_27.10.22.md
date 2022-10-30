@@ -1,16 +1,10 @@
 # Sources
 
-- Nemerle 
-    - http://nemerle.org/About
-    - CLR managed language with extensive preprocessing stage, like lisp macros
+[Nemerle](http://nemerle.org/About) CLR managed language with extensive preprocessing stage, like lisp macros
 
-- Razor
-    - https://learn.microsoft.com/en-us/aspnet/core/mvc/views/razor?view=aspnetcore-6.0
-    - Razor is a markup syntax for embedding .NET based code into webpages
+[Razor](https://learn.microsoft.com/en-us/aspnet/core/mvc/views/razor?view=aspnetcore-6.0) is a markup syntax for embedding .NET based code into webpages
 
-- Hime
-    - https://github.com/cenotelie/hime
-    - The Hime parser generator is a parser generator that targets the .Net platform, Java and Rust
+[Hime](https://github.com/cenotelie/hime) is the parser generator is a parser generator that targets the .Net platform, Java and Rust
 
 # Tasks
 
@@ -30,4 +24,5 @@
     - Main feature is macros and metaprogramming, based on syntax
     - Macros have 3 phases of substitution (@Insight this enables interdependence and mutual recursion)
     - Macros just functions, that executed in compile time
-
+1. Found F# parsing [toolchain](https://en.wikibooks.org/wiki/F_Sharp_Programming/Lexing_and_Parsing), need to investigate further
+1. Completed F# microsoft [microcourse](https://www.youtube.com/c/dotNET/videos)
