@@ -21,6 +21,13 @@
 - [ ] Try to implement "Find all references" analysis on simple console app
 - [ ] Make simple C# ASP.Net app with Razor pages
 - [ ] Try to somehow analyze .cshtml page
-- [ ] [Difficult] Try to analyze web app with AJAX call to dotnet method
+- [ ] @Difficult Try to analyze web app with AJAX call to dotnet method
 
+# Results
+1. From channel [MichaelRyanClarkson](https://youtube.com/c/MichaelRyanClarkson) learned about Hindley-Millner type inference algorithm, turn out it is pretty simple
+1. Watched [Nemerle talk](https://www.youtube.com/watch?v=HSPivYkQ2t4) from CLRium
+    - Nemerle is multiparadigm CLR based language
+    - Main feature is macros and metaprogramming, based on syntax
+    - Macros have 3 phases of substitution (@Insight this enables interdependence and mutual recursion)
+    - Macros just functions, that executed in compile time
 
