@@ -3,18 +3,18 @@
 open Hime.Redist
 open System
 
-// let traverse (root: ASTNode) =
-//     match root.Children with
-//     | :? System.Collections.IEnumerable as children ->
-//      Seq.iter (fun e -> Console.WriteLine e.ToString) children
+let rec traverse (f: string -> unit) (node: ASTNode) =
+    f (node.ToString())
+    Seq.iter (traverse f) node.Children
 
 [<EntryPoint>]
 let main argv =
     let exp = "(2 * 3) * 4 - 2"
     let result = Project.Frontend.GetResult(exp)
 
-    match result.Errors.Count with
-    | 0 -> ()
-    | _ -> Seq.iter (fun (e: ParseError) -> Console.WriteLine e.ToString) result.Errors
+    let errors = Seq.map (fun e -> e.ToString()) result.Errors
+    Seq.iter (printfn "%s") errors
+
+    traverse (printfn "%s") result.Root
 
     0
