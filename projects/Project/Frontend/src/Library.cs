@@ -1,5 +1,5 @@
 using Hime.Redist;
-using MathExp;
+using Csharp;
 
 namespace Project
 {
@@ -7,8 +7,8 @@ namespace Project
     {
         static public ParseResult GetResult(string input)
         {
-            var lexer = new MathExpLexer(input);
-            var parser = new MathExpParser(lexer);
+            var lexer = new CSharpLexer(input);
+            var parser = new CSharpParser(lexer);
             return parser.Parse();
         }
 

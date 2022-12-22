@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Analyzer", "Analyzer\Analyzer.fsproj", "{F3FE088B-D9FC-4613-99C6-F2ABE4678D9E}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Frontend", "Frontend\Frontend.csproj", "{9F4459EE-FDDC-412F-A4A5-9DC7A072471C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Analyzer", "Analyzer\Analyzer.csproj", "{4030B073-A265-4C66-B8D5-C43BC9A468C9}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -16,13 +16,13 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{F3FE088B-D9FC-4613-99C6-F2ABE4678D9E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{F3FE088B-D9FC-4613-99C6-F2ABE4678D9E}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{F3FE088B-D9FC-4613-99C6-F2ABE4678D9E}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{F3FE088B-D9FC-4613-99C6-F2ABE4678D9E}.Release|Any CPU.Build.0 = Release|Any CPU
 		{9F4459EE-FDDC-412F-A4A5-9DC7A072471C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{9F4459EE-FDDC-412F-A4A5-9DC7A072471C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9F4459EE-FDDC-412F-A4A5-9DC7A072471C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9F4459EE-FDDC-412F-A4A5-9DC7A072471C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4030B073-A265-4C66-B8D5-C43BC9A468C9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4030B073-A265-4C66-B8D5-C43BC9A468C9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4030B073-A265-4C66-B8D5-C43BC9A468C9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4030B073-A265-4C66-B8D5-C43BC9A468C9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
