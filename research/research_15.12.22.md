@@ -16,3 +16,6 @@
 [Machine Learning for Software refactoring](https://github.com/refactoring-ai/predicting-refactoring-ml)
 
 [PEG Grammars](https://en.wikipedia.org/wiki/Parsing_expression_grammar)
+
+[Lightweight Multi-Language Syntax Transformation
+with Parser Parser Combinators](https://dl.acm.org/doi/pdf/10.1145/3314221.3314589)
