@@ -1,0 +1,7 @@
+namespace Prototype
+{
+    interface IAnalyzer
+    {
+
+    };
+}
