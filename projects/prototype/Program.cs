@@ -1,14 +1,47 @@
-﻿
+﻿using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.DependencyInjection;
+using StackExchange.Redis;
 
 namespace Prototype
 {
+
+
     class Program
     {
         private const string HtmlPath = "tests/form.html.css.js/index.html";
         private const string CssPath = "tests/form.html.css.js/style.css";
         private const string JsPath = "tests/form.html.css.js/script.js";
-        static void Main()
+
+        private readonly JSAnalyzer _jsAnalyzer;
+
+        public Program(JSAnalyzer jsAnalyzer)
         {
+            _jsAnalyzer = jsAnalyzer;
+        }
+
+        public static IHostBuilder CreateHostBuilder(string[] args)
+        {
+            return Host.CreateDefaultBuilder(args)
+                .ConfigureServices(services =>
+                {
+                    services.AddTransient<Program>();
+                    services.AddTransient<JSAnalyzer>();
+                    services.AddSingleton<ConnectionMultiplexer>(provider =>
+                    {
+                        return ConnectionMultiplexer.Connect("localhost");
+                    });
+                });
+        }
+
+        public void Run()
+        {
+            _jsAnalyzer.Analyze(File.ReadAllText(JsPath));
+        }
+
+        static void Main(string[] args)
+        {
+            var host = CreateHostBuilder(args).Build();
+            host.Services.GetRequiredService<Program>().Run();
 
             // {
             //     var stylesheet = new StylesheetParser().Parse(File.ReadAllText(CssPath));

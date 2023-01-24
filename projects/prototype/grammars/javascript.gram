@@ -120,7 +120,7 @@ grammar Javascript
 							|  exp_function ;
 		exp_lhs				-> exp_member
 							|  'new' exp_member
-							|  exp_lhs arguments
+							|  exp_lhs arguments 
 							|  exp_lhs '[' expression ']'
 							|  exp_lhs '.' Identifier ;
 		exp_postfix			-> exp_lhs
