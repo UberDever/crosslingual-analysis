@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using StackExchange.Redis;
 
@@ -41,6 +42,7 @@ namespace Prototype
         static void Main(string[] args)
         {
             var host = CreateHostBuilder(args).Build();
+            IConfiguration config = host.Services.GetRequiredService<IConfiguration>();
             host.Services.GetRequiredService<Program>().Run();
 
             // {

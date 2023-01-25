@@ -2,128 +2,134 @@ using StackExchange.Redis;
 using Hime.Redist;
 using Javascript;
 using System.Text.RegularExpressions;
+using Microsoft.Extensions.Configuration;
+
+using Matchers = System.Collections.Generic.List<System.Collections.Generic.List<Prototype.Option>>;
 
 namespace Prototype
 {
-    struct Match
+    struct OptionRaw
     {
-        private Regex pattern { get; init; }
-        private List<int> paths { get; init; }
-        private string actionName { get; init; }
+        public string Pattern { get; init; }
+        public List<int> Paths { get; init; }
+        public string ActionName { get; init; }
     }
+
+    struct Option
+    {
+        public Regex Pattern { get; init; }
+        public List<int> Paths { get; init; }
+        public Action Action { get; init; }
+    }
+
 
     class TreeMatcher
     {
-        string json = @"[
-            [{
-                'pattern': '.',
-                'paths': [-1],
-                'action': ''
-            }],
-            [
-                {
-                    'pattern': 'getElement?ById',
-                    'paths': [0],
-                    'action': ''
-                },
-                {
-                    'pattern': 'getElement?ByClassName',
-                    'paths': [0],
-                    'action': ''
-                },
-                {
-                    'pattern': 'getElement?ByTagName',
-                    'paths': [0],
-                    'action': ''
-                },
-            ],
-            [
-                {
-                    'pattern': '(',
-                    'paths': [0, 1, 2],
-                    'action': ''
-                }
-            ],
-            [
-                {
-                    'pattern': '',
-                    'paths': [0],
-                    'action': ''
-                }
-            ],
-            [
-                {
-                    'pattern': '(',
-                    'paths': [0, 1, 2],
-                    'action': ''
-                }
-            ]
-        ]";
+        private readonly Matchers _matchers;
+        private int _currentMatcher = 0;
+        private (int, int) _chainStart = (0, 0);
+        private (int, int) _chainEnd = (0, 0);
+        private Stack<int> _paths = new Stack<int> { };
 
-        private List<Regex[]> matchings;
-        private int currentMatch = 0;
-        private Regex varMatch = new Regex(":.*:");
-        private bool ChainCompleted { get; }
-
-        public TreeMatcher()
+        public TreeMatcher(Matchers matchers)
         {
-            matchings = new List<Regex[]>();
-            var options = new string[][] {
-                new string[] { "." },
-                new string[] { "getElement?ById", "getElement?ByClassName", "getElement?ByTagName" },
-                new string[] { "(" },
-                new string[] { """ ".*" """ },
-                new string[] { ")" }};
-            matchings = options.Select(cases =>
-            {
-                return cases.Select(option => new Regex(option, RegexOptions.Compiled)).ToArray<Regex>();
-            }).ToList<Regex[]>();
-
+            _matchers = matchers;
         }
 
-        public void eat(ASTNode node)
+        public void Eat(ASTNode node)
         {
-            var options = matchings[currentMatch];
-            var value = node.Value;
-            var symbol = node.Symbol;
-            bool haveEaten = false;
-            foreach (var option in options)
+            if (node.Value is null)
             {
-                if (option.Match(value).Success)
+                return;
+            }
+
+            var options = _matchers?[_currentMatcher];
+            var value = node.Value;
+            bool haveEaten = false;
+            if (!_paths.TryPeek(out int currentOption))
+            {
+                currentOption = -1;
+                _chainStart = (node.Position.Line, node.Position.Column);
+            }
+            for (int i = 0; i < options?.Count; i++)
+            {
+                var option = options[i];
+                if (option.Pattern.Match(value).Success && option.Paths.Contains(currentOption))
                 {
-                    currentMatch++;
+                    _currentMatcher++;
+                    _paths.Push(i);
                     haveEaten = true;
-                    if (currentMatch == options.Length)
+                    if (_currentMatcher == _matchers?.Count)
                     {
-                        currentMatch = 0;
+                        _chainEnd = (node.Position.Line, node.Position.Column);
+                        ChainCompleted();
                     }
                     break;
-                }
-                else
-                {
-
                 }
             }
 
             if (!haveEaten)
             {
-                currentMatch = 0;
+                _currentMatcher = 0;
+                _paths.Clear();
+                _chainStart = (0, 0);
+                _chainEnd = (0, 0);
             }
         }
 
-
+        private void ChainCompleted()
+        {
+            _currentMatcher = 0;
+            var chain = _paths.Reverse().Select((optionI, matcherI) => _matchers[matcherI][optionI].Pattern);
+            foreach (var n in chain)
+            {
+                Console.Write(n.ToString() + " ");
+            }
+            Console.WriteLine($"{_chainStart} : {_chainEnd}");
+        }
     }
-
 
     class JSAnalyzer : IAnalyzer
     {
         private readonly ConnectionMultiplexer _multiplexer;
+        private readonly IConfiguration _configuration;
+        private TreeMatcher matcher;
 
 
-
-        public JSAnalyzer(ConnectionMultiplexer multiplexer)
+        public JSAnalyzer(ConnectionMultiplexer multiplexer, IConfiguration configuration)
         {
             _multiplexer = multiplexer;
+            _configuration = configuration;
+
+            var matchers = configuration.GetSection("patterns").Get<List<List<OptionRaw>>>();
+            var convertedMatchers = matchers?.Select(options =>
+                options.Select(option =>
+                {
+                    var methodInfo = this.GetType().GetMethod(option.ActionName);
+                    if (methodInfo is not null)
+                    {
+                        return new Option
+                        {
+                            Pattern = new Regex(option.Pattern),
+                            Paths = option.Paths,
+                            Action = (Action)Delegate.CreateDelegate(
+                                type: typeof(Action),
+                                method: methodInfo,
+                                firstArgument: this
+                            )
+                        };
+                    }
+                    else
+                    {
+                        return new Option
+                        {
+                            Pattern = new Regex(option.Pattern),
+                            Paths = option.Paths,
+                            Action = () => { }
+                        };
+                    }
+                }).ToList()).ToList() ?? new Matchers();
+            matcher = new TreeMatcher(convertedMatchers);
         }
 
         public void Analyze(string program)
@@ -147,12 +153,28 @@ namespace Prototype
 
         }
 
-        public void TraverseAST(ASTNode root)
+        private void onGetElementById()
         {
-            Console.WriteLine(root.ToString());
-            foreach (var node in root.Children)
+            Console.WriteLine("id");
+        }
+
+        private void onGetElementByClassName()
+        {
+            Console.WriteLine("class");
+        }
+        private void onGetElementByTagName()
+        {
+            Console.WriteLine("tag");
+        }
+
+
+        public void TraverseAST(ASTNode node)
+        {
+            // Console.WriteLine(root.ToString());
+            matcher.Eat(node);
+            foreach (var child in node.Children)
             {
-                TraverseAST(node);
+                TraverseAST(child);
             }
         }
 
