@@ -173,8 +173,9 @@ namespace Prototype
                     FileName = _programName
                 },
                 Intent = NodeInfo.IntentType.Want,
-                DataKind = "html-element-with-id"
+                DataKind = "html-element"
             });
+            _info.Peek().Data["Attribute"] = "Id";
         }
 
         public void onGetElementByClassName(ASTNode node)
@@ -189,8 +190,9 @@ namespace Prototype
                     FileName = _programName
                 },
                 Intent = NodeInfo.IntentType.Want,
-                DataKind = "html-element-with-classname"
+                DataKind = "html-element"
             });
+            _info.Peek().Data["Attribute"] = "ClassName";
         }
         public void onGetElementByTagName(ASTNode node)
         {
@@ -204,13 +206,14 @@ namespace Prototype
                     FileName = _programName
                 },
                 Intent = NodeInfo.IntentType.Want,
-                DataKind = "html-element-with-tagname"
+                DataKind = "html-element"
             });
+            _info.Peek().Data["Attribute"] = "TagName";
         }
 
         public void onArguments(ASTNode node)
         {
-            _info.Peek().Data["TagType"] = node.Value;
+            _info.Peek().Data["Value"] = node.Value;
         }
 
         public void onFunctionDeclaration(ASTNode node)
