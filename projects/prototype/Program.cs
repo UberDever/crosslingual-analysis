@@ -13,10 +13,12 @@ namespace Prototype
         private const string JsPath = "tests/form.html.css.js/script.js";
 
         private readonly JSAnalyzer _jsAnalyzer;
+        private readonly HTMLAnalyzer _htmlAnalyzer;
 
-        public Program(JSAnalyzer jsAnalyzer)
+        public Program(JSAnalyzer jsAnalyzer, HTMLAnalyzer htmlAnalyzer)
         {
             _jsAnalyzer = jsAnalyzer;
+            _htmlAnalyzer = htmlAnalyzer;
         }
 
         public static IHostBuilder CreateHostBuilder(string[] args)
@@ -26,19 +28,32 @@ namespace Prototype
                 {
                     services.AddTransient<Program>();
                     services.AddTransient<JSAnalyzer>();
+                    services.AddTransient<HTMLAnalyzer>();
                 });
         }
 
         public void Run()
         {
+            IEnumerable<NodeInfo> info = new List<NodeInfo> { };
             _jsAnalyzer.Analyze(File.ReadAllText(JsPath));
-            _jsAnalyzer.DumpAnalysis();
+            info = info.Concat(_jsAnalyzer.DumpAnalysis());
+            // _htmlAnalyzer.Analyze(File.ReadAllText(HtmlPath));
+            // _htmlAnalyzer.DumpAnalysis(info);
+
+            foreach (var i in info)
+            {
+                Console.WriteLine($"{i.Intent} {i.DataKind} at {i.Position.Line}:{i.Position.Collumn}");
+                foreach (var (key, val) in i.Data)
+                {
+                    Console.WriteLine("\twith " + key + " = " + val);
+                }
+            }
         }
 
         static void Main(string[] args)
         {
             var host = CreateHostBuilder(args).Build();
-            IConfiguration config = host.Services.GetRequiredService<IConfiguration>();
+            // IConfiguration config = host.Services.GetRequiredService<IConfiguration>();
             host.Services.GetRequiredService<Program>().Run();
 
             // {

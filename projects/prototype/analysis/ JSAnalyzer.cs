@@ -9,11 +9,13 @@ namespace Prototype
 {
     struct OptionRaw
     {
+        public int Order { get; init; }
         public string SymbolPattern { get; init; }
         public string ValuePattern { get; init; }
         public List<int> Paths { get; init; }
         public string ActionName { get; init; }
         public bool EndOfChain { get; init; }
+        public bool SkipNonMatching { get; init; }
     }
 
     struct Option
@@ -23,6 +25,7 @@ namespace Prototype
         public List<int> Paths { get; init; }
         public Action<ASTNode> Action { get; init; }
         public bool EndOfChain { get; init; }
+        public bool SkipNonMatching { get; init; }
 
         // TODO: Add quantity
     }
@@ -40,12 +43,12 @@ namespace Prototype
             _matchers = matchers;
         }
 
-        public void Eat(ASTNode node)
+        public bool Eat(ASTNode node)
         {
             var options = _matchers?[_currentMatcher];
-            var value = node.Value ?? "";
+            var value = node.Value ?? "empty";
             var symbol = node.Symbol.Name;
-            bool haveEaten = false;
+            var haveEaten = false;
             if (!_paths.TryPeek(out int currentOption))
             {
                 currentOption = -1;
@@ -70,12 +73,23 @@ namespace Prototype
                 }
             }
 
+            for (int i = 0; i < options?.Count; i++)
+            {
+                Option option = options[i];
+                if (option.SkipNonMatching)
+                {
+                    return true;
+                }
+            }
+
             if (!haveEaten)
             {
                 _currentMatcher = 0;
                 _paths.Clear();
                 _nodes.Clear();
+                return false;
             }
+            return true;
         }
 
         private void ChainCompleted()
@@ -102,7 +116,8 @@ namespace Prototype
         {
             _configuration = configuration;
 
-            var matchers = configuration.GetSection("patterns").Get<List<List<OptionRaw>>>();
+            var matchers = configuration.GetSection("patterns").Get<IEnumerable<IEnumerable<OptionRaw>>>();
+            matchers = matchers?.Select(options => options.OrderBy(option => option.Order));
             var convertedMatchers = matchers?.Select(options =>
                 options.Select(option =>
                 {
@@ -117,7 +132,8 @@ namespace Prototype
                             method: methodInfo,
                             firstArgument: this
                         ) : (ASTNode node) => { },
-                        EndOfChain = option.EndOfChain
+                        EndOfChain = option.EndOfChain,
+                        SkipNonMatching = option.SkipNonMatching
                     };
                 }).ToList()).ToList() ?? new Matchers();
             _matcher = new TreeMatcher(convertedMatchers);
@@ -152,7 +168,7 @@ namespace Prototype
                 Position = new Position
                 {
                     Line = node.Position.Line,
-                    Col = node.Position.Column,
+                    Collumn = node.Position.Column,
                     Length = node.Span.Length,
                     FileName = _programName
                 },
@@ -168,7 +184,7 @@ namespace Prototype
                 Position = new Position
                 {
                     Line = node.Position.Line,
-                    Col = node.Position.Column,
+                    Collumn = node.Position.Column,
                     Length = node.Span.Length,
                     FileName = _programName
                 },
@@ -183,7 +199,7 @@ namespace Prototype
                 Position = new Position
                 {
                     Line = node.Position.Line,
-                    Col = node.Position.Column,
+                    Collumn = node.Position.Column,
                     Length = node.Span.Length,
                     FileName = _programName
                 },
@@ -194,7 +210,7 @@ namespace Prototype
 
         public void onArguments(ASTNode node)
         {
-            _info.Peek().Data = node.Value;
+            _info.Peek().Data["TagType"] = node.Value;
         }
 
         public void onFunctionDeclaration(ASTNode node)
@@ -204,7 +220,7 @@ namespace Prototype
                 Position = new Position
                 {
                     Line = node.Position.Line,
-                    Col = node.Position.Column,
+                    Collumn = node.Position.Column,
                     Length = node.Span.Length,
                     FileName = _programName
                 },
@@ -215,7 +231,7 @@ namespace Prototype
 
         public void onFunctionName(ASTNode node)
         {
-            _info.Peek().Data = node.Value;
+            _info.Peek().Data["Name"] = node.Value;
         }
 
         public void onIdentifier(ASTNode node)
@@ -225,27 +241,28 @@ namespace Prototype
                 Position = new Position
                 {
                     Line = node.Position.Line,
-                    Col = node.Position.Column,
+                    Collumn = node.Position.Column,
                     Length = node.Span.Length,
                     FileName = _programName
                 },
                 Intent = NodeInfo.IntentType.Want,
                 DataKind = "js-function-call",
-                Data = node.Value
             });
+            _info.Peek().Data["Name"] = node.Value;
         }
 
-        public void DumpAnalysis()
+        public IEnumerable<NodeInfo> DumpAnalysis()
         {
-            foreach (var info in _info)
-            {
-                Console.WriteLine($"{info.Intent} {info.DataKind} {info.Data} at {info.Position.Line}:{info.Position.Col}");
-            }
+            return _info.Reverse();
         }
 
         public void TraverseAST(ASTNode node)
         {
-            _matcher.Eat(node);
+            var eaten = _matcher.Eat(node);
+            if (!eaten)
+            {
+                _matcher.Eat(node);
+            }
             foreach (var child in node.Children)
             {
                 TraverseAST(child);
