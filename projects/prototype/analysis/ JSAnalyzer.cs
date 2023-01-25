@@ -19,7 +19,7 @@ namespace Prototype
     {
         public Regex Pattern { get; init; }
         public List<int> Paths { get; init; }
-        public Action Action { get; init; }
+        public Action<ASTNode> Action { get; init; }
     }
 
 
@@ -27,8 +27,7 @@ namespace Prototype
     {
         private readonly Matchers _matchers;
         private int _currentMatcher = 0;
-        private (int, int) _chainStart = (0, 0);
-        private (int, int) _chainEnd = (0, 0);
+        private Queue<ASTNode> _nodes = new Queue<ASTNode> { };
         private Stack<int> _paths = new Stack<int> { };
 
         public TreeMatcher(Matchers matchers)
@@ -49,7 +48,6 @@ namespace Prototype
             if (!_paths.TryPeek(out int currentOption))
             {
                 currentOption = -1;
-                _chainStart = (node.Position.Line, node.Position.Column);
             }
             for (int i = 0; i < options?.Count; i++)
             {
@@ -58,10 +56,10 @@ namespace Prototype
                 {
                     _currentMatcher++;
                     _paths.Push(i);
+                    _nodes.Enqueue(node);
                     haveEaten = true;
                     if (_currentMatcher == _matchers?.Count)
                     {
-                        _chainEnd = (node.Position.Line, node.Position.Column);
                         ChainCompleted();
                     }
                     break;
@@ -72,20 +70,18 @@ namespace Prototype
             {
                 _currentMatcher = 0;
                 _paths.Clear();
-                _chainStart = (0, 0);
-                _chainEnd = (0, 0);
+                _nodes.Clear();
             }
         }
 
         private void ChainCompleted()
         {
             _currentMatcher = 0;
-            var chain = _paths.Reverse().Select((optionI, matcherI) => _matchers[matcherI][optionI].Pattern);
-            foreach (var n in chain)
+            var chain = _paths.Reverse().Select((optionI, matcherI) => _matchers[matcherI][optionI]);
+            foreach (var (option, node) in chain.Zip(_nodes))
             {
-                Console.Write(n.ToString() + " ");
+                option.Action(node);
             }
-            Console.WriteLine($"{_chainStart} : {_chainEnd}");
         }
     }
 
@@ -93,7 +89,7 @@ namespace Prototype
     {
         private readonly ConnectionMultiplexer _multiplexer;
         private readonly IConfiguration _configuration;
-        private TreeMatcher matcher;
+        private TreeMatcher _matcher;
 
 
         public JSAnalyzer(ConnectionMultiplexer multiplexer, IConfiguration configuration)
@@ -112,8 +108,8 @@ namespace Prototype
                         {
                             Pattern = new Regex(option.Pattern),
                             Paths = option.Paths,
-                            Action = (Action)Delegate.CreateDelegate(
-                                type: typeof(Action),
+                            Action = (Action<ASTNode>)Delegate.CreateDelegate(
+                                type: typeof(Action<ASTNode>),
                                 method: methodInfo,
                                 firstArgument: this
                             )
@@ -125,11 +121,11 @@ namespace Prototype
                         {
                             Pattern = new Regex(option.Pattern),
                             Paths = option.Paths,
-                            Action = () => { }
+                            Action = (ASTNode node) => { }
                         };
                     }
                 }).ToList()).ToList() ?? new Matchers();
-            matcher = new TreeMatcher(convertedMatchers);
+            _matcher = new TreeMatcher(convertedMatchers);
         }
 
         public void Analyze(string program)
@@ -153,25 +149,29 @@ namespace Prototype
 
         }
 
-        private void onGetElementById()
+        public void onGetElementById(ASTNode node)
         {
             Console.WriteLine("id");
         }
 
-        private void onGetElementByClassName()
+        public void onGetElementByClassName(ASTNode node)
         {
             Console.WriteLine("class");
         }
-        private void onGetElementByTagName()
+        public void onGetElementByTagName(ASTNode node)
         {
             Console.WriteLine("tag");
         }
 
+        public void onArguments(ASTNode node)
+        {
+            Console.WriteLine(node.ToString());
+        }
 
         public void TraverseAST(ASTNode node)
         {
             // Console.WriteLine(root.ToString());
-            matcher.Eat(node);
+            _matcher.Eat(node);
             foreach (var child in node.Children)
             {
                 TraverseAST(child);
