@@ -10,16 +10,22 @@ namespace Prototype
 {
     struct OptionRaw
     {
-        public string Pattern { get; init; }
+        public string SymbolPattern { get; init; }
+        public string ValuePattern { get; init; }
         public List<int> Paths { get; init; }
         public string ActionName { get; init; }
+        public bool EndOfChain { get; init; }
     }
 
     struct Option
     {
-        public Regex Pattern { get; init; }
+        public Regex SymbolPattern { get; init; }
+        public Regex ValuePattern { get; init; }
         public List<int> Paths { get; init; }
         public Action<ASTNode> Action { get; init; }
+        public bool EndOfChain { get; init; }
+
+        // TODO: Add quantity
     }
 
 
@@ -52,13 +58,13 @@ namespace Prototype
             for (int i = 0; i < options?.Count; i++)
             {
                 var option = options[i];
-                if (option.Pattern.Match(value).Success && option.Paths.Contains(currentOption))
+                if (option.ValuePattern.Match(value).Success && option.Paths.Contains(currentOption))
                 {
                     _currentMatcher++;
                     _paths.Push(i);
                     _nodes.Enqueue(node);
                     haveEaten = true;
-                    if (_currentMatcher == _matchers?.Count)
+                    if (option.EndOfChain)
                     {
                         ChainCompleted();
                     }
@@ -87,9 +93,19 @@ namespace Prototype
 
     class JSAnalyzer : IAnalyzer
     {
+        enum State
+        {
+            None,
+            GetElementById,
+            GetElementByTagName,
+            GetElementByClassName,
+            FunctionDeclaration
+        };
+
         private readonly ConnectionMultiplexer _multiplexer;
         private readonly IConfiguration _configuration;
         private TreeMatcher _matcher;
+        private State _state;
 
 
         public JSAnalyzer(ConnectionMultiplexer multiplexer, IConfiguration configuration)
@@ -101,29 +117,19 @@ namespace Prototype
             var convertedMatchers = matchers?.Select(options =>
                 options.Select(option =>
                 {
-                    var methodInfo = this.GetType().GetMethod(option.ActionName);
-                    if (methodInfo is not null)
+                    var methodInfo = this.GetType().GetMethod(option.ActionName ?? "");
+                    return new Option
                     {
-                        return new Option
-                        {
-                            Pattern = new Regex(option.Pattern),
-                            Paths = option.Paths,
-                            Action = (Action<ASTNode>)Delegate.CreateDelegate(
-                                type: typeof(Action<ASTNode>),
-                                method: methodInfo,
-                                firstArgument: this
-                            )
-                        };
-                    }
-                    else
-                    {
-                        return new Option
-                        {
-                            Pattern = new Regex(option.Pattern),
-                            Paths = option.Paths,
-                            Action = (ASTNode node) => { }
-                        };
-                    }
+                        SymbolPattern = new Regex(option.SymbolPattern ?? ""),
+                        ValuePattern = new Regex(option.ValuePattern ?? ""),
+                        Paths = option.Paths,
+                        Action = methodInfo is not null ? (Action<ASTNode>)Delegate.CreateDelegate(
+                            type: typeof(Action<ASTNode>),
+                            method: methodInfo,
+                            firstArgument: this
+                        ) : (ASTNode node) => { },
+                        EndOfChain = option.EndOfChain
+                    };
                 }).ToList()).ToList() ?? new Matchers();
             _matcher = new TreeMatcher(convertedMatchers);
         }
@@ -151,21 +157,51 @@ namespace Prototype
 
         public void onGetElementById(ASTNode node)
         {
-            Console.WriteLine("id");
+            _state = State.GetElementById;
         }
 
         public void onGetElementByClassName(ASTNode node)
         {
-            Console.WriteLine("class");
+            _state = State.GetElementByClassName;
         }
         public void onGetElementByTagName(ASTNode node)
         {
-            Console.WriteLine("tag");
+            _state = State.GetElementByTagName;
         }
 
         public void onArguments(ASTNode node)
         {
-            Console.WriteLine(node.ToString());
+            switch (_state)
+            {
+                case State.GetElementById:
+                    {
+                        Console.WriteLine($"ID {node.ToString()}");
+                        break;
+                    }
+                case State.GetElementByClassName:
+                    {
+                        Console.WriteLine($"Class {node.ToString()}");
+                        break;
+                    }
+                case State.GetElementByTagName:
+                    {
+                        Console.WriteLine($"Tag {node.ToString()}");
+                        break;
+                    }
+            }
+            _state = State.None;
+        }
+
+        public void onFunctionDeclaration(ASTNode node)
+        {
+            _state = State.FunctionDeclaration;
+        }
+
+        public void onFunctionName(ASTNode node)
+        {
+            System.Diagnostics.Debug.Assert(_state == State.FunctionDeclaration);
+
+
         }
 
         public void TraverseAST(ASTNode node)
