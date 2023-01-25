@@ -1,7 +1,6 @@
 ﻿using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using StackExchange.Redis;
 
 namespace Prototype
 {
@@ -27,16 +26,13 @@ namespace Prototype
                 {
                     services.AddTransient<Program>();
                     services.AddTransient<JSAnalyzer>();
-                    services.AddSingleton<ConnectionMultiplexer>(provider =>
-                    {
-                        return ConnectionMultiplexer.Connect("localhost");
-                    });
                 });
         }
 
         public void Run()
         {
             _jsAnalyzer.Analyze(File.ReadAllText(JsPath));
+            _jsAnalyzer.DumpAnalysis();
         }
 
         static void Main(string[] args)

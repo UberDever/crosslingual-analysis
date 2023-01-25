@@ -1,4 +1,3 @@
-using StackExchange.Redis;
 using Hime.Redist;
 using Javascript;
 using System.Text.RegularExpressions;
@@ -43,13 +42,9 @@ namespace Prototype
 
         public void Eat(ASTNode node)
         {
-            if (node.Value is null)
-            {
-                return;
-            }
-
             var options = _matchers?[_currentMatcher];
-            var value = node.Value;
+            var value = node.Value ?? "";
+            var symbol = node.Symbol.Name;
             bool haveEaten = false;
             if (!_paths.TryPeek(out int currentOption))
             {
@@ -58,7 +53,10 @@ namespace Prototype
             for (int i = 0; i < options?.Count; i++)
             {
                 var option = options[i];
-                if (option.ValuePattern.Match(value).Success && option.Paths.Contains(currentOption))
+                if (
+                    option.SymbolPattern.Match(symbol).Success &&
+                    option.ValuePattern.Match(value).Success &&
+                    option.Paths.Contains(currentOption))
                 {
                     _currentMatcher++;
                     _paths.Push(i);
@@ -93,24 +91,15 @@ namespace Prototype
 
     class JSAnalyzer : IAnalyzer
     {
-        enum State
-        {
-            None,
-            GetElementById,
-            GetElementByTagName,
-            GetElementByClassName,
-            FunctionDeclaration
-        };
 
-        private readonly ConnectionMultiplexer _multiplexer;
         private readonly IConfiguration _configuration;
+        private string _programName = "Anon";
         private TreeMatcher _matcher;
-        private State _state;
+        private Stack<NodeInfo> _info = new Stack<NodeInfo> { };
 
 
-        public JSAnalyzer(ConnectionMultiplexer multiplexer, IConfiguration configuration)
+        public JSAnalyzer(IConfiguration configuration)
         {
-            _multiplexer = multiplexer;
             _configuration = configuration;
 
             var matchers = configuration.GetSection("patterns").Get<List<List<OptionRaw>>>();
@@ -120,8 +109,8 @@ namespace Prototype
                     var methodInfo = this.GetType().GetMethod(option.ActionName ?? "");
                     return new Option
                     {
-                        SymbolPattern = new Regex(option.SymbolPattern ?? ""),
-                        ValuePattern = new Regex(option.ValuePattern ?? ""),
+                        SymbolPattern = new Regex(option.SymbolPattern ?? ".*"),
+                        ValuePattern = new Regex(option.ValuePattern ?? ".*"),
                         Paths = option.Paths,
                         Action = methodInfo is not null ? (Action<ASTNode>)Delegate.CreateDelegate(
                             type: typeof(Action<ASTNode>),
@@ -134,9 +123,10 @@ namespace Prototype
             _matcher = new TreeMatcher(convertedMatchers);
         }
 
-        public void Analyze(string program)
+        public void Analyze(string program, string programName = "Anon")
         {
-            var lexer = new JavascriptLexer(program);
+            _programName = programName;
+            var lexer = new JavascriptLexer(program + ";");
             var parser = new JavascriptParser(lexer);
             var result = parser.Parse();
             if (result.IsSuccess)
@@ -157,56 +147,104 @@ namespace Prototype
 
         public void onGetElementById(ASTNode node)
         {
-            _state = State.GetElementById;
+            _info.Push(new NodeInfo
+            {
+                Position = new Position
+                {
+                    Line = node.Position.Line,
+                    Col = node.Position.Column,
+                    Length = node.Span.Length,
+                    FileName = _programName
+                },
+                Intent = NodeInfo.IntentType.Want,
+                DataKind = "html-element-with-id"
+            });
         }
 
         public void onGetElementByClassName(ASTNode node)
         {
-            _state = State.GetElementByClassName;
+            _info.Push(new NodeInfo
+            {
+                Position = new Position
+                {
+                    Line = node.Position.Line,
+                    Col = node.Position.Column,
+                    Length = node.Span.Length,
+                    FileName = _programName
+                },
+                Intent = NodeInfo.IntentType.Want,
+                DataKind = "html-element-with-classname"
+            });
         }
         public void onGetElementByTagName(ASTNode node)
         {
-            _state = State.GetElementByTagName;
+            _info.Push(new NodeInfo
+            {
+                Position = new Position
+                {
+                    Line = node.Position.Line,
+                    Col = node.Position.Column,
+                    Length = node.Span.Length,
+                    FileName = _programName
+                },
+                Intent = NodeInfo.IntentType.Want,
+                DataKind = "html-element-with-tagname"
+            });
         }
 
         public void onArguments(ASTNode node)
         {
-            switch (_state)
-            {
-                case State.GetElementById:
-                    {
-                        Console.WriteLine($"ID {node.ToString()}");
-                        break;
-                    }
-                case State.GetElementByClassName:
-                    {
-                        Console.WriteLine($"Class {node.ToString()}");
-                        break;
-                    }
-                case State.GetElementByTagName:
-                    {
-                        Console.WriteLine($"Tag {node.ToString()}");
-                        break;
-                    }
-            }
-            _state = State.None;
+            _info.Peek().Data = node.Value;
         }
 
         public void onFunctionDeclaration(ASTNode node)
         {
-            _state = State.FunctionDeclaration;
+            _info.Push(new NodeInfo
+            {
+                Position = new Position
+                {
+                    Line = node.Position.Line,
+                    Col = node.Position.Column,
+                    Length = node.Span.Length,
+                    FileName = _programName
+                },
+                Intent = NodeInfo.IntentType.Give,
+                DataKind = "js-function-decl"
+            });
         }
 
         public void onFunctionName(ASTNode node)
         {
-            System.Diagnostics.Debug.Assert(_state == State.FunctionDeclaration);
+            _info.Peek().Data = node.Value;
+        }
 
+        public void onIdentifier(ASTNode node)
+        {
+            _info.Push(new NodeInfo
+            {
+                Position = new Position
+                {
+                    Line = node.Position.Line,
+                    Col = node.Position.Column,
+                    Length = node.Span.Length,
+                    FileName = _programName
+                },
+                Intent = NodeInfo.IntentType.Want,
+                DataKind = "js-function-call",
+                Data = node.Value
+            });
+        }
 
+        public void DumpAnalysis()
+        {
+            foreach (var info in _info)
+            {
+                Console.WriteLine($"{info.Intent} {info.DataKind} {info.Data} at {info.Position.Line}:{info.Position.Col}");
+            }
         }
 
         public void TraverseAST(ASTNode node)
         {
-            // Console.WriteLine(root.ToString());
             _matcher.Eat(node);
             foreach (var child in node.Children)
             {
