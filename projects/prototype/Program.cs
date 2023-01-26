@@ -35,14 +35,14 @@ namespace Prototype
         public void Run()
         {
             IEnumerable<NodeInfo> info = new List<NodeInfo> { };
-            _jsAnalyzer.Analyze(File.ReadAllText(JsPath));
+            _jsAnalyzer.Analyze(File.ReadAllText(JsPath), JsPath);
             info = info.Concat(_jsAnalyzer.DumpAnalysis());
-            // _htmlAnalyzer.Analyze(File.ReadAllText(HtmlPath));
-            // _htmlAnalyzer.DumpAnalysis(info);
+            _htmlAnalyzer.Analyze(File.ReadAllText(HtmlPath), HtmlPath);
+            info = info.Concat(_htmlAnalyzer.DumpAnalysis());
 
             foreach (var i in info)
             {
-                Console.WriteLine($"{i.Intent} {i.DataKind} at {i.Position.Line}:{i.Position.Collumn}");
+                Console.WriteLine($"{i.Intent} {i.DataKind} at {i.Position.FileName}:{i.Position.Line}:{i.Position.Collumn}");
                 foreach (var (key, val) in i.Data)
                 {
                     Console.WriteLine("\twith " + key + " = " + val);

@@ -84,12 +84,17 @@ namespace Prototype
 
             if (!haveEaten)
             {
-                _currentMatcher = 0;
-                _paths.Clear();
-                _nodes.Clear();
+                Reset();
                 return false;
             }
             return true;
+        }
+
+        public void Reset()
+        {
+            _currentMatcher = 0;
+            _paths.Clear();
+            _nodes.Clear();
         }
 
         private void ChainCompleted()
@@ -142,6 +147,8 @@ namespace Prototype
         public void Analyze(string program, string programName = "Anon")
         {
             _programName = programName;
+
+            _matcher.Reset();
             var lexer = new JavascriptLexer(program + ";");
             var parser = new JavascriptParser(lexer);
             var result = parser.Parse();
@@ -175,7 +182,7 @@ namespace Prototype
                 Intent = NodeInfo.IntentType.Want,
                 DataKind = "html-element"
             });
-            _info.Peek().Data["Attribute"] = "Id";
+            _info.Peek().Data["Id"] = "<Placeholder>";
         }
 
         public void onGetElementByClassName(ASTNode node)
@@ -192,7 +199,7 @@ namespace Prototype
                 Intent = NodeInfo.IntentType.Want,
                 DataKind = "html-element"
             });
-            _info.Peek().Data["Attribute"] = "ClassName";
+            _info.Peek().Data["ClassName"] = "<Placeholder>";
         }
         public void onGetElementByTagName(ASTNode node)
         {
@@ -208,12 +215,18 @@ namespace Prototype
                 Intent = NodeInfo.IntentType.Want,
                 DataKind = "html-element"
             });
-            _info.Peek().Data["Attribute"] = "TagName";
+            _info.Peek().Data["TagName"] = "<Placeholder>";
         }
 
         public void onArguments(ASTNode node)
         {
-            _info.Peek().Data["Value"] = node.Value;
+            foreach (var (key, val) in _info.Peek().Data)
+            {
+                if (val == "<Placeholder>")
+                {
+                    _info.Peek().Data[key] = node.Value;
+                }
+            }
         }
 
         public void onFunctionDeclaration(ASTNode node)
