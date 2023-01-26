@@ -28,5 +28,7 @@ namespace Prototype
         public string DataKind { get; set; } = "";
         public Dictionary<string, string> Data { get; set; } = new Dictionary<string, string> { };
 
+        // Add quantity of gives (1, n, infinity)
+
     };
 }

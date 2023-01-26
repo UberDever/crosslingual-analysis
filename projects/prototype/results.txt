@@ -1,0 +1,406 @@
+Analysis results:
+Want js-function at tests/form.html.css.js/script.js:2:1
+	with Name = showTab
+Give js-function at tests/form.html.css.js/script.js:4:1
+	with Name = showTab
+Want html-element at tests/form.html.css.js/script.js:6:20
+	with class = tab
+Want html-element at tests/form.html.css.js/script.js:10:14
+	with id = prevBtn
+Want html-element at tests/form.html.css.js/script.js:12:14
+	with id = prevBtn
+Want html-element at tests/form.html.css.js/script.js:15:14
+	with id = nextBtn
+Want html-element at tests/form.html.css.js/script.js:17:14
+	with id = nextBtn
+Want js-function at tests/form.html.css.js/script.js:20:3
+	with Name = fixStepIndicator
+Give js-function at tests/form.html.css.js/script.js:23:1
+	with Name = nextPrev
+Want html-element at tests/form.html.css.js/script.js:25:20
+	with class = tab
+Want js-function at tests/form.html.css.js/script.js:27:18
+	with Name = validateForm
+Want html-element at tests/form.html.css.js/script.js:35:14
+	with id = regForm
+Want js-function at tests/form.html.css.js/script.js:35:40
+	with Name = submit
+Want js-function at tests/form.html.css.js/script.js:39:3
+	with Name = showTab
+Give js-function at tests/form.html.css.js/script.js:42:1
+	with Name = validateForm
+Want html-element at tests/form.html.css.js/script.js:45:16
+	with class = tab
+Want html-element at tests/form.html.css.js/script.js:46:21
+	with tag = input
+Want html-element at tests/form.html.css.js/script.js:59:14
+	with class = step
+Give js-function at tests/form.html.css.js/script.js:64:1
+	with Name = fixStepIndicator
+Want html-element at tests/form.html.css.js/script.js:66:23
+	with class = step
+Want js-function at tests/form.html.css.js/script.js:68:37
+	with Name = replace
+Give html-element at tests/form.html.css.js/index.html:10:0
+	with tag = body
+Give html-element at tests/form.html.css.js/index.html:11:2
+	with tag = form
+	with id = regForm
+	with action = 
+Give html-element at tests/form.html.css.js/index.html:13:4
+	with tag = h1
+Give html-element at tests/form.html.css.js/index.html:16:4
+	with tag = div
+	with class = tab
+Give html-element at tests/form.html.css.js/index.html:17:6
+	with tag = p
+Give html-element at tests/form.html.css.js/index.html:17:9
+	with tag = input
+	with placeholder = First name...
+	with oninput = this.className = ''
+Give html-element at tests/form.html.css.js/index.html:18:6
+	with tag = p
+Give html-element at tests/form.html.css.js/index.html:18:9
+	with tag = input
+	with placeholder = Last name...
+	with oninput = this.className = ''
+Give html-element at tests/form.html.css.js/index.html:21:4
+	with tag = div
+	with class = tab
+Give html-element at tests/form.html.css.js/index.html:22:6
+	with tag = p
+Give html-element at tests/form.html.css.js/index.html:22:9
+	with tag = input
+	with placeholder = E-mail...
+	with oninput = this.className = ''
+Give html-element at tests/form.html.css.js/index.html:23:6
+	with tag = p
+Give html-element at tests/form.html.css.js/index.html:23:9
+	with tag = input
+	with placeholder = Phone...
+	with oninput = this.className = ''
+Give html-element at tests/form.html.css.js/index.html:26:4
+	with tag = div
+	with class = tab
+Give html-element at tests/form.html.css.js/index.html:27:6
+	with tag = p
+Give html-element at tests/form.html.css.js/index.html:27:9
+	with tag = input
+	with placeholder = dd
+	with oninput = this.className = ''
+Give html-element at tests/form.html.css.js/index.html:28:6
+	with tag = p
+Give html-element at tests/form.html.css.js/index.html:28:9
+	with tag = input
+	with placeholder = mm
+	with oninput = this.className = ''
+Give html-element at tests/form.html.css.js/index.html:29:6
+	with tag = p
+Give html-element at tests/form.html.css.js/index.html:29:9
+	with tag = input
+	with placeholder = yyyy
+	with oninput = this.className = ''
+Give html-element at tests/form.html.css.js/index.html:32:4
+	with tag = div
+	with class = tab
+Give html-element at tests/form.html.css.js/index.html:33:6
+	with tag = p
+Give html-element at tests/form.html.css.js/index.html:33:9
+	with tag = input
+	with placeholder = Username...
+	with oninput = this.className = ''
+Give html-element at tests/form.html.css.js/index.html:34:6
+	with tag = p
+Give html-element at tests/form.html.css.js/index.html:34:9
+	with tag = input
+	with placeholder = Password...
+	with oninput = this.className = ''
+Give html-element at tests/form.html.css.js/index.html:37:4
+	with tag = div
+	with style = overflow:auto;
+Give html-element at tests/form.html.css.js/index.html:38:6
+	with tag = div
+	with style = float:right;
+Give html-element at tests/form.html.css.js/index.html:39:8
+	with tag = button
+	with type = button
+	with id = prevBtn
+	with onclick = nextPrev(-1)
+Give html-element at tests/form.html.css.js/index.html:40:8
+	with tag = button
+	with type = button
+	with id = nextBtn
+	with onclick = nextPrev(1)
+Give html-element at tests/form.html.css.js/index.html:45:4
+	with tag = div
+	with style = text-align:center;margin-top:40px;
+Give html-element at tests/form.html.css.js/index.html:46:6
+	with tag = span
+	with class = step
+Give html-element at tests/form.html.css.js/index.html:47:6
+	with tag = span
+	with class = step
+Give html-element at tests/form.html.css.js/index.html:48:6
+	with tag = span
+	with class = step
+Give html-element at tests/form.html.css.js/index.html:49:6
+	with tag = span
+	with class = step
+Want js-function at tests/form.html.css.js/index.html:1:1
+	with Name = nextPrev
+Want js-function at tests/form.html.css.js/index.html:1:1
+	with Name = nextPrev
+
+Resulted pairs:
+Want js-function at tests/form.html.css.js/script.js:2:1
+	with Name = showTab
+Give js-function at tests/form.html.css.js/script.js:4:1
+	with Name = showTab
+
+Want html-element at tests/form.html.css.js/script.js:6:20
+	with class = tab
+Give html-element at tests/form.html.css.js/index.html:16:4
+	with tag = div
+	with class = tab
+
+Want html-element at tests/form.html.css.js/script.js:6:20
+	with class = tab
+Give html-element at tests/form.html.css.js/index.html:21:4
+	with tag = div
+	with class = tab
+
+Want html-element at tests/form.html.css.js/script.js:6:20
+	with class = tab
+Give html-element at tests/form.html.css.js/index.html:26:4
+	with tag = div
+	with class = tab
+
+Want html-element at tests/form.html.css.js/script.js:6:20
+	with class = tab
+Give html-element at tests/form.html.css.js/index.html:32:4
+	with tag = div
+	with class = tab
+
+Want html-element at tests/form.html.css.js/script.js:10:14
+	with id = prevBtn
+Give html-element at tests/form.html.css.js/index.html:39:8
+	with tag = button
+	with type = button
+	with id = prevBtn
+	with onclick = nextPrev(-1)
+
+Want html-element at tests/form.html.css.js/script.js:12:14
+	with id = prevBtn
+Give html-element at tests/form.html.css.js/index.html:39:8
+	with tag = button
+	with type = button
+	with id = prevBtn
+	with onclick = nextPrev(-1)
+
+Want html-element at tests/form.html.css.js/script.js:15:14
+	with id = nextBtn
+Give html-element at tests/form.html.css.js/index.html:40:8
+	with tag = button
+	with type = button
+	with id = nextBtn
+	with onclick = nextPrev(1)
+
+Want html-element at tests/form.html.css.js/script.js:17:14
+	with id = nextBtn
+Give html-element at tests/form.html.css.js/index.html:40:8
+	with tag = button
+	with type = button
+	with id = nextBtn
+	with onclick = nextPrev(1)
+
+Want js-function at tests/form.html.css.js/script.js:20:3
+	with Name = fixStepIndicator
+Give js-function at tests/form.html.css.js/script.js:64:1
+	with Name = fixStepIndicator
+
+Want html-element at tests/form.html.css.js/script.js:25:20
+	with class = tab
+Give html-element at tests/form.html.css.js/index.html:16:4
+	with tag = div
+	with class = tab
+
+Want html-element at tests/form.html.css.js/script.js:25:20
+	with class = tab
+Give html-element at tests/form.html.css.js/index.html:21:4
+	with tag = div
+	with class = tab
+
+Want html-element at tests/form.html.css.js/script.js:25:20
+	with class = tab
+Give html-element at tests/form.html.css.js/index.html:26:4
+	with tag = div
+	with class = tab
+
+Want html-element at tests/form.html.css.js/script.js:25:20
+	with class = tab
+Give html-element at tests/form.html.css.js/index.html:32:4
+	with tag = div
+	with class = tab
+
+Want js-function at tests/form.html.css.js/script.js:27:18
+	with Name = validateForm
+Give js-function at tests/form.html.css.js/script.js:42:1
+	with Name = validateForm
+
+Want html-element at tests/form.html.css.js/script.js:35:14
+	with id = regForm
+Give html-element at tests/form.html.css.js/index.html:11:2
+	with tag = form
+	with id = regForm
+	with action = 
+
+Want js-function at tests/form.html.css.js/script.js:39:3
+	with Name = showTab
+Give js-function at tests/form.html.css.js/script.js:4:1
+	with Name = showTab
+
+Want html-element at tests/form.html.css.js/script.js:45:16
+	with class = tab
+Give html-element at tests/form.html.css.js/index.html:16:4
+	with tag = div
+	with class = tab
+
+Want html-element at tests/form.html.css.js/script.js:45:16
+	with class = tab
+Give html-element at tests/form.html.css.js/index.html:21:4
+	with tag = div
+	with class = tab
+
+Want html-element at tests/form.html.css.js/script.js:45:16
+	with class = tab
+Give html-element at tests/form.html.css.js/index.html:26:4
+	with tag = div
+	with class = tab
+
+Want html-element at tests/form.html.css.js/script.js:45:16
+	with class = tab
+Give html-element at tests/form.html.css.js/index.html:32:4
+	with tag = div
+	with class = tab
+
+Want html-element at tests/form.html.css.js/script.js:46:21
+	with tag = input
+Give html-element at tests/form.html.css.js/index.html:17:9
+	with tag = input
+	with placeholder = First name...
+	with oninput = this.className = ''
+
+Want html-element at tests/form.html.css.js/script.js:46:21
+	with tag = input
+Give html-element at tests/form.html.css.js/index.html:18:9
+	with tag = input
+	with placeholder = Last name...
+	with oninput = this.className = ''
+
+Want html-element at tests/form.html.css.js/script.js:46:21
+	with tag = input
+Give html-element at tests/form.html.css.js/index.html:22:9
+	with tag = input
+	with placeholder = E-mail...
+	with oninput = this.className = ''
+
+Want html-element at tests/form.html.css.js/script.js:46:21
+	with tag = input
+Give html-element at tests/form.html.css.js/index.html:23:9
+	with tag = input
+	with placeholder = Phone...
+	with oninput = this.className = ''
+
+Want html-element at tests/form.html.css.js/script.js:46:21
+	with tag = input
+Give html-element at tests/form.html.css.js/index.html:27:9
+	with tag = input
+	with placeholder = dd
+	with oninput = this.className = ''
+
+Want html-element at tests/form.html.css.js/script.js:46:21
+	with tag = input
+Give html-element at tests/form.html.css.js/index.html:28:9
+	with tag = input
+	with placeholder = mm
+	with oninput = this.className = ''
+
+Want html-element at tests/form.html.css.js/script.js:46:21
+	with tag = input
+Give html-element at tests/form.html.css.js/index.html:29:9
+	with tag = input
+	with placeholder = yyyy
+	with oninput = this.className = ''
+
+Want html-element at tests/form.html.css.js/script.js:46:21
+	with tag = input
+Give html-element at tests/form.html.css.js/index.html:33:9
+	with tag = input
+	with placeholder = Username...
+	with oninput = this.className = ''
+
+Want html-element at tests/form.html.css.js/script.js:46:21
+	with tag = input
+Give html-element at tests/form.html.css.js/index.html:34:9
+	with tag = input
+	with placeholder = Password...
+	with oninput = this.className = ''
+
+Want html-element at tests/form.html.css.js/script.js:59:14
+	with class = step
+Give html-element at tests/form.html.css.js/index.html:46:6
+	with tag = span
+	with class = step
+
+Want html-element at tests/form.html.css.js/script.js:59:14
+	with class = step
+Give html-element at tests/form.html.css.js/index.html:47:6
+	with tag = span
+	with class = step
+
+Want html-element at tests/form.html.css.js/script.js:59:14
+	with class = step
+Give html-element at tests/form.html.css.js/index.html:48:6
+	with tag = span
+	with class = step
+
+Want html-element at tests/form.html.css.js/script.js:59:14
+	with class = step
+Give html-element at tests/form.html.css.js/index.html:49:6
+	with tag = span
+	with class = step
+
+Want html-element at tests/form.html.css.js/script.js:66:23
+	with class = step
+Give html-element at tests/form.html.css.js/index.html:46:6
+	with tag = span
+	with class = step
+
+Want html-element at tests/form.html.css.js/script.js:66:23
+	with class = step
+Give html-element at tests/form.html.css.js/index.html:47:6
+	with tag = span
+	with class = step
+
+Want html-element at tests/form.html.css.js/script.js:66:23
+	with class = step
+Give html-element at tests/form.html.css.js/index.html:48:6
+	with tag = span
+	with class = step
+
+Want html-element at tests/form.html.css.js/script.js:66:23
+	with class = step
+Give html-element at tests/form.html.css.js/index.html:49:6
+	with tag = span
+	with class = step
+
+Want js-function at tests/form.html.css.js/index.html:1:1
+	with Name = nextPrev
+Give js-function at tests/form.html.css.js/script.js:23:1
+	with Name = nextPrev
+
+Want js-function at tests/form.html.css.js/index.html:1:1
+	with Name = nextPrev
+Give js-function at tests/form.html.css.js/script.js:23:1
+	with Name = nextPrev
+

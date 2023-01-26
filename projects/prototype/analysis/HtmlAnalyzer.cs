@@ -39,7 +39,7 @@ namespace Prototype
                     Intent = NodeInfo.IntentType.Give,
                     DataKind = "html-element"
                 };
-                info.Data["Tag"] = node.OriginalName;
+                info.Data["tag"] = node.OriginalName;
                 foreach (var attr in node.Attributes)
                 {
                     info.Data[attr.OriginalName] = attr.Value;

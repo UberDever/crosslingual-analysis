@@ -182,7 +182,7 @@ namespace Prototype
                 Intent = NodeInfo.IntentType.Want,
                 DataKind = "html-element"
             });
-            _info.Peek().Data["Id"] = "<Placeholder>";
+            _info.Peek().Data["id"] = "<Placeholder>";
         }
 
         public void onGetElementByClassName(ASTNode node)
@@ -199,7 +199,7 @@ namespace Prototype
                 Intent = NodeInfo.IntentType.Want,
                 DataKind = "html-element"
             });
-            _info.Peek().Data["ClassName"] = "<Placeholder>";
+            _info.Peek().Data["class"] = "<Placeholder>";
         }
         public void onGetElementByTagName(ASTNode node)
         {
@@ -215,7 +215,7 @@ namespace Prototype
                 Intent = NodeInfo.IntentType.Want,
                 DataKind = "html-element"
             });
-            _info.Peek().Data["TagName"] = "<Placeholder>";
+            _info.Peek().Data["tag"] = "<Placeholder>";
         }
 
         public void onArguments(ASTNode node)
@@ -224,7 +224,7 @@ namespace Prototype
             {
                 if (val == "<Placeholder>")
                 {
-                    _info.Peek().Data[key] = node.Value;
+                    _info.Peek().Data[key] = node.Value.Replace("\"", "");
                 }
             }
         }
@@ -241,7 +241,7 @@ namespace Prototype
                     FileName = _programName
                 },
                 Intent = NodeInfo.IntentType.Give,
-                DataKind = "js-function-decl"
+                DataKind = "js-function"
             });
         }
 
@@ -262,7 +262,7 @@ namespace Prototype
                     FileName = _programName
                 },
                 Intent = NodeInfo.IntentType.Want,
-                DataKind = "js-function-call",
+                DataKind = "js-function",
             });
             _info.Peek().Data["Name"] = node.Value;
         }

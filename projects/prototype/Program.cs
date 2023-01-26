@@ -40,6 +40,8 @@ namespace Prototype
             _htmlAnalyzer.Analyze(File.ReadAllText(HtmlPath), HtmlPath);
             info = info.Concat(_htmlAnalyzer.DumpAnalysis());
 
+            Console.WriteLine("Analysis results:");
+
             foreach (var i in info)
             {
                 Console.WriteLine($"{i.Intent} {i.DataKind} at {i.Position.FileName}:{i.Position.Line}:{i.Position.Collumn}");
@@ -47,6 +49,30 @@ namespace Prototype
                 {
                     Console.WriteLine("\twith " + key + " = " + val);
                 }
+            }
+
+            Console.WriteLine();
+            Console.WriteLine("Resulted pairs:");
+
+            var linker = new Linker(info);
+            var links = linker.GetLinks();
+
+            foreach (var link in links)
+            {
+                var want = link.Item1;
+                var give = link.Item2;
+                Console.WriteLine($"{want.Intent} {want.DataKind} at {want.Position.FileName}:{want.Position.Line}:{want.Position.Collumn}");
+                foreach (var (key, val) in want.Data)
+                {
+                    Console.WriteLine("\twith " + key + " = " + val);
+                }
+
+                Console.WriteLine($"{give.Intent} {give.DataKind} at {give.Position.FileName}:{give.Position.Line}:{give.Position.Collumn}");
+                foreach (var (key, val) in give.Data)
+                {
+                    Console.WriteLine("\twith " + key + " = " + val);
+                }
+                Console.WriteLine();
             }
         }
 
