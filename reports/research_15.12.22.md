@@ -17,5 +17,7 @@
 
 [PEG Grammars](https://en.wikipedia.org/wiki/Parsing_expression_grammar)
 
+[Cross-Language Code Search using Static and Dynamic Analyses](https://dl.acm.org/doi/pdf/10.1145/3468264.3468538)
+
 [Lightweight Multi-Language Syntax Transformation
 with Parser Parser Combinators](https://dl.acm.org/doi/pdf/10.1145/3314221.3314589)
