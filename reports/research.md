@@ -1,3 +1,7 @@
+# Questions
+
+1. Is accuracy of the analysis matter?
+
 # Insights
 
 Как я понимаю, задача семантического анализа мультиязыкового кода делится на:
@@ -12,6 +16,7 @@
 1. Использование информации
     - Дамп в машино-читаемый формат
     - Интеграция в виде плагина
+
 # Sources
 
 [Nemerle](http://nemerle.org/About) CLR managed language with extensive preprocessing stage, like lisp macros
