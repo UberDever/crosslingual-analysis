@@ -1,7 +1,5 @@
 # Questions
 
-1. Is accuracy of the analysis matter?
-
 # Insights
 
 Как я понимаю, задача семантического анализа мультиязыкового кода делится на:
