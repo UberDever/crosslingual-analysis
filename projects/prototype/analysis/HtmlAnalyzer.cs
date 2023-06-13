@@ -32,7 +32,7 @@ namespace Prototype
                     Position = new Position
                     {
                         Line = node.Line,
-                        Collumn = node.LinePosition,
+                        Column = node.LinePosition,
                         Length = 0,
                         FileName = _programName
                     },

@@ -1,6 +1,7 @@
 obj
 bin
-.vscode
+**/.vscode
+**/.idea
 *.bin
 tz.txt
 **/obj/

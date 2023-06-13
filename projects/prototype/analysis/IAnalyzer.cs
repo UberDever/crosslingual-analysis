@@ -9,7 +9,7 @@ namespace Prototype
     class Position
     {
         public int Line { get; init; }
-        public int Collumn { get; init; }
+        public int Column { get; init; }
         public int Length { get; init; }
         public string FileName { get; init; } = "";
     }

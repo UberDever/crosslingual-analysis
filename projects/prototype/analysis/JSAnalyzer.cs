@@ -175,7 +175,7 @@ namespace Prototype
                 Position = new Position
                 {
                     Line = node.Position.Line,
-                    Collumn = node.Position.Column,
+                    Column = node.Position.Column,
                     Length = node.Span.Length,
                     FileName = _programName
                 },
@@ -192,7 +192,7 @@ namespace Prototype
                 Position = new Position
                 {
                     Line = node.Position.Line,
-                    Collumn = node.Position.Column,
+                    Column = node.Position.Column,
                     Length = node.Span.Length,
                     FileName = _programName
                 },
@@ -208,7 +208,7 @@ namespace Prototype
                 Position = new Position
                 {
                     Line = node.Position.Line,
-                    Collumn = node.Position.Column,
+                    Column = node.Position.Column,
                     Length = node.Span.Length,
                     FileName = _programName
                 },
@@ -236,7 +236,7 @@ namespace Prototype
                 Position = new Position
                 {
                     Line = node.Position.Line,
-                    Collumn = node.Position.Column,
+                    Column = node.Position.Column,
                     Length = node.Span.Length,
                     FileName = _programName
                 },
@@ -257,7 +257,7 @@ namespace Prototype
                 Position = new Position
                 {
                     Line = node.Position.Line,
-                    Collumn = node.Position.Column,
+                    Column = node.Position.Column,
                     Length = node.Span.Length,
                     FileName = _programName
                 },
