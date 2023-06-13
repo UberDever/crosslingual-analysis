@@ -1,0 +1,66 @@
+{
+  "runtimeTarget": {
+    "name": ".NETCoreApp,Version=v2.0",
+    "signature": ""
+  },
+  "compilationOptions": {},
+  "targets": {
+    ".NETCoreApp,Version=v2.0": {
+      "himecc/3.5.1": {
+        "dependencies": {
+          "Hime.Redist": "3.5.1",
+          "Hime.SDK": "3.5.1"
+        },
+        "runtime": {
+          "himecc.dll": {}
+        }
+      },
+      "System.CodeDom/4.4.0": {
+        "runtime": {
+          "lib/netstandard2.0/System.CodeDom.dll": {
+            "assemblyVersion": "4.0.0.0",
+            "fileVersion": "4.6.25519.3"
+          }
+        }
+      },
+      "Hime.Redist/3.5.1": {
+        "runtime": {
+          "Hime.Redist.dll": {}
+        }
+      },
+      "Hime.SDK/3.5.1": {
+        "dependencies": {
+          "Hime.Redist": "3.5.1",
+          "System.CodeDom": "4.4.0"
+        },
+        "runtime": {
+          "Hime.SDK.dll": {}
+        }
+      }
+    }
+  },
+  "libraries": {
+    "himecc/3.5.1": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "System.CodeDom/4.4.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-2sCCb7doXEwtYAbqzbF/8UAeDRMNmPaQbU2q50Psg1J9KzumyVVCgKQY8s53WIPTufNT0DpSe9QRvVjOzfDWBA==",
+      "path": "system.codedom/4.4.0",
+      "hashPath": "system.codedom.4.4.0.nupkg.sha512"
+    },
+    "Hime.Redist/3.5.1": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "Hime.SDK/3.5.1": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    }
+  }
+}

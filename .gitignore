@@ -3,5 +3,8 @@ bin
 .vscode
 *.bin
 tz.txt
+**/obj/
+**/bin/
+**/compiled/
 
 .fake

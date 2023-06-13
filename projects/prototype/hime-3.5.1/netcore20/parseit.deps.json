@@ -1,0 +1,36 @@
+{
+  "runtimeTarget": {
+    "name": ".NETCoreApp,Version=v2.0",
+    "signature": ""
+  },
+  "compilationOptions": {},
+  "targets": {
+    ".NETCoreApp,Version=v2.0": {
+      "parseit/3.5.1": {
+        "dependencies": {
+          "Hime.Redist": "3.5.1"
+        },
+        "runtime": {
+          "parseit.dll": {}
+        }
+      },
+      "Hime.Redist/3.5.1": {
+        "runtime": {
+          "Hime.Redist.dll": {}
+        }
+      }
+    }
+  },
+  "libraries": {
+    "parseit/3.5.1": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "Hime.Redist/3.5.1": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    }
+  }
+}
