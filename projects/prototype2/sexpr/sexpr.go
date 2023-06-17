@@ -174,6 +174,7 @@ func traversePreorderRec(onEnter Action, onExit Action, cur Box) {
 	}
 }
 
+// TODO: If I ever would need this - this doesn't work for cons'ed cells
 func TraversePostorder(root Box, onEnter Action, onExit Action) {
 	traversePostorderRec(onEnter, onExit, root)
 }
@@ -186,7 +187,7 @@ func traversePostorderRec(onEnter Action, onExit Action, cur Box) {
 	children := cur
 	for c := Car(children); c.Data != nil; c = Car(children) {
 		children = Cdr(children)
-		traversePreorderRec(onEnter, onExit, c)
+		traversePostorderRec(onEnter, onExit, c)
 	}
 	onEnter(cur)
 	onExit(cur)

@@ -40,6 +40,7 @@ func TestPreorder(t *testing.T) {
 					S("+", 93, 88),
 					S("+", 12, -70),
 				)))
+	expected := ` (ProgramRoot (Function main (Body (+ 74 99) (+ 93 88) (+ 12 -70)))) `
 
 	str := strings.Builder{}
 	onEnter := func(node Box) {
@@ -63,6 +64,8 @@ func TestPreorder(t *testing.T) {
 		}
 	}
 
-	TraversePostorder(root, onEnter, onExit)
-	println(PrettifySexpr(str.String()))
+	TraversePreorder(root, onEnter, onExit)
+	if MinifySexpr(expected) != MinifySexpr(str.String()) {
+		t.Fatalf("Not equal:\n%s\n%s", PrettifySexpr(str.String()), PrettifySexpr(expected))
+	}
 }
