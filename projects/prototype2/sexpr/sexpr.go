@@ -174,34 +174,20 @@ func traversePreorderRec(onEnter Action, onExit Action, cur Box) {
 	}
 }
 
-// // expects tree with nodes of following structure:
-// // (NodeType Child1 Child2... ChildN)
-// func TraversePostorder(root Box, onEnter Action, onExit Action) {
-// 	traversePostorderRec(onEnter, onExit, root)
-// }
+func TraversePostorder(root Box, onEnter Action, onExit Action) {
+	traversePostorderRec(onEnter, onExit, root)
+}
 
-// func traversePostorderRec(onEnter Action, onExit Action, cur Box) {
-// 	if cur.Data == nil {
-// 		return
-// 	}
+func traversePostorderRec(onEnter Action, onExit Action, cur Box) {
+	if cur.Data == nil {
+		return
+	}
 
-// 	nodeType := -1
-// 	head := Car(cur)
-// 	switch head.Data.(type) {
-// 	case int:
-// 		nodeType = head.Data.(int)
-// 	default:
-// 		onEnter(nodeType, head)
-// 		onExit(nodeType, head)
-// 		return
-// 	}
-
-// 	children := Cdr(cur)
-// 	for c := Car(children); c.Data != nil; c = Car(children) {
-// 		children = Cdr(children)
-// 		traversePostorderRec(onEnter, onExit, c)
-// 	}
-
-// 	onEnter(nodeType, children)
-// 	onExit(nodeType, children)
-// }
+	children := cur
+	for c := Car(children); c.Data != nil; c = Car(children) {
+		children = Cdr(children)
+		traversePreorderRec(onEnter, onExit, c)
+	}
+	onEnter(cur)
+	onExit(cur)
+}

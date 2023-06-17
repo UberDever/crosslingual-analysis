@@ -63,6 +63,6 @@ func TestPreorder(t *testing.T) {
 		}
 	}
 
-	TraversePreorder(root, onEnter, onExit)
+	TraversePostorder(root, onEnter, onExit)
 	println(PrettifySexpr(str.String()))
 }
