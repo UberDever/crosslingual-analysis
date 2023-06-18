@@ -7,5 +7,6 @@ tz.txt
 **/obj/
 **/bin/
 **/compiled/
+*:Zone.Identifier
 
 .fake

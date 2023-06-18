@@ -1,0 +1,24 @@
+
+## Несрочно неважно
+
+## Несрочно важно
+
+[] Изменить описание про MLSA в итоговой ВКР
+[] Почитать https://arxiv.org/abs/1808.01210
+
+## Срочно неважно
+
+[] Сделать разноплановые тесты на прототип 2
+
+## Срочно важно
+
+[] Отчет по 2 семестру
+[] Отчет: Do another prototype, consult language and implications of that (maybe go for abstract analyzer in something simple like Go?)
+[] Отчет: Do prototype for at least three scenarious, all different kind
+[] Отчет: Test, maybe benchmark stuff
+[] Отчет: Write discussion basically (maybe not full)
+[x] Прототип 2, гетерогенный лист
+[] Прототип 2, семантическая сеть и анализатор
+[] Прототип 2, юзкейс 1
+[] Прототип 2, юзкейс 2
+[] Прототип 2, юзкейс 3

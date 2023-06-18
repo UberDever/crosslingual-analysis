@@ -50,6 +50,16 @@ with Parser Parser Combinators](https://dl.acm.org/doi/pdf/10.1145/3314221.33145
 
 [Deep Learning for Source Code Modeling and Generation: Models, Applications and Challenges](https://arxiv.org/pdf/2002.05442.pdf)
 
+[An empirical analysis of the utilization of multiple programming languages in open source projects](https://dl.acm.org/doi/abs/10.1145/2745802.2745805)
+
+[On multi-language software development, cross-language links and accompanying tools: a survey of professional software developers](https://jserd.springeropen.com/articles/10.1186/s40411-017-0035-z)
+
+[POLYCRUISE: A Cross-Language Dynamic Information Flow Analysis](https://chapering.github.io/pubs/sec22.pdf)
+
+[Cross-Language Support Mechanisms Significantly Aid Software Development](https://link.springer.com/chapter/10.1007/978-3-642-33666-9_12#citeas)
+
+[Mulang](https://mumuki.github.io/mulang/)
+
 When it comes to semantic information representation in the context of programming languages, there are several main kinds of models that are commonly used. These models aim to capture the meaning and structure of programs to enable various analysis and processing tasks. Here are some of the prominent models:
 
 1. Abstract Syntax Tree (AST): An AST represents the hierarchical structure of a program by abstracting away the low-level details. It captures the syntax and the relationships between different components of the program, such as statements, expressions, and declarations. ASTs are widely used in compilers, static analyzers, and program transformations.
@@ -66,3 +76,19 @@ When it comes to semantic information representation in the context of programmi
 1. Intermediate Representations (IR): Intermediate representations are language-independent representations of programs that are closer to machine-executable code than the high-level source code. They abstract away language-specific details and provide a common representation for program analysis and transformations. Examples of IRs include LLVM IR, Java bytecode, and Microsoft Intermediate Language (MSIL).
 
 Interesting: AST, DFG, Call graph, Abstract interpretation, ontologies
+Also: [Graphlist](https://blog.scitools.com/graphlist/)
+
+Use-cases types:
+
+1. Language Interoperability: use case is to ensure proper interoperability between different language components
+    - Type Compatibility: Code analysis tools can analyze the type systems of different languages and check for type compatibility when passing data or invoking functions across language boundaries
+    - Language-Specific Constructs: Different languages have their own idioms, data structures, and syntax. 
+    - API Conformance: In a multi-language codebase, it's common to have components that expose APIs to interact with other language modules.
+1. Dependency Analysis: Codebases with multiple languages often have dependencies between different components written in different languages
+    - Cross-Language Dependency Tracking: Code analysis tools can examine the codebase and identify dependencies between different language modules
+    - Missing Dependency Detection: When introducing changes to a multi-language codebase, it's essential to ensure that all necessary dependencies are correctly included
+    - Mismatched Dependency Versions: In a multi-language codebase, different components may rely on specific versions of libraries or frameworks
+1. Security Analysis: Analyzing code that combines multiple languages is crucial for detecting security vulnerabilities
+1. Cross-Language Documentation Generation: Documentation is essential for understanding and maintaining codebases
+1. Code Migration and Porting: When migrating or porting code from one language to another, code analysis plays a crucial role
+1. Metrics
