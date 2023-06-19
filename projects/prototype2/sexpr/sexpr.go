@@ -7,7 +7,16 @@ import (
 )
 
 type Box struct {
-	Data interface{}
+	Data any
+}
+
+func (v Box) IsAtom() bool {
+	switch v.Data.(type) {
+	case cell:
+		return false
+	default:
+		return true
+	}
 }
 
 func (v Box) StringReadable() string {
@@ -34,7 +43,7 @@ func (v Box) StringReadable() string {
 	}
 
 	TraversePreorder(v, onEnter, onExit)
-	return str.String()
+	return PrettifySexpr(str.String())
 }
 
 func (v Box) String() string {
@@ -206,18 +215,17 @@ func traversePreorderRec(onEnter Action, onExit Action, cur Box) {
 	}
 }
 
-func TraversePostorder(root Box, onEnter Action, onExit Action) {
-	traversePostorderRec(onEnter, onExit, root)
+func TraversePostorder(root Box, onEnter Action) {
+	traversePostorderRec(onEnter, root)
 }
 
-func traversePostorderRec(onEnter Action, onExit Action, cur Box) {
+func traversePostorderRec(onEnter Action, cur Box) {
 	c := Car(cur)
 	if c.Data == nil {
 		return
 	}
 
-	traversePostorderRec(onEnter, onExit, Cdr(cur))
-	traversePostorderRec(onEnter, onExit, c)
+	traversePostorderRec(onEnter, Cdr(cur))
+	traversePostorderRec(onEnter, c)
 	onEnter(c)
-	onExit(c)
 }
