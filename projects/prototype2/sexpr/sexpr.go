@@ -3,10 +3,38 @@ package sexpr
 import (
 	"fmt"
 	"strings"
+	"unicode"
 )
 
 type Box struct {
 	Data interface{}
+}
+
+func (v Box) StringReadable() string {
+	str := strings.Builder{}
+	onEnter := func(node Box) {
+		switch node.Data.(type) {
+		case string:
+			str.WriteString(node.Data.(string))
+			str.WriteByte(' ')
+		case int:
+			str.WriteString(fmt.Sprint(node.Data.(int)))
+			str.WriteByte(' ')
+		default:
+			str.WriteByte('(')
+		}
+	}
+	onExit := func(node Box) {
+		switch node.Data.(type) {
+		case string:
+		case int:
+		default:
+			str.WriteByte(')')
+		}
+	}
+
+	TraversePreorder(v, onEnter, onExit)
+	return str.String()
 }
 
 func (v Box) String() string {
@@ -117,6 +145,10 @@ func PrettifySexpr(sexpr string) string {
 		} else if sexpr[i] == ')' {
 			depth--
 			formatted.WriteByte(')')
+		} else if unicode.IsSpace(rune(sexpr[i])) {
+			if i < len(sexpr)-1 && sexpr[i+1] != ')' {
+				formatted.WriteByte(sexpr[i])
+			}
 		} else {
 			formatted.WriteByte(sexpr[i])
 		}
@@ -174,21 +206,18 @@ func traversePreorderRec(onEnter Action, onExit Action, cur Box) {
 	}
 }
 
-// TODO: If I ever would need this - this doesn't work for cons'ed cells
 func TraversePostorder(root Box, onEnter Action, onExit Action) {
 	traversePostorderRec(onEnter, onExit, root)
 }
 
 func traversePostorderRec(onEnter Action, onExit Action, cur Box) {
-	if cur.Data == nil {
+	c := Car(cur)
+	if c.Data == nil {
 		return
 	}
 
-	children := cur
-	for c := Car(children); c.Data != nil; c = Car(children) {
-		children = Cdr(children)
-		traversePostorderRec(onEnter, onExit, c)
-	}
-	onEnter(cur)
-	onExit(cur)
+	traversePostorderRec(onEnter, onExit, Cdr(cur))
+	traversePostorderRec(onEnter, onExit, c)
+	onEnter(c)
+	onExit(c)
 }

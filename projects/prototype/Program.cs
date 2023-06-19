@@ -4,8 +4,6 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Prototype
 {
-
-
     class Program
     {
         private const string HtmlPath = "tests/form.html.css.js/index.html";
