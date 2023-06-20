@@ -216,7 +216,8 @@ func analyzeCsharp(ast Box) []node {
 
 	Strings := util.NewStack[string]()
 	Types := util.NewStack[Box]()
-	// Arguments := util.NewStack[Box]()
+	Arguments := util.NewStack[Box]()
+	Generics := util.NewStack[Box]()
 
 	onEnter := func(n Box) {
 		if !n.IsAtom() {
@@ -229,17 +230,33 @@ func analyzeCsharp(ast Box) []node {
 			return
 		}
 
+		// TODO: Do appropriate data structures here
 		switch s {
 		case ".Type":
 			Types.Push(S(".Type", Strings.ForcePop()))
 		case ".ArgDeclaration":
 			args := S()
+			tmp := util.NewStack[Box]()
 			for !Types.IsEmpty() {
 				v, _ := Types.Pop()
-				args = Cons(Car(Cdr(v)), args)
-				fmt.Println(v.String())
+				tmp.Push(Car(Cdr(v)))
 			}
-			fmt.Println(args)
+			for !tmp.IsEmpty() {
+				args = Cons(tmp.ForcePop(), args)
+			}
+			Arguments.Push(args)
+		case ".TypedMemberDeclaration":
+			generic := S()
+			tmp := util.NewStack[Box]()
+			for !Types.IsEmpty() {
+				v, _ := Types.Pop()
+				tmp.Push(Car(Cdr(v)))
+			}
+			for !tmp.IsEmpty() {
+				generic = Cons(tmp.ForcePop(), generic)
+			}
+			Generics.Push(generic)
+			fmt.Println(generic)
 		}
 	}
 	sexpr.TraversePostorder(ast, onEnter)
