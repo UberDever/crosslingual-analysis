@@ -12,6 +12,8 @@ type Sexpr struct {
 
 func (v Sexpr) IsAtom() bool {
 	switch v.Data.(type) {
+	case Sexpr:
+		return false
 	case cell:
 		return false
 	default:
