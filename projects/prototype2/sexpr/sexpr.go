@@ -6,11 +6,11 @@ import (
 	"unicode"
 )
 
-type Box struct {
+type Sexpr struct {
 	Data any
 }
 
-func (v Box) IsAtom() bool {
+func (v Sexpr) IsAtom() bool {
 	switch v.Data.(type) {
 	case cell:
 		return false
@@ -19,9 +19,13 @@ func (v Box) IsAtom() bool {
 	}
 }
 
-func (v Box) StringReadable() string {
+func (v Sexpr) IsNil() bool {
+	return v.Data == nil
+}
+
+func (v Sexpr) StringReadable() string {
 	str := strings.Builder{}
-	onEnter := func(node Box) {
+	onEnter := func(node Sexpr) {
 		switch node.Data.(type) {
 		case string:
 			str.WriteString(node.Data.(string))
@@ -33,7 +37,7 @@ func (v Box) StringReadable() string {
 			str.WriteByte('(')
 		}
 	}
-	onExit := func(node Box) {
+	onExit := func(node Sexpr) {
 		switch node.Data.(type) {
 		case string:
 		case int:
@@ -46,8 +50,8 @@ func (v Box) StringReadable() string {
 	return PrettifySexpr(str.String())
 }
 
-func (v Box) String() string {
-	toString := func(v Box) string {
+func (v Sexpr) String() string {
+	toString := func(v Sexpr) string {
 		switch v.Data.(type) {
 		case int:
 			return fmt.Sprint(v.Data)
@@ -59,7 +63,7 @@ func (v Box) String() string {
 		return ""
 	}
 	s := strings.Builder{}
-	vStack := make([]Box, 0, 64)
+	vStack := make([]Sexpr, 0, 64)
 	vStack = append(vStack, v)
 	branchesWalked := make([]int, 0, 32)
 	branchesWalked = append(branchesWalked, 0)
@@ -98,46 +102,68 @@ func (v Box) String() string {
 }
 
 type cell struct {
-	lhs Box
-	rhs Box
+	lhs Sexpr
+	rhs Sexpr
 }
 
-func S(list ...any) Box {
+func S(list ...any) Sexpr {
 	if len(list) == 0 {
-		return Box{nil}
+		return Sexpr{nil}
 	}
-	box := Box{}
+	box := Sexpr{}
 	switch list[0].(type) {
-	case Box:
-		box = list[0].(Box)
+	case Sexpr:
+		box = list[0].(Sexpr)
 	default:
 		box.Data = list[0]
 	}
 	return Cons(box, S(list[1:]...))
 }
 
-func Cons(lhs Box, rhs Box) Box {
-	return Box{cell{lhs: lhs, rhs: rhs}}
+func Cons(lhs any, rhs any) Sexpr {
+	var l, r Sexpr
+	switch lhs.(type) {
+	case Sexpr:
+		l = lhs.(Sexpr)
+	default:
+		l = Sexpr{lhs}
+	}
+	switch rhs.(type) {
+	case Sexpr:
+		r = rhs.(Sexpr)
+	default:
+		r = Sexpr{rhs}
+	}
+	return Sexpr{cell{lhs: l, rhs: r}}
 }
 
-func Car(v Box) Box {
+func Car(v Sexpr) Sexpr {
 	switch v.Data.(type) {
 	case cell:
 		unboxed := v.Data.(cell)
 		return unboxed.lhs
 	default:
-		return Box{nil}
+		return Sexpr{nil}
 	}
 }
 
-func Cdr(v Box) Box {
+func Cdr(v Sexpr) Sexpr {
 	switch v.Data.(type) {
 	case cell:
 		unboxed := v.Data.(cell)
 		return unboxed.rhs
 	default:
-		return Box{nil}
+		return Sexpr{nil}
 	}
+}
+
+func Equals(lhs Sexpr, rhs Sexpr) bool {
+	if lhs.IsAtom() || rhs.IsAtom() {
+		return lhs.Data == rhs.Data
+	}
+
+	return Equals(Car(lhs), Car(rhs)) &&
+		Equals(Cdr(lhs), Cdr(rhs))
 }
 
 func PrettifySexpr(sexpr string) string {
@@ -195,13 +221,13 @@ func MinifySexpr(s string) string {
 	return formatted.String()
 }
 
-type Action func(Box)
+type Action func(Sexpr)
 
-func TraversePreorder(root Box, onEnter Action, onExit Action) {
+func TraversePreorder(root Sexpr, onEnter Action, onExit Action) {
 	traversePreorderRec(onEnter, onExit, root)
 }
 
-func traversePreorderRec(onEnter Action, onExit Action, cur Box) {
+func traversePreorderRec(onEnter Action, onExit Action, cur Sexpr) {
 	if cur.Data == nil {
 		return
 	}
@@ -215,11 +241,11 @@ func traversePreorderRec(onEnter Action, onExit Action, cur Box) {
 	}
 }
 
-func TraversePostorder(root Box, onEnter Action) {
+func TraversePostorder(root Sexpr, onEnter Action) {
 	traversePostorderRec(onEnter, root)
 }
 
-func traversePostorderRec(onEnter Action, cur Box) {
+func traversePostorderRec(onEnter Action, cur Sexpr) {
 	c := Car(cur)
 	if c.Data == nil {
 		return

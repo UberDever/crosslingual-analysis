@@ -8,9 +8,9 @@ import (
 	"prototype2/util"
 )
 
-type Box = sexpr.Box
+type Sexpr = sexpr.Sexpr
 
-func Usecase1_CSharp() Box {
+func Usecase1_CSharp() Sexpr {
 	S := sexpr.S
 	return S(".TypeDeclaration",
 		S(".Attributes",
@@ -112,7 +112,7 @@ func Usecase1_CSharp() Box {
 			)))
 }
 
-func Usecase1_JS() Box {
+func Usecase1_JS() Sexpr {
 	S := sexpr.S
 	return S(".Program",
 		S(".VariableStatement", S(".VariableDeclarationList",
@@ -202,24 +202,24 @@ func Usecase1_JS() Box {
 	)
 }
 
-func Usecase1_Analyzer(csharpAST Box, jsAST Box) []node {
-	nodes := make([]node, 0, 128)
+func Usecase1_Analyzer(csharpAST Sexpr, jsAST Sexpr) []module {
+	nodes := make([]module, 0, 128)
 	nodes = append(nodes, analyzeCsharp(csharpAST)...)
 	nodes = append(nodes, analyzeJS(jsAST)...)
 	return nodes
 }
 
-func analyzeCsharp(ast Box) []node {
-	nodes := make([]node, 0, 128)
+func analyzeCsharp(ast Sexpr) []module {
+	nodes := make([]module, 0, 128)
 	S := sexpr.S
 	Cons, Cdr, Car := sexpr.Cons, sexpr.Cdr, sexpr.Car
 
 	Strings := util.NewStack[string]()
-	Types := util.NewStack[Box]()
-	Arguments := util.NewStack[Box]()
-	Generics := util.NewStack[Box]()
+	Types := util.NewStack[Sexpr]()
+	Arguments := util.NewStack[Sexpr]()
+	Generics := util.NewStack[Sexpr]()
 
-	onEnter := func(n Box) {
+	onEnter := func(n Sexpr) {
 		if !n.IsAtom() {
 			return
 		}
@@ -236,7 +236,7 @@ func analyzeCsharp(ast Box) []node {
 			Types.Push(S(".Type", Strings.ForcePop()))
 		case ".ArgDeclaration":
 			args := S()
-			tmp := util.NewStack[Box]()
+			tmp := util.NewStack[Sexpr]()
 			for !Types.IsEmpty() {
 				v, _ := Types.Pop()
 				tmp.Push(Car(Cdr(v)))
@@ -247,7 +247,7 @@ func analyzeCsharp(ast Box) []node {
 			Arguments.Push(args)
 		case ".TypedMemberDeclaration":
 			generic := S()
-			tmp := util.NewStack[Box]()
+			tmp := util.NewStack[Sexpr]()
 			for !Types.IsEmpty() {
 				v, _ := Types.Pop()
 				tmp.Push(Car(Cdr(v)))
@@ -264,10 +264,10 @@ func analyzeCsharp(ast Box) []node {
 	return nodes
 }
 
-func analyzeJS(ast Box) []node {
-	nodes := make([]node, 0, 128)
+func analyzeJS(ast Sexpr) []module {
+	nodes := make([]module, 0, 128)
 
-	onEnter := func(n Box) {
+	onEnter := func(n Sexpr) {
 		if !n.IsAtom() {
 			return
 		}

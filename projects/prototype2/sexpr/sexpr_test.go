@@ -6,13 +6,13 @@ import (
 	"testing"
 )
 
-func compare(list Box, expected string) bool {
+func compare(list Sexpr, expected string) bool {
 	actual := list.String()
 	return MinifySexpr(actual) == MinifySexpr(expected)
 }
 
 func TestConsCell(t *testing.T) {
-	l := Cons(Box{1}, Box{2})
+	l := Cons(Sexpr{1}, Sexpr{2})
 	expected := `
 		(1 2)
 	`
@@ -43,7 +43,7 @@ func TestPreorder(t *testing.T) {
 	expected := ` (ProgramRoot (Function main (Body (+ 74 99) (+ 93 88) (+ 12 -70)))) `
 
 	str := strings.Builder{}
-	onEnter := func(node Box) {
+	onEnter := func(node Sexpr) {
 		switch node.Data.(type) {
 		case string:
 			str.WriteString(node.Data.(string))
@@ -55,7 +55,7 @@ func TestPreorder(t *testing.T) {
 			str.WriteByte('(')
 		}
 	}
-	onExit := func(node Box) {
+	onExit := func(node Sexpr) {
 		switch node.Data.(type) {
 		case string:
 		case int:
@@ -68,4 +68,43 @@ func TestPreorder(t *testing.T) {
 	if MinifySexpr(expected) != MinifySexpr(str.String()) {
 		t.Fatalf("Not equal:\n%s\n%s", PrettifySexpr(str.String()), PrettifySexpr(expected))
 	}
+}
+
+func TestEquality(t *testing.T) {
+	{
+		lhs := Cons(Sexpr{"Cons"}, Sexpr{"Cell"})
+		rhs := Cons(Sexpr{"Cons"}, Sexpr{"Cell"})
+		if !Equals(lhs, rhs) {
+			t.Fatalf("Equality test failed:\n%s\n%s", lhs.StringReadable(),
+				rhs.StringReadable())
+		}
+	}
+
+	{
+		lhs := S(1, 2, 3)
+		rhs := S(1, 2, 3)
+		if !Equals(lhs, rhs) {
+			t.Fatalf("Equality test failed:\n%s\n%s", lhs.StringReadable(),
+				rhs.StringReadable())
+		}
+	}
+
+	{
+		lhs := S(1, S(2, "a"), 3)
+		rhs := S(1, S(2, "a"), 3)
+		if !Equals(lhs, rhs) {
+			t.Fatalf("Equality test failed:\n%s\n%s", lhs.StringReadable(),
+				rhs.StringReadable())
+		}
+	}
+
+	{
+		lhs := S(1, nil)
+		rhs := S(nil, 1)
+		if Equals(lhs, rhs) {
+			t.Fatalf("Equality test failed:\n%s\n%s", lhs.StringReadable(),
+				rhs.StringReadable())
+		}
+	}
+
 }
