@@ -53,3 +53,12 @@ func (s *Set[T]) Unity(rhs Set[T]) Set[T] {
 func (s Set[T]) IsEmpty() bool {
 	return len(s.items) == 0
 }
+
+func (s Set[T]) Contains(rhs Set[T]) bool {
+	for i := range rhs.items {
+		if !s.Has(rhs.items[i]) {
+			return false
+		}
+	}
+	return true
+}

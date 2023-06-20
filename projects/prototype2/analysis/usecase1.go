@@ -202,15 +202,15 @@ func Usecase1_JS() Sexpr {
 	)
 }
 
-func Usecase1_Analyzer(csharpAST Sexpr, jsAST Sexpr) []module {
-	nodes := make([]module, 0, 128)
+func Usecase1_Analyzer(csharpAST Sexpr, jsAST Sexpr) []judgment {
+	nodes := make([]judgment, 0, 128)
 	nodes = append(nodes, analyzeCsharp(csharpAST)...)
 	nodes = append(nodes, analyzeJS(jsAST)...)
 	return nodes
 }
 
-func analyzeCsharp(ast Sexpr) []module {
-	nodes := make([]module, 0, 128)
+func analyzeCsharp(ast Sexpr) []judgment {
+	nodes := make([]judgment, 0, 128)
 	S := sexpr.S
 	Cons, Cdr, Car := sexpr.Cons, sexpr.Cdr, sexpr.Car
 
@@ -264,8 +264,8 @@ func analyzeCsharp(ast Sexpr) []module {
 	return nodes
 }
 
-func analyzeJS(ast Sexpr) []module {
-	nodes := make([]module, 0, 128)
+func analyzeJS(ast Sexpr) []judgment {
+	nodes := make([]judgment, 0, 128)
 
 	onEnter := func(n Sexpr) {
 		if !n.IsAtom() {

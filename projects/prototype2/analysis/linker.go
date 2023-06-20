@@ -6,7 +6,7 @@ import (
 )
 
 /*
-module = import | export
+judgment = import | export
 import = {
 	// or just Sexpr, this is type declarations that being imported
 	types: List of Sexpr,
@@ -27,7 +27,7 @@ export = {
 
 	// or just Sexpr, this is value of this export
 	// !! WHOLE TYPE OF EXPORT IS THEN unity(types, terms)
-	terms: List of Sexpr, // zero-value: null value for all types
+	terms: List of Sexpr, // zero-value: undefined value for all types
 
 	// language of interest, represented by this node
 	lang: string
@@ -38,7 +38,7 @@ export = {
 
 */
 
-type module struct {
+type judgment struct {
 	isImport bool
 	types    Sexpr
 	terms    Sexpr
@@ -46,8 +46,8 @@ type module struct {
 	ast      Sexpr
 }
 
-func NewImport(types Sexpr, terms Sexpr, lang string, ast Sexpr) module {
-	return module{
+func NewImport(types Sexpr, terms Sexpr, lang string, ast Sexpr) judgment {
+	return judgment{
 		isImport: true,
 		types:    types,
 		terms:    terms,
@@ -56,8 +56,8 @@ func NewImport(types Sexpr, terms Sexpr, lang string, ast Sexpr) module {
 	}
 }
 
-func NewExport(types Sexpr, terms Sexpr, lang string, ast Sexpr) module {
-	return module{
+func NewExport(types Sexpr, terms Sexpr, lang string, ast Sexpr) judgment {
+	return judgment{
 		isImport: false,
 		types:    types,
 		terms:    terms,
@@ -66,50 +66,43 @@ func NewExport(types Sexpr, terms Sexpr, lang string, ast Sexpr) module {
 	}
 }
 
-func (n module) IsImport() bool {
+func (n judgment) IsImport() bool {
 	return n.isImport
 }
 
-func (n module) IsExport() bool {
+func (n judgment) IsExport() bool {
 	return !n.isImport
 }
 
-func Compare(import_ module, export module) bool {
+func (n judgment) TypesAndTerms() util.Set[Sexpr] {
+	Car := sexpr.Car
+	Cdr := sexpr.Cdr
+
+	s := util.NewSet(sexpr.Equals)
+	l := n.types
+	for !l.IsNil() {
+		s.Add(Car(l))
+		l = Cdr(l)
+	}
+	l = n.terms
+	for !l.IsNil() {
+		s.Add(Car(l))
+		l = Cdr(l)
+	}
+	return s
+}
+
+func CanLink(import_ judgment, export judgment) bool {
 	if !import_.IsImport() || !export.IsExport() {
 		panic("Something went wrong")
 	}
-	Car := sexpr.Car
 
-	var needs util.Set[Sexpr]
-	{
-		types := util.NewSet(sexpr.Equals)
-		for t := Car(import_.types); !t.IsNil(); t = Car(import_.types) {
-			types.Add(t)
-		}
-		terms := util.NewSet(sexpr.Equals)
-		for t := Car(import_.terms); !t.IsNil(); t = Car(import_.terms) {
-			terms.Add(t)
-		}
-		needs = types.Intersect(terms)
-	}
+	needs := import_.TypesAndTerms()
+	gives := export.TypesAndTerms()
 
-	var gives util.Set[Sexpr]
-	{
-		types := util.NewSet(sexpr.Equals)
-		for t := Car(import_.types); !t.IsNil(); t = Car(import_.types) {
-			types.Add(t)
-		}
-		terms := util.NewSet(sexpr.Equals)
-		for t := Car(import_.terms); !t.IsNil(); t = Car(import_.terms) {
-			terms.Add(t)
-		}
-		gives = types.Unity(terms)
-	}
-
-	// check if `needs` covered by `gives`
-	return !needs.Intersect(gives).IsEmpty()
+	return !gives.Contains(needs)
 }
 
-func (n module) String() {
+func (n judgment) String() {
 
 }
