@@ -1,0 +1,7 @@
+digraph {
+    "(Import 'GET api/TodoItems' (-> Unit Any) 'JS')"         -> "(Export 'GET api/TodoItems' (-> Unit (List TodoItem)) 'C#')"   
+    "(Import 'GET api/TodoItems' (-> Int Any) 'JS')"          -> "(Export 'GET api/TodoItems' (-> Int Unit) 'C#')"               
+    "(Import 'DELETE api/TodoItems' (-> Int Any) 'JS')"       -> "(Export 'DELETE api/TodoItems' (-> Int Unit) 'C#')"            
+    "(Import 'PUT api/TodoItems' (-> Int (-> Any Any)) 'JS')" -> "(Export 'PUT api/TodoItems' (-> Int (-> TodoItem Unit)) 'C#')" 
+    "(Import 'POST api/TodoItems' (-> Any Any) 'JS')"         -> "(Export 'POST api/TodoItems' (-> TodoItem TodoItem) 'C#')"     
+}

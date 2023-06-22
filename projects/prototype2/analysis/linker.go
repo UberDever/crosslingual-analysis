@@ -12,7 +12,6 @@ import = {
 	types: List of Sexpr,
 
 	// or just Sexpr, this is value for this import
-	// !! WHOLE TYPE OF IMPORT IS THEN intersection(types, terms)
 	terms: List of Sexpr, // zero-value: any value for all types
 
 	// language of interest, represented by this node
@@ -26,7 +25,6 @@ export = {
 	types: List of Sexpr,
 
 	// or just Sexpr, this is value of this export
-	// !! WHOLE TYPE OF EXPORT IS THEN unity(types, terms)
 	terms: List of Sexpr, // zero-value: undefined value for all types
 
 	// language of interest, represented by this node

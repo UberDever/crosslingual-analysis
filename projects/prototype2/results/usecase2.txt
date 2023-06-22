@@ -1,0 +1,10 @@
+digraph {
+    "(Import 'lib.c' File 'Shell')" -> "(Export 'lib.c' File 'C')"
+    "(Import 'script.py' File 'Shell')" -> "(Export 'script.py' File 'Python')"
+    "(Import 'liblib.so' File 'Python')" -> "(Export 'liblib.so' File 'Shell')"
+    "(Import 'doTwoPlusTwo' (-> Unit Any) 'Python')" -> "(Export 'doTwoPlusTwo' (-> Unit Int) 'C')"
+    subgraph {
+        edge [color=red, style=dashed]
+        "(Export 'liblib.so' File 'Shell')" -> "(Import 'lib.c' File 'Shell')" 
+    }
+}
