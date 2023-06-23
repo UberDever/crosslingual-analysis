@@ -142,12 +142,12 @@ func (l Interlink) String() string {
 	}
 
 	imp := fmt.Sprintf("%s: %s ",
-		sexpr.MinifySexpr(l.from.T.StringReadable()),
 		sexpr.MinifySexpr(l.from.V.StringReadable()),
+		sexpr.MinifySexpr(l.from.T.StringReadable()),
 	)
 	exp := fmt.Sprintf("%s: %s ",
-		sexpr.MinifySexpr(l.to.T.StringReadable()),
 		sexpr.MinifySexpr(l.to.V.StringReadable()),
+		sexpr.MinifySexpr(l.to.T.StringReadable()),
 	)
 	return "Semantic: " + semantic + "\n" +
 		"import in " + l.fromModule.path + "\n" +

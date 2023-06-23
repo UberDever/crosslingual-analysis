@@ -1,4 +1,5 @@
 
-int doTwoPlusTwo() {
+int doTwoPlusTwo()
+{
     return 2 + 2;
 }
