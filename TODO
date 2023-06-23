@@ -12,22 +12,20 @@
 
 ## Срочно важно
 
-[] Отчет по 2 семестру
+[x] Отчет по 2 семестру
 [x] Отчет: Do another prototype, consult language and implications of that (maybe go for abstract analyzer in something simple like Go?)
-[] Отчет: Do prototype for at least three scenarious, all different kind
-[] Отчет: Test, maybe benchmark stuff
-[] Отчет: Write discussion basically (maybe not full)
-    [] Отписать про внутримодульный и межмодульный анализ
-
+[x] Отчет: Do prototype for at least three scenarious, all different kind
+[x] Отчет: Test, maybe benchmark stuff
+[x] Отчет: Write discussion basically (maybe not full)
+    [x] Отписать про внутримодульный и межмодульный анализ
 [x] Прототип 2, гетерогенный лист
 [x] Прототип 2, семантическая сеть и анализатор
 [x] Прототип 2, юзкейс 1
-    [] анализ
+    [x] анализ
 [x] Прототип 2, юзкейс 2
-    [] анализ
+    [x] анализ
 [x] Прототип 2, юзкейс 3
-    [] анализ
-
-[] Рассмотреть идею взаимодействия языков в юзкейсах как модулей
-[] Ввести онтологию для такого универсального межмодульного взаимодействия
-[] 
+    [x] анализ
+[x] Рассмотреть идею взаимодействия языков в юзкейсах как модулей
+[x] Ввести онтологию для такого универсального межмодульного взаимодействия
+[] Презентация
