@@ -223,6 +223,10 @@ var ontology = []struct {
 	{lhs: "Python", rhs: "C", semantic: "call C function"},
 	{lhs: "C", rhs: "Sh", semantic: "use file produced by shell command"},
 	{lhs: "C", rhs: "Python", semantic: "export function for FFI call"},
+
+	// NOTE: This semantic is provided by intermodule analysis
+	// it is not interesting for me
+	// {lhs: "C", rhs: "C", semantic: ""},
 }
 
 func langsCompatible(lhs, rhs string) bool {
