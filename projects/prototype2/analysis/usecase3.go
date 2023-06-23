@@ -60,6 +60,7 @@ func analyzeC2() []module {
 
 	modules = append(modules,
 		module{
+			path:     cwd + "/lib.c(2:6);main.c",
 			priority: 1,
 			lang:     "C",
 			imports:  []import_{iVar, iF},
@@ -74,6 +75,7 @@ func analyzeC2() []module {
 			},
 		},
 		module{
+			path:     cwd + "/lib.c(8:12);main.c",
 			priority: 0,
 			lang:     "C",
 			imports:  []import_{iF},
@@ -122,6 +124,7 @@ func analyzeBash2() []module {
 
 	modules = append(modules,
 		module{
+			path:       cwd + "/build.sh",
 			priority:   0,
 			lang:       "Sh",
 			imports:    []import_{iLibC, iMainC},

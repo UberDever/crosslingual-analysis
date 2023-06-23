@@ -54,6 +54,7 @@ interLinks = List (import, export)
 */
 
 type module struct {
+	path       string
 	imports    []import_
 	exports    []export
 	lang       string
@@ -140,17 +141,19 @@ func (l Interlink) String() string {
 		}
 	}
 
-	imp := fmt.Sprintf("import %s %s %s",
-		l.from.V.StringReadable(),
-		l.from.T.StringReadable(),
-		"in "+l.fromModule.lang,
+	imp := fmt.Sprintf("%s: %s ",
+		sexpr.MinifySexpr(l.from.T.StringReadable()),
+		sexpr.MinifySexpr(l.from.V.StringReadable()),
 	)
-	exp := fmt.Sprintf("export %s %s %s",
-		l.to.V.StringReadable(),
-		l.to.T.StringReadable(),
-		"from "+l.toModule.lang,
+	exp := fmt.Sprintf("%s: %s ",
+		sexpr.MinifySexpr(l.to.T.StringReadable()),
+		sexpr.MinifySexpr(l.to.V.StringReadable()),
 	)
-	return "To " + semantic + ":\n" + imp + "\nthis satisfied by \n" + exp + "\n"
+	return "Semantic: " + semantic + "\n" +
+		"import in " + l.fromModule.path + "\n" +
+		imp + "\nis satisfied by \n" +
+		"export from " + l.toModule.path + "\n" +
+		exp + "\n"
 }
 
 func Link(modules []module) []Interlink {

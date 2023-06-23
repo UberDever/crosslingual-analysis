@@ -3,6 +3,7 @@ package analysis
 // Analysis of C# and javascript, see usecase1 files
 
 import (
+	"os"
 	"prototype2/sexpr"
 )
 
@@ -211,6 +212,9 @@ func analyzeCsharp(ast Sexpr) []module {
 	modules := make([]module, 0, 128)
 	S := sexpr.S
 
+	home, _ := os.UserHomeDir()
+	cwd := home + "/dev/mag/language-analysis/projects/prototype2/usecases/usecase1"
+
 	// Strings := util.NewStack[string]()
 	// Types := util.NewStack[Sexpr]()
 	// Arguments := util.NewStack[Sexpr]()
@@ -324,6 +328,7 @@ func analyzeCsharp(ast Sexpr) []module {
 
 	modules = append(modules,
 		module{
+			path:       cwd + "/server_controller.cs",
 			priority:   0,
 			lang:       "C#",
 			imports:    nil,
@@ -338,6 +343,9 @@ func analyzeCsharp(ast Sexpr) []module {
 func analyzeJS(ast Sexpr) []module {
 	modules := make([]module, 0, 128)
 	S := sexpr.S
+
+	home, _ := os.UserHomeDir()
+	cwd := home + "/dev/mag/language-analysis/projects/prototype2/usecases/usecase1"
 
 	getAll := NewImport(
 		Function("Unit", "Any"),
@@ -372,6 +380,7 @@ func analyzeJS(ast Sexpr) []module {
 
 	modules = append(modules,
 		module{
+			path:       cwd + "/client_fetch.js",
 			priority:   0,
 			lang:       "JS",
 			imports:    []import_{get, getAll, delete, post, put},

@@ -49,7 +49,7 @@ func (v Sexpr) StringReadable() string {
 	}
 
 	TraversePreorder(v, onEnter, onExit)
-	return PrettifySexpr(str.String())
+	return str.String()
 }
 
 func (v Sexpr) String() string {

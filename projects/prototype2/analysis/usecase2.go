@@ -40,6 +40,7 @@ func analyzePython() []module {
 
 	modules = append(modules,
 		module{
+			path:     cwd + "/script.py",
 			priority: 0,
 			lang:     "Python",
 			imports:  []import_{importFunc, importLib},
@@ -88,6 +89,7 @@ func analyzeBash() []module {
 
 	modules = append(modules,
 		module{
+			path:     cwd + "/run.sh",
 			priority: 0,
 			lang:     "Sh",
 			imports:  []import_{importLibC, importScriptPy},
@@ -126,6 +128,7 @@ func analyzeC() []module {
 
 	modules = append(modules,
 		module{
+			path:       cwd + "/lib.c",
 			priority:   0,
 			lang:       "C",
 			imports:    nil,
