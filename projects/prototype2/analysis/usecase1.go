@@ -3,9 +3,7 @@ package analysis
 // Analysis of C# and javascript, see usecase1 files
 
 import (
-	"fmt"
 	"prototype2/sexpr"
-	"prototype2/util"
 )
 
 type Sexpr = sexpr.Sexpr
@@ -202,77 +200,185 @@ func Usecase1_JS() Sexpr {
 	)
 }
 
-func Usecase1_Analyzer(csharpAST Sexpr, jsAST Sexpr) []judgment {
-	nodes := make([]judgment, 0, 128)
+func Usecase1_Analyzer(csharpAST Sexpr, jsAST Sexpr) []module {
+	nodes := make([]module, 0, 128)
 	nodes = append(nodes, analyzeCsharp(csharpAST)...)
 	nodes = append(nodes, analyzeJS(jsAST)...)
 	return nodes
 }
 
-func analyzeCsharp(ast Sexpr) []judgment {
-	nodes := make([]judgment, 0, 128)
+func analyzeCsharp(ast Sexpr) []module {
+	modules := make([]module, 0, 128)
 	S := sexpr.S
-	Cons, Cdr, Car := sexpr.Cons, sexpr.Cdr, sexpr.Car
 
-	Strings := util.NewStack[string]()
-	Types := util.NewStack[Sexpr]()
-	Arguments := util.NewStack[Sexpr]()
-	Generics := util.NewStack[Sexpr]()
+	// Strings := util.NewStack[string]()
+	// Types := util.NewStack[Sexpr]()
+	// Arguments := util.NewStack[Sexpr]()
+	// Generics := util.NewStack[Sexpr]()
 
-	onEnter := func(n Sexpr) {
-		if !n.IsAtom() {
-			return
-		}
+	// onEnter := func(n Sexpr) {
+	// 	if !n.IsAtom() {
+	// 		return
+	// 	}
 
-		s := n.Data.(string)
-		if s[0] != '.' {
-			Strings.Push(s)
-			return
-		}
+	// 	s := n.Data.(string)
+	// 	if s[0] != '.' {
+	// 		Strings.Push(s)
+	// 		return
+	// 	}
 
-		// TODO: Do appropriate data structures here
-		switch s {
-		case ".Type":
-			Types.Push(S(".Type", Strings.ForcePop()))
-		case ".ArgDeclaration":
-			args := S()
-			tmp := util.NewStack[Sexpr]()
-			for !Types.IsEmpty() {
-				v, _ := Types.Pop()
-				tmp.Push(Car(Cdr(v)))
-			}
-			for !tmp.IsEmpty() {
-				args = Cons(tmp.ForcePop(), args)
-			}
-			Arguments.Push(args)
-		case ".TypedMemberDeclaration":
-			generic := S()
-			tmp := util.NewStack[Sexpr]()
-			for !Types.IsEmpty() {
-				v, _ := Types.Pop()
-				tmp.Push(Car(Cdr(v)))
-			}
-			for !tmp.IsEmpty() {
-				generic = Cons(tmp.ForcePop(), generic)
-			}
-			Generics.Push(generic)
-			fmt.Println(generic)
-		}
-	}
-	sexpr.TraversePostorder(ast, onEnter)
+	// 	switch s {
+	// 	case ".Type":
+	// 		Types.Push(S(".Type", Strings.ForcePop()))
+	// 	case ".ArgDeclaration":
+	// 		args := S()
+	// 		tmp := util.NewStack[Sexpr]()
+	// 		for !Types.IsEmpty() {
+	// 			v, _ := Types.Pop()
+	// 			tmp.Push(Car(Cdr(v)))
+	// 		}
+	// 		for !tmp.IsEmpty() {
+	// 			args = Cons(tmp.ForcePop(), args)
+	// 		}
+	// 		Arguments.Push(args)
+	// 	case ".TypedMemberDeclaration":
+	// 		generic := S()
+	// 		tmp := util.NewStack[Sexpr]()
+	// 		for !Types.IsEmpty() {
+	// 			v, _ := Types.Pop()
+	// 			tmp.Push(Car(Cdr(v)))
+	// 		}
+	// 		for !tmp.IsEmpty() {
+	// 			generic = Cons(tmp.ForcePop(), generic)
+	// 		}
+	// 		Generics.Push(generic)
+	// 		fmt.Println(generic)
+	// 	}
+	// }
+	// sexpr.TraversePostorder(ast, onEnter)
 
-	return nodes
+	get := NewExport(
+		Function("Unit", S("List", "TodoItem")),
+		S("GET api/TodoItems"),
+		S(".MethodDeclaration:20:64:server_controller.cs",
+			S(".MethodMemberName", "GetTodoItems"),
+			S(".FormalParameterList", nil),
+			S(".MethodBody")),
+	)
+	getAll := NewExport(
+		Function("Int", "Unit"),
+		S("GET api/TodoItems"),
+		S(".MethodDeclaration:28:51:server_controller.cs",
+			S(".MethodMemberName", "GetTodoItem"),
+			S(".FormalParameterList",
+				S(".ArgDeclaration",
+					S(".Type", "long"),
+					"id",
+				),
+			),
+			S(".MethodBody")),
+	)
+	delete := NewExport(
+		Function("Int", "Unit"),
+		S("DELETE api/TodoItems"),
+		S(".MethodDeclaration:90:42:server_controller.cs",
+			S(".MethodMemberName", "DeleteTodoItem"),
+			S(".FormalParameterList",
+				S(".ArgDeclaration",
+					S(".Type", "long"),
+					"id",
+				),
+			),
+			S(".MethodBody")),
+	)
+	put := NewExport(
+		Function("Int", Function("TodoItem", "Unit")),
+		S("PUT api/TodoItems"),
+		S(".MethodDeclaration:45:42:server_controller.cs",
+			S(".MethodMemberName", "PutTodoItem"),
+			S(".FormalParameterList",
+				S(".ArgDeclaration",
+					S(".Type", "long"),
+					"id",
+				),
+				S(".ArgDeclaration",
+					S(".Type", "TodoItem"),
+					"todoItem",
+				),
+			),
+			S(".MethodBody")),
+	)
+	post := NewExport(
+		Function("TodoItem", "TodoItem"),
+		S("POST api/TodoItems"),
+		S(".MethodDeclaration:78:51:server_controller.cs",
+			S(".MethodMemberName", "PostTodoItem"),
+			S(".FormalParameterList",
+				S(".ArgDeclaration",
+					S(".Type", "TodoItem"),
+					"todoItem",
+				),
+			),
+			S(".MethodBody")),
+	)
+
+	modules = append(modules,
+		module{
+			priority:   0,
+			lang:       "C#",
+			imports:    nil,
+			exports:    []export{get, getAll, delete, put, post},
+			intralinks: nil,
+		},
+	)
+
+	return modules
 }
 
-func analyzeJS(ast Sexpr) []judgment {
-	nodes := make([]judgment, 0, 128)
+func analyzeJS(ast Sexpr) []module {
+	modules := make([]module, 0, 128)
+	S := sexpr.S
 
-	onEnter := func(n Sexpr) {
-		if !n.IsAtom() {
-			return
-		}
-	}
-	sexpr.TraversePostorder(ast, onEnter)
+	getAll := NewImport(
+		Function("Unit", "Any"),
+		S("GET api/TodoItems"),
+		S(".CallExpression:5:3:client_fetch.js", S(".Identifier", "fetch"),
+			S(".Arguments", S(".Identifier", "uri"))),
+	)
+	get := NewImport(
+		Function("Int", "Any"),
+		S("GET api/TodoItems"),
+		S(".CallExpression:12:3:client_fetch.js", S(".Identifier", "fetch"),
+			S(".Arguments", S(".Identifier", "uri"))),
+	)
+	delete := NewImport(
+		Function("Int", "Any"),
+		S("DELETE api/TodoItems"),
+		S(".CallExpression:43:3:client_fetch.js", S(".Identifier", "fetch"),
+			S(".Arguments", S(".Identifier", "uri"))),
+	)
+	put := NewImport(
+		Function("Int", "Any"),
+		S("PUT api/TodoItems"),
+		S(".CallExpression:67:3:client_fetch.js", S(".Identifier", "fetch"),
+			S(".Arguments", S(".Identifier", "uri"))),
+	)
+	post := NewImport(
+		Function("Any", "Any"),
+		S("POST api/TodoItems"),
+		S(".CallExpression:26:3:client_fetch.js", S(".Identifier", "fetch"),
+			S(".Arguments", S(".Identifier", "uri"))),
+	)
 
-	return nodes
+	modules = append(modules,
+		module{
+			priority:   0,
+			lang:       "JS",
+			imports:    []import_{get, getAll, delete, post, put},
+			exports:    nil,
+			intralinks: nil,
+		},
+	)
+
+	return modules
 }

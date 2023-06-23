@@ -8,6 +8,13 @@ function getItems() {
     .catch(error => console.error('Unable to get items.', error));
 }
 
+function getItem(id) {
+  fetch(`${uri}/${id}`)
+    .then(response => response.json())
+    .then(data => _displayItems(data))
+    .catch(error => console.error('Unable to get item.', error));
+}
+
 function addItem() {
   const addNameTextbox = document.getElementById('add-name');
 

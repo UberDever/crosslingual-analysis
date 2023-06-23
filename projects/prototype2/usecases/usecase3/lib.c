@@ -6,7 +6,7 @@ int f() {
 
 #else
 
-int f() {
+int g() {
     return 2;
 }
 

@@ -24,7 +24,7 @@ func TestConsCell(t *testing.T) {
 func TestBasicSexpr(t *testing.T) {
 	l := S(1, 2, 3, 4, 5)
 	expected := `
-		(1 (2 (3 (4 (5 null)))))
+		(1 (2 (3 (4 (5 nil)))))
 	`
 	if !compare(l, expected) {
 		t.Fatalf("Sexpr\n%s\nIs malformed", PrettifySexpr(l.String()))
@@ -71,10 +71,11 @@ func TestPreorder(t *testing.T) {
 }
 
 func TestEquality(t *testing.T) {
+	cmp := func(lhs, rhs any) bool { return lhs == rhs }
 	{
 		lhs := Cons(Sexpr{"Cons"}, Sexpr{"Cell"})
 		rhs := Cons(Sexpr{"Cons"}, Sexpr{"Cell"})
-		if !Equals(lhs, rhs) {
+		if !Equals(lhs, rhs, cmp) {
 			t.Fatalf("Equality test failed:\n%s\n%s", lhs.StringReadable(),
 				rhs.StringReadable())
 		}
@@ -83,7 +84,7 @@ func TestEquality(t *testing.T) {
 	{
 		lhs := S(1, 2, 3)
 		rhs := S(1, 2, 3)
-		if !Equals(lhs, rhs) {
+		if !Equals(lhs, rhs, cmp) {
 			t.Fatalf("Equality test failed:\n%s\n%s", lhs.StringReadable(),
 				rhs.StringReadable())
 		}
@@ -92,7 +93,7 @@ func TestEquality(t *testing.T) {
 	{
 		lhs := S(1, S(2, "a"), 3)
 		rhs := S(1, S(2, "a"), 3)
-		if !Equals(lhs, rhs) {
+		if !Equals(lhs, rhs, cmp) {
 			t.Fatalf("Equality test failed:\n%s\n%s", lhs.StringReadable(),
 				rhs.StringReadable())
 		}
@@ -101,7 +102,7 @@ func TestEquality(t *testing.T) {
 	{
 		lhs := S(1, nil)
 		rhs := S(nil, 1)
-		if Equals(lhs, rhs) {
+		if Equals(lhs, rhs, cmp) {
 			t.Fatalf("Equality test failed:\n%s\n%s", lhs.StringReadable(),
 				rhs.StringReadable())
 		}

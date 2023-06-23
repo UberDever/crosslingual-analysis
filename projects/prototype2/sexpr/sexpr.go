@@ -60,7 +60,7 @@ func (v Sexpr) String() string {
 		case string:
 			return fmt.Sprintf("'%s'", v.Data.(string))
 		case nil:
-			return "null"
+			return "nil"
 		}
 		return ""
 	}
@@ -159,13 +159,13 @@ func Cdr(v Sexpr) Sexpr {
 	}
 }
 
-func Equals(lhs Sexpr, rhs Sexpr) bool {
+func Equals(lhs Sexpr, rhs Sexpr, cmp func(any, any) bool) bool {
 	if lhs.IsAtom() || rhs.IsAtom() {
-		return lhs.Data == rhs.Data
+		return cmp(lhs.Data, rhs.Data)
 	}
 
-	return Equals(Car(lhs), Car(rhs)) &&
-		Equals(Cdr(lhs), Cdr(rhs))
+	return Equals(Car(lhs), Car(rhs), cmp) &&
+		Equals(Cdr(lhs), Cdr(rhs), cmp)
 }
 
 func PrettifySexpr(sexpr string) string {
