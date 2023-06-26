@@ -202,15 +202,15 @@ func Usecase1_JS() Sexpr {
 	)
 }
 
-func Usecase1_Analyzer(csharpAST Sexpr, jsAST Sexpr) []module {
-	nodes := make([]module, 0, 128)
+func Usecase1_Analyzer(csharpAST Sexpr, jsAST Sexpr) []fragment {
+	nodes := make([]fragment, 0, 128)
 	nodes = append(nodes, analyzeCsharp(csharpAST)...)
 	nodes = append(nodes, analyzeJS(jsAST)...)
 	return nodes
 }
 
-func analyzeCsharp(ast Sexpr) []module {
-	modules := make([]module, 0, 128)
+func analyzeCsharp(ast Sexpr) []fragment {
+	fragments := make([]fragment, 0, 128)
 	S := sexpr.S
 
 	home, _ := os.UserHomeDir()
@@ -327,22 +327,22 @@ func analyzeCsharp(ast Sexpr) []module {
 			S(".MethodBody")),
 	)
 
-	modules = append(modules,
-		module{
-			path:       cwd + "/server_controller.cs",
-			priority:   0,
-			lang:       "C#",
-			imports:    nil,
-			exports:    []export{get, getAll, delete, put, post},
-			intralinks: nil,
+	fragments = append(fragments,
+		fragment{
+			path:         cwd + "/server_controller.cs",
+			priority:     0,
+			lang:         "C#",
+			environments: nil,
+			signatures:   []signature{get, getAll, delete, put, post},
+			intralinks:   nil,
 		},
 	)
 
-	return modules
+	return fragments
 }
 
-func analyzeJS(ast Sexpr) []module {
-	modules := make([]module, 0, 128)
+func analyzeJS(ast Sexpr) []fragment {
+	fragments := make([]fragment, 0, 128)
 	S := sexpr.S
 
 	home, _ := os.UserHomeDir()
@@ -379,16 +379,16 @@ func analyzeJS(ast Sexpr) []module {
 			S(".Arguments", S(".Identifier", "uri"))),
 	)
 
-	modules = append(modules,
-		module{
-			path:       cwd + "/client_fetch.js",
-			priority:   0,
-			lang:       "JS",
-			imports:    []import_{get, getAll, delete, post, put},
-			exports:    nil,
-			intralinks: nil,
+	fragments = append(fragments,
+		fragment{
+			path:         cwd + "/client_fetch.js",
+			priority:     0,
+			lang:         "JS",
+			environments: []environment{get, getAll, delete, post, put},
+			signatures:   nil,
+			intralinks:   nil,
 		},
 	)
 
-	return modules
+	return fragments
 }

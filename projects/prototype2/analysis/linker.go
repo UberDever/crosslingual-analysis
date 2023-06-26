@@ -10,8 +10,8 @@ import (
 )
 
 /*
-The following slightly resembles module system that is implemented in
-ML family of languages (mainly because source of inspiration is paper from Luca Cardelli about modules)
+The following slightly resembles fragment system that is implemented in
+ML family of languages (mainly because source of inspiration is paper from Luca Cardelli about fragments)
 
 One import (environment) can be linked with one and only one export (signature)
 
@@ -32,10 +32,10 @@ where Nominal types = Int | String | {Identifier}
 Possible language pairs:
 	List of Connection, where Connection = (lhs, rhs, semantic)
 
-module = {
+fragment = {
 	imports: List import
 	exports: List export
-	body: <Intramodule analysis results representation (possibly AST)>
+	body: <Intrafragment analysis results representation (possibly AST)>
 	lang: string
 	priority: int // NOTE: This is hack
 }
@@ -44,7 +44,7 @@ statement = import | export
 statement = {
 	type: Sexpr // A | A -> A | A * A | A + A
 	value: Sexpr
-	source: Sexpr // This is meant to be location information, don't confuse with module body
+	source: Sexpr // This is meant to be location information, don't confuse with fragment body
 }
 
 import = {
@@ -58,23 +58,23 @@ export = {
 interLinks = List (import, export)
 */
 
-type module struct {
-	path       string
-	imports    []import_
-	exports    []export
-	lang       string
-	priority   int
-	intralinks []struct {
+type fragment struct {
+	path         string
+	environments []environment
+	signatures   []signature
+	lang         string
+	priority     int
+	intralinks   []struct {
 		from statement
 		to   statement
 	}
 }
 
-func (m module) String() string {
+func (m fragment) String() string {
 	s := strings.Builder{}
 	shorten := util.ShortenPath(m.path, 2)
-	s.WriteString(fmt.Sprintf("module \"%s\" : signature\n", shorten))
-	for _, exp := range m.exports {
+	s.WriteString(fmt.Sprintf("fragment \"%s\" : signature\n", shorten))
+	for _, exp := range m.signatures {
 		s.WriteString("    ")
 		s.WriteString(fmt.Sprintf(
 			"%s : %s",
@@ -83,8 +83,8 @@ func (m module) String() string {
 		))
 		s.WriteString("\n")
 	}
-	s.WriteString("and environment\n")
-	for _, imp := range m.imports {
+	s.WriteString("end, environment\n")
+	for _, imp := range m.environments {
 		s.WriteString("    ")
 		s.WriteString(fmt.Sprintf(
 			"%s : %s",
@@ -93,7 +93,7 @@ func (m module) String() string {
 		))
 		s.WriteString("\n")
 	}
-	s.WriteString("= \n")
+	s.WriteString("end = \n")
 	for _, l := range m.intralinks {
 		s.WriteString("    ")
 		s.WriteString(fmt.Sprintf(
@@ -102,7 +102,7 @@ func (m module) String() string {
 			sexpr.MinifySexpr(l.to.V.StringReadable()),
 		))
 	}
-	s.WriteString("end;;\n")
+	s.WriteString("end\n")
 	return s.String()
 }
 
@@ -115,19 +115,19 @@ func (s statement) String() string {
 	return s.T.String() + s.V.String() + s.Source.String()
 }
 
-type import_ struct {
+type environment struct {
 	statement
 }
 
-type export struct {
+type signature struct {
 	statement
 }
 
-func NewImport(T, V, Source Sexpr) import_ {
-	return import_{statement{T: T, V: V, Source: Source}}
+func NewImport(T, V, Source Sexpr) environment {
+	return environment{statement{T: T, V: V, Source: Source}}
 }
-func NewExport(T, V, Source Sexpr) export {
-	return export{statement{T: T, V: V, Source: Source}}
+func NewExport(T, V, Source Sexpr) signature {
+	return signature{statement{T: T, V: V, Source: Source}}
 }
 
 func Function(types ...any) Sexpr {
@@ -168,10 +168,10 @@ func CompareValues(lhs Sexpr, rhs Sexpr) bool {
 }
 
 type Interlink struct {
-	from       import_
-	fromModule *module
-	to         export
-	toModule   *module
+	from       environment
+	fromModule *fragment
+	to         signature
+	toModule   *fragment
 }
 
 func (l Interlink) String() string {
@@ -197,18 +197,18 @@ func (l Interlink) String() string {
 	)
 }
 
-func Link(modules []module) []Interlink {
+func Link(fragments []fragment) []Interlink {
 	links := []Interlink{}
-	sort.Slice(modules, func(i, j int) bool {
-		return modules[i].priority > modules[j].priority
+	sort.Slice(fragments, func(i, j int) bool {
+		return fragments[i].priority > fragments[j].priority
 	})
-	for i := range modules {
-		for j := i + 1; j < len(modules); j++ {
-			lhs := modules[i]
-			rhs := modules[j]
+	for i := range fragments {
+		for j := i + 1; j < len(fragments); j++ {
+			lhs := fragments[i]
+			rhs := fragments[j]
 			if langsCompatible(lhs.lang, rhs.lang) {
-				for _, imp := range lhs.imports {
-					for _, exp := range rhs.exports {
+				for _, imp := range lhs.environments {
+					for _, exp := range rhs.signatures {
 						typesEqual := CompareTypes(imp.T, exp.T)
 						valuesEqual := CompareValues(imp.V, exp.V)
 						if typesEqual && valuesEqual {
@@ -226,8 +226,8 @@ func Link(modules []module) []Interlink {
 						}
 					}
 				}
-				for _, imp := range rhs.imports {
-					for _, exp := range lhs.exports {
+				for _, imp := range rhs.environments {
+					for _, exp := range lhs.signatures {
 						typesEqual := CompareTypes(imp.T, exp.T)
 						valuesEqual := CompareValues(imp.V, exp.V)
 						if typesEqual && valuesEqual {
@@ -265,7 +265,7 @@ var ontology = []struct {
 	{lhs: "C", rhs: "Sh", semantic: "use file produced by shell command"},
 	{lhs: "C", rhs: "Python", semantic: "export function for FFI call"},
 
-	// NOTE: This semantic is provided by intramodule analysis
+	// NOTE: This semantic is provided by intrafragment analysis
 	// it is not interesting for me
 	// {lhs: "C", rhs: "C", semantic: ""},
 }

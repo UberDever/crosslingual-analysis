@@ -10,9 +10,9 @@ func TestUsecase1(t *testing.T) {
 
 	csharpAst := analysis.Usecase1_CSharp()
 	jsAst := analysis.Usecase1_JS()
-	modules := analysis.Usecase1_Analyzer(csharpAst, jsAst)
-	links := analysis.Link(modules)
-	for _, m := range modules {
+	fragments := analysis.Usecase1_Analyzer(csharpAst, jsAst)
+	links := analysis.Link(fragments)
+	for _, m := range fragments {
 		fmt.Println(m)
 	}
 	for _, l := range links {
@@ -21,9 +21,9 @@ func TestUsecase1(t *testing.T) {
 }
 
 func TestUsecase2(t *testing.T) {
-	modules := analysis.Usecase2_Analyzer()
-	links := analysis.Link(modules)
-	for _, m := range modules {
+	fragments := analysis.Usecase2_Analyzer()
+	links := analysis.Link(fragments)
+	for _, m := range fragments {
 		fmt.Println(m)
 	}
 	for _, l := range links {
@@ -32,9 +32,9 @@ func TestUsecase2(t *testing.T) {
 }
 
 func TestUsecase3(t *testing.T) {
-	modules := analysis.Usecase3_Analyzer()
-	links := analysis.Link(modules)
-	for _, m := range modules {
+	fragments := analysis.Usecase3_Analyzer()
+	links := analysis.Link(fragments)
+	for _, m := range fragments {
 		fmt.Println(m)
 	}
 	for _, l := range links {

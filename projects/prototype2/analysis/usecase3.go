@@ -8,24 +8,24 @@ import (
 
 // Analysis of C, bash and (internally) preprocessor, see usecase3 files
 
-func Usecase3_Analyzer() []module {
-	modules := make([]module, 0, 128)
-	modules = append(modules, analyzeC2()...)
-	modules = append(modules, analyzeBash2()...)
-	return modules
+func Usecase3_Analyzer() []fragment {
+	fragments := make([]fragment, 0, 128)
+	fragments = append(fragments, analyzeC2()...)
+	fragments = append(fragments, analyzeBash2()...)
+	return fragments
 }
 
-func analyzeC2() []module {
-	modules := make([]module, 0, 128)
+func analyzeC2() []fragment {
+	fragments := make([]fragment, 0, 128)
 	S := sexpr.S
 
 	home, _ := os.UserHomeDir()
 	cwd := util.ShortenPath(home+"/dev/mag/language-analysis/projects/prototype2/usecases/usecase3", 2)
 
 	libC := NewExport(
-		S("File"),
+		S("URI"),
 		S(cwd+"/lib.c"),
-		S("File:0:0:lib.c"),
+		S("URI:0:0:lib.c"),
 	)
 	f := NewExport(
 		Function("Unit", "Int"),
@@ -44,9 +44,9 @@ func analyzeC2() []module {
 	)
 
 	mainC := NewExport(
-		S("File"),
+		S("URI"),
 		S(cwd+"/main.c"),
-		S("File:0:0:main.c"),
+		S("URI:0:0:main.c"),
 	)
 	iF := NewImport(
 		Function("Unit", "Int"),
@@ -59,13 +59,13 @@ func analyzeC2() []module {
 		S("FunctionDecl:3:5:main.c"),
 	)
 
-	modules = append(modules,
-		module{
-			path:     cwd + "/lib.c(2:6);main.c",
-			priority: 1,
-			lang:     "C",
-			imports:  []import_{iVar, iF},
-			exports:  []export{f, libC, mainC, eMain},
+	fragments = append(fragments,
+		fragment{
+			path:         cwd + "/lib.c(2:6);main.c",
+			priority:     1,
+			lang:         "C",
+			environments: []environment{iVar, iF},
+			signatures:   []signature{f, libC, mainC, eMain},
 			intralinks: []struct {
 				from statement
 				to   statement
@@ -75,12 +75,12 @@ func analyzeC2() []module {
 				},
 			},
 		},
-		module{
-			path:     cwd + "/lib.c(8:12);main.c",
-			priority: 0,
-			lang:     "C",
-			imports:  []import_{iF},
-			exports:  []export{g, libC, mainC, eMain},
+		fragment{
+			path:         cwd + "/lib.c(8:12);main.c",
+			priority:     0,
+			lang:         "C",
+			environments: []environment{iF},
+			signatures:   []signature{g, libC, mainC, eMain},
 			intralinks: []struct {
 				from statement
 				to   statement
@@ -92,20 +92,20 @@ func analyzeC2() []module {
 		},
 	)
 
-	return modules
+	return fragments
 }
 
-func analyzeBash2() []module {
-	modules := make([]module, 0, 128)
+func analyzeBash2() []fragment {
+	fragments := make([]fragment, 0, 128)
 	S := sexpr.S
 
 	home, _ := os.UserHomeDir()
 	cwd := util.ShortenPath(home+"/dev/mag/language-analysis/projects/prototype2/usecases/usecase3", 2)
 
 	buildSh := NewExport(
-		S("File"),
+		S("URI"),
 		S(cwd+"/build.sh"),
-		S("File:0:0:build.sh"),
+		S("URI:0:0:build.sh"),
 	)
 	eVar := NewExport(
 		S("String"),
@@ -113,26 +113,26 @@ func analyzeBash2() []module {
 		S("CommandFlag:2:5:build.sh"),
 	)
 	iLibC := NewImport(
-		S("File"),
+		S("URI"),
 		S(cwd+"/lib.c"),
 		S("Command:2:10:build.sh"),
 	)
 	iMainC := NewImport(
-		S("File"),
+		S("URI"),
 		S(cwd+"/main.c"),
 		S("Command:2:16:build.sh"),
 	)
 
-	modules = append(modules,
-		module{
-			path:       cwd + "/build.sh",
-			priority:   0,
-			lang:       "Sh",
-			imports:    []import_{iLibC, iMainC},
-			exports:    []export{buildSh, eVar},
-			intralinks: nil,
+	fragments = append(fragments,
+		fragment{
+			path:         cwd + "/build.sh",
+			priority:     0,
+			lang:         "Sh",
+			environments: []environment{iLibC, iMainC},
+			signatures:   []signature{buildSh, eVar},
+			intralinks:   nil,
 		},
 	)
 
-	return modules
+	return fragments
 }
