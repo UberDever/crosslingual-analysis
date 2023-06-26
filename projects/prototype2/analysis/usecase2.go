@@ -3,6 +3,7 @@ package analysis
 import (
 	"os"
 	"prototype2/sexpr"
+	"prototype2/util"
 )
 
 // Analysis of Python, bash and C FFI, see usecase2 files
@@ -20,7 +21,7 @@ func analyzePython() []module {
 	S := sexpr.S
 
 	home, _ := os.UserHomeDir()
-	cwd := home + "/dev/mag/language-analysis/projects/prototype2/usecases/usecase2"
+	cwd := util.ShortenPath(home+"/dev/mag/language-analysis/projects/prototype2/usecases/usecase2", 2)
 
 	scriptPy := NewExport(
 		S("File"),
@@ -64,7 +65,7 @@ func analyzeBash() []module {
 	S := sexpr.S
 
 	home, _ := os.UserHomeDir()
-	cwd := home + "/dev/mag/language-analysis/projects/prototype2/usecases/usecase2"
+	cwd := util.ShortenPath(home+"/dev/mag/language-analysis/projects/prototype2/usecases/usecase2", 2)
 
 	runSh := NewExport(
 		S("File"),
@@ -113,7 +114,7 @@ func analyzeC() []module {
 	S := sexpr.S
 
 	home, _ := os.UserHomeDir()
-	cwd := home + "/dev/mag/language-analysis/projects/prototype2/usecases/usecase2"
+	cwd := util.ShortenPath(home+"/dev/mag/language-analysis/projects/prototype2/usecases/usecase2", 2)
 
 	libC := NewExport(
 		S("File"),

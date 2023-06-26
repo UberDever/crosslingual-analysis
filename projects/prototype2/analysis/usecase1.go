@@ -5,6 +5,7 @@ package analysis
 import (
 	"os"
 	"prototype2/sexpr"
+	"prototype2/util"
 )
 
 type Sexpr = sexpr.Sexpr
@@ -213,7 +214,7 @@ func analyzeCsharp(ast Sexpr) []module {
 	S := sexpr.S
 
 	home, _ := os.UserHomeDir()
-	cwd := home + "/dev/mag/language-analysis/projects/prototype2/usecases/usecase1"
+	cwd := util.ShortenPath(home+"/dev/mag/language-analysis/projects/prototype2/usecases/usecase1", 2)
 
 	// Strings := util.NewStack[string]()
 	// Types := util.NewStack[Sexpr]()
@@ -345,7 +346,7 @@ func analyzeJS(ast Sexpr) []module {
 	S := sexpr.S
 
 	home, _ := os.UserHomeDir()
-	cwd := home + "/dev/mag/language-analysis/projects/prototype2/usecases/usecase1"
+	cwd := util.ShortenPath(home+"/dev/mag/language-analysis/projects/prototype2/usecases/usecase1", 2)
 
 	getAll := NewImport(
 		Function("Unit", "Any"),

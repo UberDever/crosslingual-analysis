@@ -65,6 +65,7 @@ func TestPreorder(t *testing.T) {
 	}
 
 	TraversePreorder(root, onEnter, onExit)
+
 	if MinifySexpr(expected) != MinifySexpr(str.String()) {
 		t.Fatalf("Not equal:\n%s\n%s", PrettifySexpr(str.String()), PrettifySexpr(expected))
 	}

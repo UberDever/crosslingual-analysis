@@ -3,12 +3,17 @@ package analysis
 import (
 	"fmt"
 	"prototype2/sexpr"
+	"prototype2/util"
 	"reflect"
 	"sort"
+	"strings"
 )
 
 /*
-One import can be linked with one and only one export
+The following slightly resembles module system that is implemented in
+ML family of languages (mainly because source of inspiration is paper from Luca Cardelli about modules)
+
+One import (environment) can be linked with one and only one export (signature)
 
 Ontology:
 	Type lattice
@@ -22,7 +27,7 @@ where Nominal types = Int | String | {Identifier}
 					  ^ all this types considered unit aliases,
 					  in a sense that they inhabited by only one value
 					  and equal to themselves only
-					  Names are handy to store analysis results only
+					  Names are given to store analysis results only
 
 Possible language pairs:
 	List of Connection, where Connection = (lhs, rhs, semantic)
@@ -30,15 +35,16 @@ Possible language pairs:
 module = {
 	imports: List import
 	exports: List export
+	body: <Intramodule analysis results representation (possibly AST)>
 	lang: string
-	priority: int
+	priority: int // NOTE: This is hack
 }
 
 statement = import | export
 statement = {
 	type: Sexpr // A | A -> A | A * A | A + A
 	value: Sexpr
-	source: Sexpr // Presumably AST Node
+	source: Sexpr // This is meant to be location information, don't confuse with module body
 }
 
 import = {
@@ -49,7 +55,6 @@ export = {
 	statement
 }
 
-intraLinks = List (statement, statement)
 interLinks = List (import, export)
 */
 
@@ -63,6 +68,42 @@ type module struct {
 		from statement
 		to   statement
 	}
+}
+
+func (m module) String() string {
+	s := strings.Builder{}
+	shorten := util.ShortenPath(m.path, 2)
+	s.WriteString(fmt.Sprintf("module \"%s\" : signature\n", shorten))
+	for _, exp := range m.exports {
+		s.WriteString("    ")
+		s.WriteString(fmt.Sprintf(
+			"%s : %s",
+			sexpr.MinifySexpr(exp.V.StringReadable()),
+			sexpr.MinifySexpr(exp.T.StringReadable()),
+		))
+		s.WriteString("\n")
+	}
+	s.WriteString("and environment\n")
+	for _, imp := range m.imports {
+		s.WriteString("    ")
+		s.WriteString(fmt.Sprintf(
+			"%s : %s",
+			sexpr.MinifySexpr(imp.V.StringReadable()),
+			sexpr.MinifySexpr(imp.T.StringReadable()),
+		))
+		s.WriteString("\n")
+	}
+	s.WriteString("= \n")
+	for _, l := range m.intralinks {
+		s.WriteString("    ")
+		s.WriteString(fmt.Sprintf(
+			"%s <= %s\n",
+			sexpr.MinifySexpr(l.from.V.StringReadable()),
+			sexpr.MinifySexpr(l.to.V.StringReadable()),
+		))
+	}
+	s.WriteString("end;;\n")
+	return s.String()
 }
 
 type statement struct {
@@ -149,11 +190,11 @@ func (l Interlink) String() string {
 		sexpr.MinifySexpr(l.to.V.StringReadable()),
 		sexpr.MinifySexpr(l.to.T.StringReadable()),
 	)
-	return "Semantic: " + semantic + "\n" +
-		"import in " + l.fromModule.path + "\n" +
-		imp + "\nis satisfied by \n" +
-		"export from " + l.toModule.path + "\n" +
-		exp + "\n"
+	from := util.ShortenPath(l.fromModule.path, 2)
+	to := util.ShortenPath(l.toModule.path, 2)
+	return fmt.Sprintf("%s\nin \"%s\" which need %s\nprovided by \"%s\"; with %s\n",
+		semantic, from, imp, to, exp,
+	)
 }
 
 func Link(modules []module) []Interlink {
@@ -224,7 +265,7 @@ var ontology = []struct {
 	{lhs: "C", rhs: "Sh", semantic: "use file produced by shell command"},
 	{lhs: "C", rhs: "Python", semantic: "export function for FFI call"},
 
-	// NOTE: This semantic is provided by intermodule analysis
+	// NOTE: This semantic is provided by intramodule analysis
 	// it is not interesting for me
 	// {lhs: "C", rhs: "C", semantic: ""},
 }

@@ -3,6 +3,7 @@ package analysis
 import (
 	"os"
 	"prototype2/sexpr"
+	"prototype2/util"
 )
 
 // Analysis of C, bash and (internally) preprocessor, see usecase3 files
@@ -19,7 +20,7 @@ func analyzeC2() []module {
 	S := sexpr.S
 
 	home, _ := os.UserHomeDir()
-	cwd := home + "/dev/mag/language-analysis/projects/prototype2/usecases/usecase3"
+	cwd := util.ShortenPath(home+"/dev/mag/language-analysis/projects/prototype2/usecases/usecase3", 2)
 
 	libC := NewExport(
 		S("File"),
@@ -99,7 +100,7 @@ func analyzeBash2() []module {
 	S := sexpr.S
 
 	home, _ := os.UserHomeDir()
-	cwd := home + "/dev/mag/language-analysis/projects/prototype2/usecases/usecase3"
+	cwd := util.ShortenPath(home+"/dev/mag/language-analysis/projects/prototype2/usecases/usecase3", 2)
 
 	buildSh := NewExport(
 		S("File"),

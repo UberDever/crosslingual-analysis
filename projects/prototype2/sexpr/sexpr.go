@@ -220,7 +220,7 @@ func MinifySexpr(s string) string {
 		}
 		formatted.WriteByte(s[i])
 	}
-	return formatted.String()
+	return strings.TrimSpace(formatted.String())
 }
 
 type Action func(Sexpr)
