@@ -226,7 +226,7 @@ func analyzeCsharp(ast Sexpr) []fragment {
 	// 		return
 	// 	}
 
-	// 	s := n.Data.(string)
+	// 	s := n.(string)
 	// 	if s[0] != '.' {
 	// 		Strings.Push(s)
 	// 		return

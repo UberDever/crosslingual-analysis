@@ -156,7 +156,7 @@ func CompareTypes(lhs Sexpr, rhs Sexpr) bool {
 		if reflect.TypeOf(lhs) != reflect.TypeOf(rhs) {
 			return false
 		}
-		return lhs.Data == rhs.Data
+		return lhs == rhs
 	}
 
 	return CompareTypes(sexpr.Car(lhs), sexpr.Car(rhs)) &&

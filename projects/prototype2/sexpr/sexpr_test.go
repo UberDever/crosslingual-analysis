@@ -44,19 +44,19 @@ func TestPreorder(t *testing.T) {
 
 	str := strings.Builder{}
 	onEnter := func(node Sexpr) {
-		switch node.Data.(type) {
+		switch node.any.(type) {
 		case string:
-			str.WriteString(node.Data.(string))
+			str.WriteString(node.any.(string))
 			str.WriteByte(' ')
 		case int:
-			str.WriteString(fmt.Sprint(node.Data.(int)))
+			str.WriteString(fmt.Sprint(node.any.(int)))
 			str.WriteByte(' ')
 		default:
 			str.WriteByte('(')
 		}
 	}
 	onExit := func(node Sexpr) {
-		switch node.Data.(type) {
+		switch node.any.(type) {
 		case string:
 		case int:
 		default:

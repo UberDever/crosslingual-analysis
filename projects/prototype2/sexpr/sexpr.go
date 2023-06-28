@@ -7,11 +7,11 @@ import (
 )
 
 type Sexpr struct {
-	Data any
+	any
 }
 
 func (v Sexpr) IsAtom() bool {
-	switch v.Data.(type) {
+	switch v.any.(type) {
 	case Sexpr:
 		return false
 	case cell:
@@ -22,25 +22,25 @@ func (v Sexpr) IsAtom() bool {
 }
 
 func (v Sexpr) IsNil() bool {
-	return v.Data == nil
+	return v.any == nil
 }
 
 func (v Sexpr) StringReadable() string {
 	str := strings.Builder{}
 	onEnter := func(node Sexpr) {
-		switch node.Data.(type) {
+		switch node.any.(type) {
 		case string:
-			str.WriteString(node.Data.(string))
+			str.WriteString(node.any.(string))
 			str.WriteByte(' ')
 		case int:
-			str.WriteString(fmt.Sprint(node.Data.(int)))
+			str.WriteString(fmt.Sprint(node.any.(int)))
 			str.WriteByte(' ')
 		default:
 			str.WriteByte('(')
 		}
 	}
 	onExit := func(node Sexpr) {
-		switch node.Data.(type) {
+		switch node.any.(type) {
 		case string:
 		case int:
 		default:
@@ -54,11 +54,11 @@ func (v Sexpr) StringReadable() string {
 
 func (v Sexpr) String() string {
 	toString := func(v Sexpr) string {
-		switch v.Data.(type) {
+		switch v.any.(type) {
 		case int:
-			return fmt.Sprint(v.Data)
+			return fmt.Sprint(v.any)
 		case string:
-			return fmt.Sprintf("'%s'", v.Data.(string))
+			return fmt.Sprintf("'%s'", v.any.(string))
 		case nil:
 			return "nil"
 		}
@@ -79,9 +79,9 @@ func (v Sexpr) String() string {
 		vStack = vStack[:len(vStack)-1]
 		branchesWalked[len(branchesWalked)-1]++
 
-		switch top.Data.(type) {
+		switch top.any.(type) {
 		case cell:
-			c := top.Data.(cell)
+			c := top.any.(cell)
 			s.WriteByte('(')
 			vStack = append(vStack, c.rhs)
 			vStack = append(vStack, c.lhs)
@@ -117,7 +117,7 @@ func S(list ...any) Sexpr {
 	case Sexpr:
 		box = list[0].(Sexpr)
 	default:
-		box.Data = list[0]
+		box.any = list[0]
 	}
 	return Cons(box, S(list[1:]...))
 }
@@ -140,9 +140,9 @@ func Cons(lhs any, rhs any) Sexpr {
 }
 
 func Car(v Sexpr) Sexpr {
-	switch v.Data.(type) {
+	switch v.any.(type) {
 	case cell:
-		unboxed := v.Data.(cell)
+		unboxed := v.any.(cell)
 		return unboxed.lhs
 	default:
 		return Sexpr{nil}
@@ -150,9 +150,9 @@ func Car(v Sexpr) Sexpr {
 }
 
 func Cdr(v Sexpr) Sexpr {
-	switch v.Data.(type) {
+	switch v.any.(type) {
 	case cell:
-		unboxed := v.Data.(cell)
+		unboxed := v.any.(cell)
 		return unboxed.rhs
 	default:
 		return Sexpr{nil}
@@ -161,7 +161,7 @@ func Cdr(v Sexpr) Sexpr {
 
 func Equals(lhs Sexpr, rhs Sexpr, cmp func(any, any) bool) bool {
 	if lhs.IsAtom() || rhs.IsAtom() {
-		return cmp(lhs.Data, rhs.Data)
+		return cmp(lhs.any, rhs.any)
 	}
 
 	return Equals(Car(lhs), Car(rhs), cmp) &&
@@ -230,14 +230,14 @@ func TraversePreorder(root Sexpr, onEnter Action, onExit Action) {
 }
 
 func traversePreorderRec(onEnter Action, onExit Action, cur Sexpr) {
-	if cur.Data == nil {
+	if cur.any == nil {
 		return
 	}
 
 	onEnter(cur)
 	defer onExit(cur)
 	children := cur
-	for c := Car(children); c.Data != nil; c = Car(children) {
+	for c := Car(children); c.any != nil; c = Car(children) {
 		children = Cdr(children)
 		traversePreorderRec(onEnter, onExit, c)
 	}
@@ -249,7 +249,7 @@ func TraversePostorder(root Sexpr, onEnter Action) {
 
 func traversePostorderRec(onEnter Action, cur Sexpr) {
 	c := Car(cur)
-	if c.Data == nil {
+	if c.any == nil {
 		return
 	}
 
