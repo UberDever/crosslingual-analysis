@@ -97,9 +97,9 @@ func (m fragment) String() string {
 	for _, l := range m.intralinks {
 		s.WriteString("    ")
 		s.WriteString(fmt.Sprintf(
-			"%s <= %s\n",
-			sexpr.MinifySexpr(l.from.V.StringReadable()),
+			"%s => %s\n",
 			sexpr.MinifySexpr(l.to.V.StringReadable()),
+			sexpr.MinifySexpr(l.from.V.StringReadable()),
 		))
 	}
 	s.WriteString("end\n")
