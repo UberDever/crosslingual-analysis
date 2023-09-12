@@ -1,5 +1,6 @@
 module Async
 
+#r "FSharp.Data.dll"
 open FSharp.Data
 
 let getHtml (source: string) =
