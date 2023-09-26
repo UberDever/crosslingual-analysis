@@ -2,6 +2,23 @@
 # Insights/ideas
 
 ## Универсальный анализатор (прототип реализован как prototype2)
+
+```
+    type LSPMessage = <message from lsp basically json>
+    type Fragment = Text
+    type Tree = <tree of text>
+    type Parser = Fragment -> EBNF -> Tree # basically interpreter
+    type Judgement = <AST of lambda 2>
+    type Module = Graph [Judgement])
+    type Relation = (Judgement, Judgement)
+
+    translate :: Parser -> Productions -> Fragment -> Module
+    analyze :: [Module] -> [Relation]
+
+    parseLSPMessage :: LSPMessage -> Fragment
+    dumpCache :: Module -> IO Filepath # and also readCache
+```
+
 1. Универсальный анализатор типовых сигнатур - на вход получает все типовые сигнатуры сущностей в форме фрагментов и выявляет их связи между собой.
     - Связи используются для обнаружения зависимостей 
     - и поддержания корректности использования идентификаторов в различных контекстах
