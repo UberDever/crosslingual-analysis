@@ -54,7 +54,7 @@
 5. Рассмотреть иные варианты получения информации для работы метода.
 ## 3 семестр (сентябрь 2023 - январь 2024)
 ### 1 эпоха
-1. Прочитать протокол [LSP](https://microsoft.github.io/language-server-protocol/),
+1. Прочитать протокол [LSP + LSIF](https://microsoft.github.io/language-server-protocol/),
 а также [VSCode Extention API](https://code.visualstudio.com/api)
 2. Выявить особенности внедрения различных языковых серверов для организации межъязыкового анализа
 ### 2 эпоха
