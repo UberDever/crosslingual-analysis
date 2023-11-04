@@ -9,7 +9,7 @@
     type Tree = <tree of text>
     type Parser = Fragment -> EBNF -> Tree # basically interpreter
     type Judgement = <AST of lambda 2>
-    type Module = Graph [Judgement])
+    type Module = Graph [Judgement]
     type Relation = (Judgement, Judgement)
 
     translate :: Parser -> Productions -> Fragment -> Module
@@ -26,7 +26,7 @@
 Онтология включает:
 - Правила связи между языками (видимость, наличие связи) и семантику (название) этой связи
 - Наверняка правила связи внутри языка (видимость)
-- Архетипы
+- Архетипы (возможно однопараметрические конструкторы)
 
 1. Универсальный анализатор типовых сигнатур - на вход получает все типовые сигнатуры сущностей в форме вложенных фрагментов и выявляет их связи между собой.
     - Связи используются для обнаружения зависимостей 
