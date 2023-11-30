@@ -202,15 +202,16 @@ export function bar() {
 (* Note: file.js has interlinked dependencies, 
 but they are not listed here because this is not a tool concern for now*)
 
-[C:0] file.c 
-:   _ foo: Unit -> Int <= _ a: Int
-<= ( _ a: Int, _ some file: File )
+( _ a: Int, _ some file: File ) |- 
+    [C:0] file.c:
+        _ a: Int |- 
+            _ foo: Unit -> Int
 
-[Js:0] file.js
-:   _ bar: Unit -> Int
-    <= _ foo: Unit -> Any 
-        <= _ a: Opaque
-<= _ some module: File
+_ some module: File |-
+    [Js:0] file.js: 
+        _ a: Opaque |-
+            _ foo: Unit -> Any |-
+                _ bar: Unit -> Int
 ```
 ### 2. TS
 ```ts
@@ -242,5 +243,6 @@ This example proves that all entities, that interact in code are always either:
 
 [Ts:0] file.ts: Int -> Int -> Any
 
-[Js:0] file.js: () <= [Ts:0] file.ts: File 
+[Ts:0] file.ts: File |-
+    [Js:0] file.js: ()
 ```
