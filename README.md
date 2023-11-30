@@ -3,12 +3,12 @@
 
 ## Универсальный анализатор (прототип реализован как prototype2)
 
-```
-    type LSPMessage = <message from lsp basically json>
+```haskell
+    type LSPMessage = -- <message from lsp basically json>
     type Fragment = Text
-    type Tree = <tree of text>
-    type Parser = Fragment -> EBNF -> Tree # basically interpreter
-    type Judgement = <AST of lambda 2>
+    type Tree = -- <tree of text>
+    type Parser = Fragment -> EBNF -> Tree -- basically interpreter
+    type Judgement = -- <AST of lambda 2>
     type Module = Graph [Judgement]
     type Relation = (Judgement, Judgement)
 
@@ -16,26 +16,79 @@
     analyze :: [Module] -> [Relation]
 
     parseLSPMessage :: LSPMessage -> Fragment
-    dumpCache :: Module -> IO Filepath # and also readCache
+    dumpCache :: Module -> IO Filepath -- and also readCache
 ```
 
-Term - структура терма будет анализироваться, а что насчет моделирования?
-Type - как (и следует ли) прикрутить другую логику не сломав всё?
-    Что насчет fuzzy logic?
-    Надо всё переложить в логику... так будет проще оценить достоинства и недостатки подхода
-Scoping - как будет проводится моделирование инкапсуляции?
-    Фрагменты собираются в больший фрагмент инкрементально
-    У фрагмента есть тело, окружение и сигнатура
-    Что насчет access modifiers?
-Syntax directed translation
-    Грамматики нужно где-то брать, в каком-то формате...
-    На каком языке приделывать translation part?
-    SDT: http://www.cse.iitm.ac.in/~krishna/cs3300/lecture4.pdf
-Infrastructure
-    
+
+```bnf
+Fragment ::= '[' ((Language|'_' ':' Isolation|'_') | '_')? ']' Source ':' Signature ('<=' Environment)?
+
+# assert signature.isolation >= fragment.isolation
+# assert signature.language == fragment.language
+# isolation/languages do make sense for environments, but not so much
+Language ::= ID
+Isolation ::= NUMBER
+
+# TextSpan: { start: file_line_col, end: file_line_col }
+# Нет смысла использовать TextSpan по тому же принципу, что и внизу
+Source ::= ID
+
+Signature ::= Type
+
+Environment ::= Term
+
+Term ::= 
+    | Fragment
+    # Нет смысла описывать такую грамматику
+    # Она позволяет либо сделать модули первоклассными - что хорошо для #define
+    # но усложняет и без того сложное
+    # Либо она позволяет выражать "изоморфизм" связанных фрагментов
+    # но фрагменты разных языков __всегда__ связаны именовано, либо структурно/по месту, третьего не дано
+    # | ID
+    # | \ID.Term
+    # | (Term Term) 
+
+Type ::=
+    | Type -> Type # Function
+    | '(' (Term,)* ')' # Tuple
+    | Primitive
+
+Primitive ::=
+    | Unit
+    | Int
+    | Opaque
+    # Пока что всё...
+```
+
+```ocaml
+
+let linked lhs: Fragment rhs: Fragment =
+    (linked lhs.term rhs.term) `and` (linked lhs.type rhs.type)
+
+(*
+    linked Bool Bool == true
+    linked Int Unit == false
+    linked (Bool -> Int) (Bool -> Int) == true
+    linked (Int -> Int) (Unit -> Int) == false
+    linked _ Bot == false; linked Bot _ == false
+    linked _ Any == true; linked Any _ == true
+*)
+let linked lhs: Type rhs: Type = (*structural comparison for now*)
+
+(*
+    linked twoPlusTwo twoPlusTwo == true
+    linked \x.(f g) \y.(f g) == true
+    linked 123 id == false
+    linked \x.\y.z \x.(y z) == false
+*)
+let linked lhs: Term rhs: Term = (*structural comparison for now*)
+```
+
 
 Терм - фрагмент кода, уникально идентифицируемый в рамках всей системы, имеет тип
+
 Тип - тип из системы типизации lambda2
+
 Архетип - common known структура термов (1) и её тип (2), которые отражают дополнительную информацию о предметной области
 
 Онтология включает:
@@ -92,6 +145,17 @@ Infrastructure
 
 ## Срочно неважно
 
+Type - как (и следует ли) прикрутить другую логику не сломав всё?
+- Что насчет fuzzy logic?
+- Надо всё переложить в логику... так будет проще оценить достоинства и недостатки подхода
+
+Syntax directed translation
+- Грамматики нужно где-то брать, в каком-то формате...
+- На каком языке приделывать translation part? [SDT](http://www.cse.iitm.ac.in/~krishna/cs3300/lecture4.pdf)
+
+Infrastructure
+    
+
 - [x] Сделать разноплановые тесты на прототип 2
 - [x] Обзор текущих конференций (напр КМУ)
 - [x] Ису достижения
@@ -117,3 +181,66 @@ Infrastructure
 - [x] Ввести онтологию для такого универсального межмодульного взаимодействия
 - [x] Презентация
 
+
+# Examples
+### 1. JS and C
+```cpp
+#include "some file"
+
+int foo() {
+    a += 2;
+}
+```
+```js
+a = require("some module")
+
+export function bar() {
+    a.foo()
+}
+```
+```ocaml
+(* Note: file.js has interlinked dependencies, 
+but they are not listed here because this is not a tool concern for now*)
+
+[C:0] file.c 
+:   _ foo: Unit -> Int <= _ a: Int
+<= ( _ a: Int, _ some file: File )
+
+[Js:0] file.js
+:   _ bar: Unit -> Int
+    <= _ foo: Unit -> Any 
+        <= _ a: Opaque
+<= _ some module: File
+```
+### 2. TS
+```ts
+function foo(): number {
+    let bar = () => 21 
+    let n = bar()
+    return n * 2
+}
+```
+```ocaml
+[Ts:0] file.ts:
+<= TODO
+```
+
+### 3. Js
+```ts
+export default function (a: int) => (b: int) => plus(a, b) // assuming plus is declared in stdlib and opaque/implicit
+```
+```js
+f = require("file.ts")
+let a = f(1, 2)
+```
+```ocaml
+(*
+This example proves that all entities, that interact in code are always either:
+ - named
+ - nested/arranged in some pattern 
+ *)
+
+[Ts:0] file.ts: Int -> Int -> Any
+
+[Js:0] file.js: () <= [Ts:0] file.ts: File 
+```
