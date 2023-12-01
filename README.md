@@ -21,7 +21,12 @@
 
 
 ```bnf
-Fragment ::= '[' ((Language|'_' ':' Isolation|'_') | '_')? ']' Source ':' Signature ('<=' Environment)?
+Fragment ::= (('[' Language ':' Isolation ']') | '_') (Environment '|-')? id ':' Signature
+Signature ::= 
+    | T
+    | T -> T 
+    | Unit | Any | <Primitive...>
+Environment ::= (Fragment ',')*
 
 # assert signature.isolation >= fragment.isolation
 # assert signature.language == fragment.language
@@ -202,7 +207,7 @@ export function bar() {
 (* Note: file.js has interlinked dependencies, 
 but they are not listed here because this is not a tool concern for now*)
 
-( _ a: Int, _ some file: File ) |- 
+_ some file: File |- 
     [C:0] file.c:
         _ a: Int |- 
             _ foo: Unit -> Int
@@ -213,6 +218,8 @@ _ some module: File |-
             _ foo: Unit -> Any |-
                 _ bar: Unit -> Int
 ```
+
+
 ### 2. TS
 ```ts
 function foo(): number {
@@ -245,4 +252,23 @@ This example proves that all entities, that interact in code are always either:
 
 [Ts:0] file.ts: File |-
     [Js:0] file.js: ()
+```
+### 4. Python
+```python
+import os
+import sys
+import re
+
+def main():
+    if re.match('pattern', sys.argv[0]):
+        os.exit(-1)
+def foo(): pass
+#TODO: Поднятие контекста вверх (транзитивность), Определить конкатенацию контекстов
+```
+```
+_ os: File, _ sys: File, _ re: File, |-
+    main.py: 
+        _ re: { match: String -> Any -> Any }, _ sys: { argv: Int -> Any }, _ os: { exit: Int -> Any }, |-
+            _ main: List String -> Int,
+        _ foo: Unit -> Unit,
 ```
