@@ -43,3 +43,21 @@ _ build.sh: File |-
 
  # Даже не нужно: [C:0] f: Unit -> Int |- [C:0] f: Unit -> Int
 ```
+Linear form:
+```
+[C:0] VAR: Unit |- [C:0] lib.c: File
+[C:0] lib.c: File |- [C:0] f: Unit -> Int, _ g: Unit -> Int
+
+[C:0] VAR: Bot |- [C:0] lib.c: File
+[C:0] lib.c: File |- _ f: Unit -> Int, _ g: Unit -> Int
+
+[C:0] f: Unit -> Int |- _ main.c: File
+_ main.c: File |- _ f: Unit -> Int
+_ f: Unit -> Int |- _ main: Int -> Any -> Int 
+
+_ build.sh: File |- _ lib.c: File, _ main.c: File 
+_ lib.c: File, _ main.c: File |- _ 'cc -DVAR lib.c main.c -o app.exe': File -> File -> File
+_ 'cc -DVAR lib.c main.c -o app.exe': File -> File -> File |- [Sh:0] VAR: Unit, _ app.exe: File
+
+[Sh:0] VAR: Unit |- [C:0] VAR: Unit
+```

@@ -1,3 +1,4 @@
+```c#
 @page "/call-js-example-2"
 @inject IJSRuntime JS
 
@@ -25,3 +26,4 @@
         await JS.InvokeVoidAsync("displayTickerAlert1", stockSymbol, price);
     }
 }
+```

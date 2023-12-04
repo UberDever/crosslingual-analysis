@@ -1,8 +1,6 @@
 ﻿// For more information see https://aka.ms/fsharp-console-apps
 
-let upper s = 
-    s
-    |> List.map 
+let upper = List.map 
 
 let uppered = "Hello from F#"
                |> String.map (System.Char.ToUpper)

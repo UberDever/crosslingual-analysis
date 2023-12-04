@@ -1,3 +1,4 @@
+```c#
 @typeparam TItem
 @using System.Diagnostics.CodeAnalysis
 
@@ -26,3 +27,5 @@
     [Parameter, AllowNull]
     public IReadOnlyList<TItem> Items { get; set; }
 }
+```
+

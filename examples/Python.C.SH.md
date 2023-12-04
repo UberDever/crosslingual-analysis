@@ -61,3 +61,17 @@ _ (lib.o): File |- _ (cc -shared -o liblib.so lib.o): File -> File,
 [Python:0] (script.py): File |- [Shell:0] (script.py): File
 
 ```
+Linear form:
+```
+_ (ctypes): File, |- [Python:0] script.py: File
+
+_ (lib.c): File |- _ (doTwoPlusTwo): Unit -> Int
+
+_ (lib.c): File |- _ (cc -c lib.c): File -> File,
+_ (lib.o): File |- _ (cc -shared -o liblib.so lib.o): File -> File,
+[Shell:0] script.py: File |- _ (python3 script.py): File -> Any,
+_ (python3 script.py): File -> Any, |- _ (build.sh): File 
+_ (build.sh): File |- _ (liblib.so): File
+
+[Python:0] (script.py): File |- [Shell:0] (script.py): File
+```

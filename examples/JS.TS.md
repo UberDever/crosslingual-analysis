@@ -12,6 +12,6 @@ This example proves that all entities, that interact in code are always either:
 
 [Ts:0] file.ts: Int -> Int -> Any
 
-[Ts:0] file.ts: File |-
+[Ts:0] file.ts: File |- 
     [Js:0] file.js: ()
 ```

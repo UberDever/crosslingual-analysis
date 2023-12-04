@@ -1,3 +1,4 @@
+```
 <select id="selectAll" resultMap="warehouseResult">
     SELECT * FROM crm_warehouse w
     LEFT JOIN crm_country ON crm_country.country_id = w.country_id 
@@ -17,3 +18,4 @@
     </if>
     ORDER BY w.warehouse_id
 </select>
+```

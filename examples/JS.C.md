@@ -20,13 +20,22 @@ Note: file.js has interlinked dependencies,
 but they are not listed here because this is not a tool concern for now
 
 _ (some_file.h): File |- 
-    [C:0] file.c:
+    [C:0] file.c: File |-
         _ (a): Int |- 
             _ (foo): Unit -> Int
 
 _ (some_module.js): File |-
-    [Js:0] file.js: 
+    [Js:0] file.js: File |-
         _ (a): Opaque |-
             _ (foo): Unit -> Any |-
                 _ (bar): Unit -> Int
+```
+Linear form:
+```
+_ (some_file.h): File |- [C:0] file.c: File
+_ (a): Int |- _ (foo): Unit -> Int
+
+_ (some_module.js): File |- [Js:0] file.js: File
+_ (a): Opaque |- _ (foo): Unit -> Any
+_ (foo): Unit -> Any |- _ (bar): Unit -> Unit
 ```
