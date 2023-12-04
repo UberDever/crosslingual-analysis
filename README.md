@@ -30,11 +30,11 @@ A ::= ID '=' T
 
 # Type of a fragment
 T ::= 
-    | T -> T                        # Function
-    | T * T                         # Product
-    | T + T                         # Sum
-    | T & T                         # Intersection
-    | T | T                         # Union
+    | T '->' T                        # Function
+    | T '*' T                         # Product
+    | T '+' T                         # Sum
+    | T '&' T                         # Intersection
+    | T '|' T                         # Union
     | '{' (ID ':' T ',')* '}'       # Record
     | Unit | Any | Opaque           # Builtins
 
