@@ -23,11 +23,11 @@ cc -DVAR lib.c main.c -o app.exe
 ```
 [C:0] VAR: Unit |-
     [C:0] lib.c: File |-
-        [C:0] f: Unit -> Int, _ g: Unit -> Int
+        [C:0] f: Unit -> Int
 
 [C:0] VAR: Bot |-
     [C:0] lib.c: File |-
-        _ f: Unit -> Int, _ g: Unit -> Int
+        _ g: Unit -> Int
 
 [C:0] f: Unit -> Int |-
     _ main.c: File |-
@@ -40,16 +40,12 @@ _ build.sh: File |-
             [Sh:0] VAR: Unit, _ app.exe: File
 
 [Sh:0] VAR: Unit |- [C:0] VAR: Unit
-
- # Даже не нужно: [C:0] f: Unit -> Int |- [C:0] f: Unit -> Int
+[C:0] f: Unit -> Int |- [C:0] f: Unit -> Int
 ```
 Linear form:
 ```
-[C:0] VAR: Unit |- [C:0] lib.c: File
-[C:0] lib.c: File |- [C:0] f: Unit -> Int, _ g: Unit -> Int
-
-[C:0] VAR: Bot |- [C:0] lib.c: File
-[C:0] lib.c: File |- _ f: Unit -> Int, _ g: Unit -> Int
+[C:0] VAR: Unit |- [C:0] lib.c: File, [C:0] f: Unit -> Int
+[C:0] VAR: Bot |- [C:0] lib.c: File, _ g: Unit -> Int
 
 [C:0] f: Unit -> Int |- _ main.c: File
 _ main.c: File |- _ f: Unit -> Int

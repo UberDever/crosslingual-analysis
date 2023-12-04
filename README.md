@@ -21,32 +21,46 @@
 
 ## Грамматика языка фрагментов анализатора
 ```ebnf
-F ::= (('[' Language ':' Isolation ']') | '_') (Г '|-')? Source ':' S
+# Fragment
+# Implies ({ start: file_line_col, end: file_line_col }, lang: <ID from ontology>)
+F ::= ID
 
+# Alias for a type
+A ::= ID '=' T
+
+# Type of a fragment
 T ::= 
-    | T
-    | T -> T 
-    | T * T
-    | '{' (ID ':' T ',')* '}'
-    | Unit | Any | Opaque
-    | <T from ontology...>
+    | T -> T                        # Function
+    | T * T                         # Product
+    | T + T                         # Sum
+    | T & T                         # Intersection
+    | T | T                         # Union
+    | '{' (ID ':' T ',')* '}'       # Record
+    | Unit | Any | Opaque           # Builtins
 
-# Signature
-S ::= T ',' (T ',')*
+# Typed fragment (term)
+t ::= '(' F ')' ':' T
 
-# Environment
-Г ::= F ',' (F ',')*
+# Collection of fragment terms
+# In case of lhs of judgement ',' means conjunction 
+# In case of rhs of judgement ',' means multiple conclusions
+ts ::= t (',' t)*
 
-# assert signature.isolation >= fragment.isolation
-# assert signature.language == fragment.language
-Language ::= <ID from ontology>
-Isolation ::= NUMBER
+# Judgement
+# ';' here means disjunction 
+J ::= ts (';' ts)* '|-' ts
 
-# TextSpan: { start: file_line_col, end: file_line_col }
-Source ::= ID
+# Block of judgements
+# Judgements from the block above can be used to infer judgements from the block below
+# Judgements within the block are not structured lexically,
+# conclusions below can be used to infer judgments above
+B ::= (J '\n')+ ('in' B)?
+
+Start ::= (A '\n')* 'then' B
 ```
 
 ## Определение функции связываемости фрагментов
+Является функцией логического вывода
 ```ocaml
 
 let linked lhs: Fragment rhs: Fragment =
@@ -70,10 +84,6 @@ let linked lhs: Type rhs: Type = (*structural comparison for now*)
 *)
 let linked lhs: Term rhs: Term = (*lexical comparison for now*)
 ```
-
-## Определение оператора запятая: #TODO 
-
-## Определение функции поднятия информации из контекста вверх: #TODO
 
 ## Общее
 Терм - фрагмент кода, уникально идентифицируемый в рамках всей системы, имеет тип
