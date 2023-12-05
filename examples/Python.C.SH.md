@@ -21,9 +21,10 @@ python3 script.py
 ```
 Logic form:
 ```
+[]: Any |- [build.sh]: File
+[]: Any |- [lib.c]: File
 [ctypes]: File |- [script.py]: File
 [lib.c]: File |- [doTwoPlusTwo]: Unit -> Int
-[python3 script.py]: File -> Any |- [build.sh]: File
 in
     [./liblib.so]: String |- [ctypes]: { CDLL: String -> Any }
     [ctypes]: { CDLL: String -> Any } |- [l]: { doTwoPlusTwo: { argtypes: List Any, restype: Any } }
@@ -33,7 +34,11 @@ in
     [script.py]: File |- [python3 script.py]: File -> Any
     [build.sh]: File |- [liblib.so]: File
 ==>
-[doTwoPlusTwo] |- ([l] [doTwoPlusTwo]): Unit -> Any
+Heuristic about application:
+    [l]: String -> Unit -> Any $ [doTwoPlusTwo]: String === ([l] [doTwoPlusTwo]): Unit -> Any
+    [l]: { doTwoPlusTwo: { argtypes: List Any, restype: Any } }, [l]: String -> Unit -> Any, [doTwoPlusTwo]: String |- ([l] [doTwoPlusTwo]): Unit -> Any
+    
+[doTwoPlusTwo]: Unit -> Int |- ([l] [doTwoPlusTwo]): Unit -> Any
 [script.py:Python]: File |- [script.py:Shell]: File
 With probability:
 [liblib.so]: File |- [ctypes]: { CDLL: String -> Any } with

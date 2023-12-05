@@ -51,10 +51,10 @@ ts ::= t (',' t)*
 J ::= ts (';' ts)* '|-' ts
 
 # Block of judgements
-# Judgements from the block above can be used to infer judgements from the block below
-# Judgements within the block are not structured lexically,
+# Judgements on the left of `with` use judgements on the right for inference, but only one level deep
+# Judgements within the block are not structured lexically, hence
 # conclusions below can be used to infer judgments above
-B ::= (J '\n')+ ('in' B)?
+B ::= (J '\n')+ ('with' B)?
 
 Start ::= (A '\n')* 'then' B
 ```
@@ -133,8 +133,8 @@ let linked lhs: Term rhs: Term = (*lexical comparison for now*)
 - [ ] Порисерчить парсинг для МЯ программ
     - [x] Дочитать диссер
 - [ ] Использовать ad hoc directed translation для построения фрагментов
-- [ ] Описать фрагменты и их семантику более формально
-    - [ ] Дочитать Карделли
+- [x] Описать фрагменты и их семантику более формально
+    - [~] Дочитать Карделли
 - [ ] Спросить про Fuzzy logic
 - [ ] Решить вопрос с грамматиками и syntax-directed translation [SDT](http://www.cse.iitm.ac.in/~krishna/cs3300/lecture4.pdf)
 
