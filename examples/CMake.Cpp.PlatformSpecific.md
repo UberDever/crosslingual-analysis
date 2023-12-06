@@ -43,7 +43,10 @@ build_linux() {
 build_linux()
 ```
 Results:
-```prolog
+```yaml
+Fragments:
+
+
 export [add]: (Int, Int) -> Int :- 
     export [linux/add.cpp]: File
 export [add]: (Int, Int) -> Int :- 
