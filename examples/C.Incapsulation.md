@@ -27,11 +27,10 @@ Scope:
     [main]: Unit -> Int
     [main.c]: File
     [lib.c]: File
-        # lib.c
+        -- # lib.c
         [f:lib.c]: Unit -> Int
-        # main.c
+        -- # main.c
         [f:main.c]: Unit -> Int
-
 
 Links:
     [g:lib.c]: Unit -> Int :-

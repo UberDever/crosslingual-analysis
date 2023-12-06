@@ -15,27 +15,43 @@ export function bar() {
     a.foo()
 }
 ```
-```
-Note: file.js has interlinked dependencies,
-but they are not listed here because this is not a tool concern for now
+Results:
+```yaml
 
-_ (some_file.h): File |- 
-    [C:0] file.c: File |-
-        _ [a]: Int |- 
-            _ [foo]: Unit -> Int
+Fragments:
+    [some_file.h]: File
+    [foo:file.c]: Unit -> Int
+    [a:file.c]: Int
+    [some_module.js]: File
+    [a:file.js]: Opaque
+    [bar]: Unit -> Unit
+    [foo:file.js]: Unit -> Unit
+    [file.c]: File
+    [file.js]: File
+    
+Scope:
+    [some_file.h]: File
+    [file.c]: File
+    [file.js]: File
+    [some_module.js]: File
+    [foo:file.c]: Unit -> Int
+    [bar]: Unit -> Unit
+        [a:file.c]: Int
+        --
+        [a:file.js]: Opaque
+        [a.foo]: Unit -> Unit
 
-_ (some_module.js): File |-
-    [Js:0] file.js: File |-
-        _ [a]: Opaque |-
-            _ [foo]: Unit -> Any |-
-                _ [bar]: Unit -> Int
-```
-Linear form:
-```
-_ (some_file.h): File |- [C:0] file.c: File
-_ [a]: Int |- _ [foo]: Unit -> Int
-
-_ (some_module.js): File |- [Js:0] file.js: File
-_ [a]: Opaque |- _ [foo]: Unit -> Any
-_ [foo]: Unit -> Any |- _ [bar]: Unit -> Unit
+Links:
+    [bar]: Unit -> Unit :-
+        [a.foo]: Unit -> Unit :-
+            [a:file.js]: Opaque :-
+                [some_module.js]: File
+    [a:file.js]: Opaque :- 
+        [file.js]: File :-
+            [some_module.js]: File
+    [foo:file.c]: Unit -> Int :- 
+        [a:file.c]: Int :-
+            [file.c]: File :-
+                [some_file.h]: File
+   
 ```

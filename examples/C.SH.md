@@ -18,42 +18,55 @@ int main(int argc, char** argv) {
 }
 ```
 ```sh
+# build.sh
 cc -DVAR lib.c main.c -o app.exe
 ```
-```
-[C:0] VAR: Unit |-
-    [C:0] lib.c: File |-
-        [C:0] f: Unit -> Int
+Results:
+```yaml
+Fragments:
+    [VAR]: Bot
+    [VAR]: Unit
+    [f:lib.c]: Unit -> Int
+    [g]: Unit -> Int
+    [f:main.c]: Unit -> Int
+    [main]: Int -> List String -> Int
+    [lib.c]: File
+    [main.c]: File
+    [build.sh]: File
+    [cc -DVAR lib.c main.c -o app.exe]: File -> File -> File
+    [VAR:build.sh]: Unit
 
-[C:0] VAR: Bot |-
-    [C:0] lib.c: File |-
-        _ g: Unit -> Int
+Scope:
+    [VAR:build.sh]: Unit
+    [f:main.c]: Unit -> Int
+    [main]: Int -> List String -> Int
+    [lib.c]: File
+    [main.c]: File
+    [build.sh]: File
+        [cc -DVAR lib.c main.c -o app.exe]: File -> File -> File
+        --
+        [VAR]: Bot
+        [g]: Unit -> Int
+        --
+        [VAR]: Unit
+        [f:lib.c]: Unit -> Int
 
-[C:0] f: Unit -> Int |-
-    _ main.c: File |-
-        _ f: Unit -> Int |-
-            _ main: Int -> Any -> Int 
-
-_ build.sh: File |-
-    _ lib.c: File, _ main.c: File |-
-        _ 'cc -DVAR lib.c main.c -o app.exe': File -> File -> File |-
-            [Sh:0] VAR: Unit, _ app.exe: File
-
-[Sh:0] VAR: Unit |- [C:0] VAR: Unit
-[C:0] f: Unit -> Int |- [C:0] f: Unit -> Int
-```
-Linear form:
-```
-[C:0] VAR: Unit |- [C:0] lib.c: File, [C:0] f: Unit -> Int
-[C:0] VAR: Bot |- [C:0] lib.c: File, _ g: Unit -> Int
-
-[C:0] f: Unit -> Int |- _ main.c: File
-_ main.c: File |- _ f: Unit -> Int
-_ f: Unit -> Int |- _ main: Int -> Any -> Int 
-
-_ build.sh: File |- _ lib.c: File, _ main.c: File 
-_ lib.c: File, _ main.c: File |- _ 'cc -DVAR lib.c main.c -o app.exe': File -> File -> File
-_ 'cc -DVAR lib.c main.c -o app.exe': File -> File -> File |- [Sh:0] VAR: Unit, _ app.exe: File
-
-[Sh:0] VAR: Unit |- [C:0] VAR: Unit
+Links:
+    [VAR:build.sh]: Unit :-
+        [build.sh]: File
+    [cc -DVAR lib.c main.c -o app.exe]: File -> File -> File :-
+        [build.sh]: File
+    [main]: Int -> List String -> Int :-
+        [f:main.c]: Unit -> Int :-
+            [main.c]: File
+    [g]: Unit -> Int :-
+        [VAR]: Bot :-
+            [lib.c]: File
+    [f:lib.c]: Unit -> Int :-
+        [VAR]: Unit :-
+            [lib.c]: File
+    [VAR]: Unit :- 
+        [VAR:build.sh]: Unit
+    [f:main.c]: Unit -> Int :- 
+        [f:lib.c]: Unit -> Int
 ```
