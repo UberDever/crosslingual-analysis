@@ -8,8 +8,11 @@ project(${PROJECT_NAME} CXX)
 
 string(TOLOWER ${CMAKE_SYSTEM_NAME} SYSTEM)
 
-file(GLOB COMMON_SRC ${CMAKE_CURRENT_SOURCE_DIR}/common/*.cpp)
-file(GLOB PLATFORM_SRC ${CMAKE_CURRENT_SOURCE_DIR}/${SYSTEM}/*.cpp)
+set(COMMON_SRC
+    ${CMAKE_CURRENT_SOURCE_DIR}/common/main.cpp)
+
+set(PLATFORM_SRC
+    ${CMAKE_CURRENT_SOURCE_DIR}/${SYSTEM}/add.cpp)
 
 set(SRC_FILES ${COMMON_SRC} ${PLATFORM_SRC})
 
@@ -45,6 +48,11 @@ build_linux()
 Results:
 ```yaml
 Fragments:
+    - { term: "PROJECT_NAME", type: "String" }
+    - { term: "platform_specific", type: "String" }
+    - { term: "${PROJECT_NAME}", type: "String" }
+    - { term: "${CMAKE_SYSTEM_NAME}", type: "String" }
+    - { term: "SYSTEM", type: "String" }
 
 
 export [add]: (Int, Int) -> Int :- 
@@ -71,9 +79,12 @@ export [CMAKE_SYSTEM_NAME]: String & 'Linux' :-
             export [build.sh]: File
         [CMakeLists.txt]: File
 
+[CMAKE_CURRENT_SOURCE_DIR]: String :-
+    [set(COMMON_SRC ${CMAKE_CURRENT_SOURCE_DIR}/common/main.cpp)]: Unit 
+
 [SRC_FILES]: List String :-
     [PLATFORM_SRC]: List String :-
-        [file(GLOB PLATFORM_SRC ${CMAKE_CURRENT_SOURCE_DIR}/${SYSTEM}/*.cpp)]: Unit :-
+        :-
             [${CMAKE_CURRENT_SOURCE_DIR}/${SYSTEM}/*.cpp]: List File :-
                 [SYSTEM]: String :- 
                     [string(TOLOWER ${CMAKE_SYSTEM_NAME} SYSTEM)]: Unit :-
