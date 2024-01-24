@@ -43,7 +43,6 @@ build_linux() {
     cmake -b build -DCMAKE_SYSTEM_NAME=Linux ./CMakeLists.txt
 }
 
-build_linux()
 ```
 Results:
 ```yaml
