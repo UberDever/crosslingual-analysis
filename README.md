@@ -1,113 +1,139 @@
 
 # Insights/ideas
 
-## Универсальный анализатор (прототип реализован как prototype2)
+```typescript
 
-```haskell
-    type LSPMessage = -- <message from lsp basically json>
-    type Fragment = Text
-    type Tree = -- <tree of text>
-    type Parser = Fragment -> EBNF -> Tree -- basically interpreter
-    type Judgement = -- <AST of lambda 2>
-    type Module = Graph [Judgement]
-    type Relation = (Judgement, Judgement)
+type Language = string
+type URI = string
+type Code = string // Code is basically Data here
+type Grammar = Code
+type Translation = Code
+type System = {}
 
-    translate :: Parser -> Productions -> Fragment -> Module
-    analyze :: [Module] -> [Relation]
+// TODO: Steal base types from LSP, use JSON-RPC
 
-    parseLSPMessage :: LSPMessage -> Fragment
-    dumpCache :: Module -> IO Filepath -- and also readCache
+type Monotype = string // kind == 1
+type TypeConstructor = string // kind > 1
+type Type =
+    Monotype | TypeConstructor
+
+type LessThan = [string, string]
+type Top = string
+type Bottom = string
+type Relation =
+    LessThan |
+    Top |
+    Bottom
+
+// Consider incremental approach (pipes)
+
+interface Ontology {
+    languages: Language[]
+    links: { from: Language, to: Language, semantic: string }[]
+    types: Type[]
+    subtyping: Relation[]
+    grammars: (l: Language) => Grammar
+    translations: (l: Language) => Translation
+}
+
+namespace Frontend {
+    namespace CodeExtractor {
+        interface Query {
+            lang: Language
+            root: URI
+        }
+
+        interface Response {
+            code: (Code | URI)[]
+        }
+
+        interface Extractor {
+            extract(q: Query): Response;
+        }
+    }
+
+    namespace SystemInfo {
+        interface GenerateRequest {
+            where: URI
+        }
+
+        interface InfoRequest {
+            from: URI
+        }
+
+        type Query = GenerateRequest | InfoRequest
+
+        interface Response {
+            info: Code
+        }
+
+    /*class*/ interface SystemInfoProvider {
+        /*private*/ generate(system: System): void
+            info(q: Query): Response
+        }
+    }
+}
+
+// TODO: develop further
+namespace Analyzer {
+    type Constraint = {}
+
+    interface Constraints {
+        constraints: Constraint[]
+    }
+
+    interface Resolution {
+        psi: any
+        phi: any
+    }
+
+    namespace SyntaxTranslator {
+        interface GenerateParser {
+            lang: Language
+            grammar: URI | Grammar
+        }
+
+        // translation should be in some sort of language, DSL?
+        // L-attributed/S-attributed https://www.csd.uwo.ca/~mmorenom/CS447/Lectures/Translation.html/node4.html
+        interface GenerateTranslator {
+            lang: Language
+            translation: URI | Translation
+        }
+
+        interface RunTranslation {
+            lang: Language
+        }
+
+        type Query =
+            GenerateParser |
+            GenerateTranslator |
+            RunTranslation
+
+        type Response =
+            Constraints
+
+        interface Translator {
+            constraints(q: Query): Response
+        }
+    }
+
+    // NOTE: Maybe borrow some constraint solver?
+    namespace Solver {
+        interface SolveConstraints {
+            constraints: Constraint[]
+        }
+
+        type Query = SolveConstraints
+
+        type Response = Resolution
+
+        interface Solver {
+            solve(q: Query): Response
+        }
+    }
+}
+
 ```
-
-## Грамматика языка фрагментов анализатора
-```ebnf
-# Fragment
-# Implies ({ start: file_line_col, end: file_line_col }, lang: <ID from ontology>)
-F ::= ID
-
-# Alias for a type
-A ::= ID '=' T
-
-# Type of a fragment
-T ::= 
-    | T '->' T                        # Function
-    | T '*' T                         # Product
-    | T '+' T                         # Sum
-    | T '&' T                         # Intersection
-    | T '|' T                         # Union
-    | '{' (ID ':' T ',')* '}'       # Record
-    | Unit | Any | Opaque           # Builtins
-
-# Typed fragment (term)
-t ::= '(' F ')' ':' T
-
-# Collection of fragment terms
-# In case of lhs of judgement ',' means conjunction 
-# In case of rhs of judgement ',' means multiple conclusions
-ts ::= t (',' t)*
-
-# Judgement
-# ';' here means disjunction 
-J ::= ts (';' ts)* '|-' ts
-
-# Block of judgements
-# Judgements on the left of `with` use judgements on the right for inference, but only one level deep
-# Judgements within the block are not structured lexically, hence
-# conclusions below can be used to infer judgments above
-B ::= (J '\n')+ ('with' B)?
-
-Start ::= (A '\n')* 'then' B
-```
-
-## Определение функции связываемости фрагментов
-Является функцией логического вывода
-```ocaml
-
-let linked lhs: Fragment rhs: Fragment =
-    (linked lhs.term rhs.term) `and` (linked lhs.type rhs.type)
-
-(*
-    linked Bool Bool == true
-    linked Int Unit == false
-    linked (Bool -> Int) (Bool -> Int) == true
-    linked (Int -> Int) (Unit -> Int) == false
-    linked _ Bot == false; linked Bot _ == false
-    linked _ Any == true; linked Any _ == true
-*)
-let linked lhs: Type rhs: Type = (*structural comparison for now*)
-
-(*
-    linked twoPlusTwo twoPlusTwo == true
-    linked \x.(f g) \y.(f g) == false
-    linked 123 id == false
-    linked \x.\y.z \x.(y z) == false
-*)
-let linked lhs: Term rhs: Term = (*lexical comparison for now*)
-```
-
-## Общее
-Терм - фрагмент кода, уникально идентифицируемый в рамках всей системы, имеет тип
-
-Тип - тип из системы типизации lambda2
-
-Онтология включает:
-- Правила взаимодействия языков (видимость одного языка из другого, название связи такой комбинации)
-- Предметно-ориентированные типы (допустимые грамматикой выше)
-- Ссылки на пару <Грамматика:Трансляция> для каждого вовлеченного языка
-
-1. Универсальный анализатор типовых сигнатур - на вход получает все типовые сигнатуры сущностей в форме вложенных фрагментов и выявляет их связи между собой.
-    - Связи используются для обнаружения зависимостей 
-    - и поддержания корректности использования сущностей в различных контекстах
-1. Такой анализатор использует набор фрагментов и онтологию предметной области, последняя получается из контекста проекта (файла конфигурации)
-1. Набор фрагментов получается из результатов работы различных моноязыковых анализаторов, переводящих изначальную типовую информацию 
-какого-либо языка в общую форму
-1. Система типов универсального тайпчекера предположительно что-то вроде lambda 2
-1. Фрагменты подчиняются определенному правилу линковки модулей
-
-## Моноязыковые анализаторы
-1. Я думаю стоит использовать [LSP](https://microsoft.github.io/language-server-protocol/)
-1. Сохранение scoping rules может быть произведено через вложенность фрагментов. First-class фрагменты вещь путанная и через чур сложная для поставленных задач
-1. Термы имеют области видимости (наверняка характеризуемые числом) которые позволяют контроллировать name-aliasing
 
 # TODO
 
