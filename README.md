@@ -32,8 +32,8 @@ interface Ontology {
     links: { from: Language, to: Language, semantic: string }[]
     types: Type[]
     subtyping: Relation[]
-    grammars: (l: Language) => Grammar
-    translations: (l: Language) => Translation
+    // grammars: (l: Language) => Grammar
+    // translations: (l: Language) => Translation
 }
 
 namespace Frontend {
