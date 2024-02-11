@@ -1,0 +1,18 @@
+Languages,Domains,Kinds,Usecases
+Typescript,Enterprise,OOP,Go to declaration
+Go,Web,Functional,Go to definition
+Python,Embedded,Multi-paradigm,Go to type definition
+Ruby,Data science and AI,Structured,Go to implementation
+Java,System programming,Shell,Find references
+Clojure,Scientific computing,Procedural,Prepare call hierarchy
+Scala,Database management,Datum,Prepare type hierarchy
+Bash,Fintech,Markup,Call hierarchy in/out calls
+Powershell,Testing,,Type hierarchy super/sub types
+HTML,DevOps,,Document link + resolve
+SQL,,,Document symbols
+CSV,,,Completion
+Plain Text,,,Signature help
+XML,,,Rename
+JSON,,
+Apache Ant,,
+Ninja,,
