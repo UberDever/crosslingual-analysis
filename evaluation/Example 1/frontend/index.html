@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Fetch API Example</title>
+</head>
+
+<body>
+    <button onclick="updateCounter()">Update counter</button>
+    <p id="data"></p>
+
+    <script>
+        function updateCounter() {
+            fetch('http://localhost:3333/item')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('data').innerText = "The current value of counter is: " + data.count;
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+
+            fetch('http://localhost:3333/item', {
+                method: "POST",
+            })
+
+            fetch('http://localhost:3333/item')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('data').innerText = "The current value of counter is: " + data.count;
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+        }
+    </script>
+</body>
+
+</html>

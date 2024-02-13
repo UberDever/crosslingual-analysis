@@ -40,4 +40,3 @@ TODO
 - [Call Hierarchy Incoming Calls](https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#callHierarchy_incomingCalls)
 - [Call Hierarchy Outgoing Calls](https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#callHierarchy_outgoingCalls)
 - [Prepare Call Hierarchy Request](https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#textDocument_prepareCallHierarchy)
-- []()
