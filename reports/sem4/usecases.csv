@@ -13,6 +13,7 @@ SQL,,,Document symbols
 CSV,,,Completion
 Plain Text,,,Signature help
 XML,,,Rename
-JSON,,
+JSON,,,Pull diagnostics
 Apache Ant,,
 Ninja,,
+Filesystem
