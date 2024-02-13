@@ -3,6 +3,10 @@
 Library in C is compiled and deployed somewhere. There are also local testing framework consisting of
 python and shell files, that runs different scenarios.
 
+## Required environment
+
+TODO
+
 ## Extracted data
 
 TODO

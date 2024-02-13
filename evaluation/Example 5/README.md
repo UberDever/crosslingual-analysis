@@ -4,6 +4,10 @@ Golang service connects to a local database and processes data to serve clients 
 
 For a sake of simplicity database is simple file, but can also be a mongodb or some database with connection string.
 
+## Required environment
+
+TODO
+
 ## Extracted data
 
 TODO
@@ -27,3 +31,5 @@ TODO
 ## Expected scenarios
 
 - [Pull diagnostics](https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#textDocument_pullDiagnostics)
+- [Document Link Request](https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#textDocument_documentLink)
+- [Document Link Resolve Request](https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#documentLink_resolve)

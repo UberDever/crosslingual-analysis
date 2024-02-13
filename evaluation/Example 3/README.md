@@ -4,6 +4,10 @@ Application written in C# (this one is CLI, but it can also be desktop/server) u
 classes written in Visual Basic to extend it's functionality. All project is managed by solution (although it is not
 relevant to the analysis).
 
+## Required environment
+
+TODO
+
 ## Extracted data
 
 TODO
