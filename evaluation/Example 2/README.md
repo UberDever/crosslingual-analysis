@@ -1,7 +1,7 @@
 
-# Example 3
+# Example 2
 
-Python script passes data to heavy computation function, implemented in fortran.
+Python script passes data to heavy computation function, implemented in Fortran.
 
 Makefile script is used to facilitate build
 

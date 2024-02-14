@@ -1,8 +1,8 @@
-# Example 4
+# Example 5
 
 Golang service connects to a local database and processes data to serve clients with information about the weather.
 
-For a sake of simplicity database is simple file, but can also be a mongodb or some database with connection string.
+For a sake of simplicity database is simple file, but can also be a mongodb or some database with a connection string.
 
 ## Required environment
 
@@ -26,7 +26,6 @@ TODO
 
 - Client-server
 - Database management
-- DevOps
 
 ## Expected scenarios
 

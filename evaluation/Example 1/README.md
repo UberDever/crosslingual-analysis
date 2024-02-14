@@ -1,5 +1,5 @@
 
-# Example 3
+# Example 1
 
 Simple fullstack app with bidirectional client-server communication.
 Golang serves the page, JS fetches state and posts update request to server on button press.
