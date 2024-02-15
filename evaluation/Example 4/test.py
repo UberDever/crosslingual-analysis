@@ -13,9 +13,9 @@ class Counter(ctypes.Structure):
     ]
 
 lib.counter_new.argtypes = []
-lib.counter_new.restype = Counter
+lib.counter_new.restype = ctypes.POINTER(Counter)
 
-lib.counter_get.argtypes = [Counter]
+lib.counter_get.argtypes = [ctypes.POINTER(Counter)]
 lib.counter_get.restype = ctypes.c_int
 
 lib.counter_reset.argtypes = [ctypes.POINTER(Counter)]
@@ -23,6 +23,9 @@ lib.counter_reset.restype = None
 
 lib.counter_inc.argtypes = [ctypes.POINTER(Counter)]
 lib.counter_inc.restype = None
+
+lib.counter_free.argtypes = [ctypes.POINTER(Counter)]
+lib.counter_free.restype = None
 
 args = sys.argv[1:]
 
@@ -42,3 +45,5 @@ if scenario == 'full':
         lib.counter_inc(counter)
 
 print("Counter:", lib.counter_get(counter))
+
+lib.counter_free(counter)

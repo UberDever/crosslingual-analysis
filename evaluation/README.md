@@ -19,7 +19,7 @@ Difficulty of the implementation of the analysis.
     * JS (used in 1)
 - Hard:
     * Fortran (used in 2)
-    * C (used in 4)
+    * C++ (used in 4)
 
 # Statistics
 

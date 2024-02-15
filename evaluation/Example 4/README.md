@@ -1,7 +1,10 @@
 # Example 4
 
-Library in C is compiled and deployed somewhere. There are also local testing framework consisting of
+Library in C++ is compiled and deployed somewhere. There are also local testing framework consisting of
 python and shell files, that runs different scenarios.
+
+Although library is written in C++, it is linked as a C one with wrappers so
+Python can use it freely.
 
 ## Required environment
 
@@ -13,7 +16,7 @@ TODO
 
 ## Languages
 
-- C
+- C++
 - Python 3
 - Shell
 
