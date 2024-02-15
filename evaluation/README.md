@@ -12,7 +12,7 @@ Difficulty of the implementation of the analysis.
     * JSON (used in 5)
     * HTML (used in 1)
 - Medium:
-    * Makefile (though shell, used in 2)
+    * Makefile (through shell, used in 2)
     * Shell (used in 4)
     * C# (used in 3)
     * VB (used in 3)
@@ -24,5 +24,5 @@ Difficulty of the implementation of the analysis.
 # Statistics
 
 - Described paradigms: 10
-- Described domains: 12
+- Described domains: 11
 - Described scenarios: 19
