@@ -21,6 +21,8 @@ Difficulty of the implementation of the analysis.
     * Fortran (used in 2)
     * C++ (used in 4)
 
+Assumed order of implementation (project numbers): 1, 5, 3, 4, 2
+
 # Statistics
 
 - Described paradigms: 10
