@@ -1,31 +1,34 @@
 package main
 
 import (
-	"fmt"
+	"encoding/json"
 	"log"
 	"net/http"
-	"os"
 )
 
-func main() {
-	counter := 0
+type counter struct {
+	Count int `json:"count"`
+}
 
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		byteValue, err := os.ReadFile("../frontend/index.html")
-		if err != nil {
-			println("Cannot open index page")
-			os.Exit(-1)
-		}
-		w.Write(byteValue)
-	})
+func (c *counter) increment() {
+	c.Count++
+}
+
+func main() {
+	counter := counter{}
+
 	http.HandleFunc("/item", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json; charset=utf-8")
-		w.Header().Set("Access-Control-Allow-Origin", "http://localhost:3333")
+		w.Header().Set("Access-Control-Allow-Origin", "*")
 		switch r.Method {
 		case "POST":
-			counter += 1
+			counter.increment()
 		case "GET":
-			w.Write([]byte(fmt.Sprintf(`{"count": %d}`, counter)))
+			data, err := json.Marshal(counter)
+			if err != nil {
+				return
+			}
+			w.Write(data)
 		default:
 			w.WriteHeader(http.StatusMethodNotAllowed)
 		}
