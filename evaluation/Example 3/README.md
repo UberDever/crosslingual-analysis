@@ -8,7 +8,7 @@ relevant to the analysis).
 
 TODO
 
-## Extracted data
+## Extracted constraints
 
 TODO
 

@@ -7,9 +7,11 @@ Server serves update request, updates state. JS fetches updated state.
 
 ## Required environment
 
-TODO
+Implicit (encoded in the translators):
+- http.HandleFunc modifies creates new URIs on the basis of <host>
+- http.ListenAndServe with the nil parameter sets <host> to localhost
 
-## Extracted data
+## Extracted constraints
 
 [Notation is defined in top-level readme](../README.md)
 

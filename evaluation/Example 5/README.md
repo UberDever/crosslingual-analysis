@@ -6,11 +6,49 @@ For a sake of simplicity database is simple file, but can also be a mongodb or s
 
 ## Required environment
 
-TODO
+Implicit (encoded in the translators):
+- http.HandleFunc modifies creates new URIs on the basis of <host> (declaration)
+- http.ListenAndServe with the nil parameter sets <host> to localhost
+- os.ReadFile reads file that is specified by filepath (reference)
 
-## Extracted data
+## Extracted constraints
 
-TODO
+```lisp
+(AND
+    (Associate (Decl OS 1) -1)
+    (Declare -1 (Decl Filesystem 2))
+    (Associate (Decl Filesystem 2) -2)
+    (Edge -2 -1 Parent)
+
+    (Declare -2 (Decl server.go 3))
+    (Associate (Decl server.go 3) -3) ; -3 is "http.server"
+    (Edge -3 -2 Parent)
+    (Declare -3 (Decl http://localhost:8080/ 4))
+
+    (Reference (Ref "~/dev/mag/crosslingual-analysis/evaluation/Example 5/weather.json" 5) -3)
+    (Resolves (Ref "~/dev/mag/crosslingual-analysis/evaluation/Example 5/weather.json" 5) (Delta 6))
+
+    (Declare -2 (Decl weather.json 6))
+    (Associate (Decl weather.json 6) -4)
+    (Edge -4 -2 Parent)
+    ; Here must go all json structure in form of the tree with only lists being typed
+    ; But we have only necessary stuff here
+    (Edge -5 -4 Parent) ; Root object (this is a questionable way to encode this)
+    (Declare -5 (Decl main 7))
+    (Associate (Decl main 7) -6)
+    (Declare -6 (Decl temp 8))
+    (Typeof (Decl temp 8) (Tau 9))
+    (Equal (Tau 9) Float)
+)
+```
+
+### Scenarios
+
+- Pull diagnostics: First run pull diagnostics as is, then rename `temp` in `weather.json:16:9`
+to `temperature` and run diagnostics again. Should expect squigglies or some stuff in
+ `server.go:32:8` on json access
+- Document Link Request/Resolve: Resolve `weather.json` line in `server.go:25:29` to the actual file
+(yeah vscode already can do this, but who cares) 
 
 ## Languages
 

@@ -14,7 +14,7 @@ This can be used to extract extension for generated 'python module'
 ['.cpython-38-x86_64-linux-gnu.so', '.abi3.so', '.so']
 ```
 
-## Extracted data
+## Extracted constraints
 
 TODO
 

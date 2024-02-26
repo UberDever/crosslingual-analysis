@@ -10,7 +10,7 @@ Python can use it freely.
 
 TODO
 
-## Extracted data
+## Extracted constraints
 
 TODO
 
