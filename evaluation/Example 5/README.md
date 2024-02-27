@@ -6,12 +6,16 @@ For a sake of simplicity database is simple file, but can also be a mongodb or s
 
 ## Required environment
 
+Get all files by `cd "Example 5" && find -name *.go || find -name *.json`
+
 Implicit (encoded in the translators):
 - http.HandleFunc modifies creates new URIs on the basis of <host> (declaration)
 - http.ListenAndServe with the nil parameter sets <host> to localhost
 - os.ReadFile reads file that is specified by filepath (reference)
 
 ## Extracted constraints
+
+[Notation is defined in top-level readme](../README.md)
 
 ```lisp
 (AND
@@ -21,7 +25,8 @@ Implicit (encoded in the translators):
     (Edge -2 -1 Parent)
 
     (Declare -2 (Decl server.go 3))
-    (Associate (Decl server.go 3) -3) ; -3 is "http.server"
+    (Associate (Decl server.go 3) -15) ; -3 is "http.server"
+    (Edge -15 -3 golang-module) ; This models cross-language barriers
     (Edge -3 -2 Parent)
     (Declare -3 (Decl http://localhost:8080/ 4))
 
@@ -29,7 +34,8 @@ Implicit (encoded in the translators):
     (Resolves (Ref "~/dev/mag/crosslingual-analysis/evaluation/Example 5/weather.json" 5) (Delta 6))
 
     (Declare -2 (Decl weather.json 6))
-    (Associate (Decl weather.json 6) -4)
+    (Associate (Decl weather.json 6) -16)
+    (Edge -16 -4 json-module) ; This models cross-language barriers
     (Edge -4 -2 Parent)
     ; Here must go all json structure in form of the tree with only lists being typed
     ; But we have only necessary stuff here

@@ -7,6 +7,8 @@ Server serves update request, updates state. JS fetches updated state.
 
 ## Required environment
 
+Get all files by `cd "Example 1" && find -name *.go || find -name *.html`
+
 Implicit (encoded in the translators):
 - http.HandleFunc modifies creates new URIs on the basis of <host>
 - http.ListenAndServe with the nil parameter sets <host> to localhost
@@ -23,7 +25,8 @@ Implicit (encoded in the translators):
     (Edge -2 -1 Parent)
 
     (Declare -2 (Decl server.go 3))
-    (Associate (Decl server.go 3) -3) ; -3 is "http.server"
+    (Associate (Decl server.go 3) -15) ; -3 is "http.server"
+    (Edge -15 -3 golang-module) ; This models cross-language barriers
     (Edge -3 -2 Parent)
     (Declare -3 (Decl http://localhost:3333/item 4))
     (Associate (Decl http://localhost:3333/item 4) -4)
@@ -42,7 +45,9 @@ Implicit (encoded in the translators):
     (Equals (Tau 32) Top)
 
     (Declare -2 (Decl index.html 7))
-    (Associate (Decl index.html) -5) ; -5 is "http.client"
+    ; Here we model just the JS part, ignoring all html part altogether
+    (Associate (Decl index.html) -16) ; -5 is "http.client"
+    (Edge -16 -5 js-module) ; This models cross-language barriers
     (Edge -5 -2 Parent)
     (Reference (Ref http://localhost:3333/item 8) -5)
     (Resolves (Ref http://localhost:3333/item 8) (Delta 9))

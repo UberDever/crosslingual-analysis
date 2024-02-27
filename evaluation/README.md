@@ -4,7 +4,10 @@ Each of the following projects has README that shortly describes the purpose of 
 
 # Notation
 
-[Paper from which notation is taken from](<sources/A Constraint Language for Static semantic analysis based on scope graphs.pdf>)
+[Paper from which notation is taken from](<../sources/A Constraint Language for Static semantic analysis based on scope graphs.pdf>)
+
+This thing is temporary -- that is, this should be converted to typed protocol 
+(probably ts one from [here](../reports/sem4/protocol.d.ts)). For now this would suffice as it is easier to write this by hand.
 
 ```lisp
 ; Declaration ::=
