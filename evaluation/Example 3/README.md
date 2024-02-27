@@ -54,9 +54,7 @@ Implicit:
     (Associated (Delta 14) (Sigma 15))
     (Edge -10 (Sigma 15) Import) ; -10 imports (Sigma 15)
     (Reference (Ref BaseVB 16) -10)
-    (Resolves (Ref BaseVB 16) (Delta 17))
-    (Associated (Delta 17) (Sigma 18))
-    (Edge -8 (Sigma 18) Import) ; inheritance 'extends', we import VB.BaseVB
+    (NominalEdge -8 (Ref BaseVB 16) Extends); Extends is basically Import
 )
 ```
 

@@ -55,7 +55,7 @@ Implicit (encoded in the translators):
     (Edge -6 (Sigma 10) Import) ; -6 imports (Sigma 10)
     (Reference (Ref POST 11) -6)
     (Resolves (Ref POST 11) (Delta 12))
-    (Typeof (Ref POST 11) (Tau 33))
+    (Typeof (Delta 12) (Tau 33))
     (Equals (Tau 33) Top)
 
     (Reference (Ref http://localhost:3333/item 13) -5)
@@ -76,7 +76,7 @@ Implicit (encoded in the translators):
     (Edge -14 (Sigma 26) Import)
     (Reference (Ref count 27) -14)
     (Resolves (Ref count 27) (Delta 28))
-    (Typeof (Ref count 27) (Tau 29))
+    (Typeof (Delta 28) (Tau 29))
     (Equals (Tau 29) Top)
 )
 ```
