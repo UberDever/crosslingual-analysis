@@ -1,9 +1,6 @@
 type integer = number
 type array = [any]
 
-type Language = string
-type URI = string
-type Code = string
 
 interface Message {
     jsonrpc: string;
@@ -113,7 +110,6 @@ export namespace ErrorCodes {
     export const lspReservedErrorRangeEnd: integer// = -32800;
 }
 
-
 interface ResponseError {
     code: integer;
     message: string;
@@ -135,15 +131,11 @@ interface CancelParams {
     id: integer | string;
 }
 
+type Language = string
+type URI = string
+type Code = string
+
 interface Ontology {
-    protocol: Protocol
-    config: Config
+    // will be filled as necessary
 }
 
-interface Protocol {
-    // this, implicit
-}
-
-interface Config {
-    
-}
