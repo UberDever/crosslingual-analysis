@@ -24,13 +24,13 @@ Explicit:
 ```lisp
 
 (AND
-    (Associate (Decl OS 1) -1)
+    (Association (Decl OS 1) -1)
     (Declare -1 (Decl Filesystem 2))
-    (Associate (Decl Filesystem 2) -2)
+    (Association (Decl Filesystem 2) -2)
     (Edge -2 -1 Parent)
 
     (Declare -2 (Decl Makefile 3))
-    (Associate (Decl build.sh 3) -15)
+    (Association (Decl build.sh 3) -15)
     (Edge -15 -3 makefile-module) ; This models cross-language barriers
     (Edge -3 -2 Parent)
     (Reference (Ref lib.f90 4) -3)
@@ -40,21 +40,21 @@ Explicit:
     (Declare -3 (Decl compute_lib 7))
     (Typeof (Decl compute_lib 7) (Tau 16))
     (Equals (Tau 16) File)
-    (Associated (Decl compute_lib 7) -999)
+    (Associated (Decl compute_lib 7) -50)
     ; This thing ties together lib.f90 and compute_lib.*
     ; Basically we say that they have the same associated scope
-    (NominalEdge -999 (Ref lib.f90 4) Compile)
+    (NominalEdge -50 (Ref lib.f90 4) Compile)
 
     (Declare -2 (Decl lib.f90 10))
-    (Associate (Decl lib.f90 10) -16)
+    (Association (Decl lib.f90 10) -16)
     (Edge -16 -4 fortran90-module) ; This models cross-language barriers
     (Edge -5 -2 Parent)
     (Declare -5 (Decl ExpensiveComputation 11))
     (Typeof (Decl ExpensiveComputation 11) (Tau 12))
-    (Equals (Tau 12) (Function Float Float))
+    (Equals (Tau 12) (Constructor Function Float Float))
 
     (Declare -2 (Decl compute.py 13))
-    (Associate (Decl compute.py 13) -17)
+    (Association (Decl compute.py 13) -17)
     (Edge -17 -6 python3-module) ; This models cross-language barriers
     (Edge -6 -2 Parent)
     (Reference (Ref compute_lib 14) -6)
@@ -66,7 +66,7 @@ Explicit:
     (Reference (Ref expensivecomputation 19) -6)
     (Resolves (Ref expensivecomputation 19) (Delta 20))
     (Typeof (Delta 20) (Tau 21))
-    (Equals (Tau 21) (Function Float Top))
+    (Equals (Tau 21) (Constructor Function Float Top))
 )
 
 ```

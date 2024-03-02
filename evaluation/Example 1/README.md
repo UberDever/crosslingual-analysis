@@ -19,24 +19,24 @@ Implicit (encoded in the translators):
 
 ```lisp
 (AND
-    (Associate (Decl OS 1) -1)
+    (Association (Decl OS 1) -1)
     (Declare -1 (Decl Filesystem 2))
-    (Associate (Decl Filesystem 2) -2)
+    (Association (Decl Filesystem 2) -2)
     (Edge -2 -1 Parent)
 
     (Declare -2 (Decl server.go 3))
-    (Associate (Decl server.go 3) -15) ; -3 is "http.server"
+    (Association (Decl server.go 3) -15) ; -3 is "http.server"
     (Edge -15 -3 golang-module) ; This models cross-language barriers
     (Edge -3 -2 Parent)
     (Declare -3 (Decl http://localhost:3333/item 4))
-    (Associate (Decl http://localhost:3333/item 4) -4)
+    (Association (Decl http://localhost:3333/item 4) -4)
     (Declare -4 (Decl GET 5))
-    (Associate (Decl GET 5) -8)
+    (Association (Decl GET 5) -8)
     (Declare -8 (Decl Response 18))
-    (Associate (Decl Response 18) -9)
-    (Declare -10 (Decl Json 19))
-    (Associate (Decl Json 19) -11)
-    (Declare -11 (Decl count 30))
+    (Association (Decl Response 18) -9)
+    (Declare -9 (Decl Json 19))
+    (Association (Decl Json 19) -10)
+    (Declare -10 (Decl count 30))
     (Typeof (Decl count 30) (Tau 31))
     (Equals (Tau 31) Int)
 
@@ -46,7 +46,7 @@ Implicit (encoded in the translators):
 
     (Declare -2 (Decl index.html 7))
     ; Here we model just the JS part, ignoring all html part altogether
-    (Associate (Decl index.html) -16) ; -5 is "http.client"
+    (Association (Decl index.html 7) -16) ; -5 is "http.client"
     (Edge -16 -5 js-module) ; This models cross-language barriers
     (Edge -5 -2 Parent)
     (Reference (Ref http://localhost:3333/item 8) -5)
