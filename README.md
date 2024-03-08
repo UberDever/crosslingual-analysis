@@ -1,141 +1,7 @@
 
 # Insights/ideas
 
-**СЛЕДУЕТ ПЕРЕПИСАТЬ ПРОТОКОЛ ПОД ТЕКУЩУЮ АРХИТЕКТУРУ**
 
-```typescript
-
-type Language = string
-type URI = string
-type Code = string // Code is basically Data here
-type Grammar = Code
-type Translation = Code
-type System = {}
-
-// TODO: Steal base types from LSP, use JSON-RPC
-
-type Monotype = string // kind == 1
-type TypeConstructor = string // kind > 1
-type Type =
-    Monotype | TypeConstructor
-
-type LessThan = [string, string]
-type Top = string
-type Bottom = string
-type Relation =
-    LessThan |
-    Top |
-    Bottom
-
-// Consider incremental approach (pipes)
-
-interface Ontology {
-    languages: Language[]
-    links: { from: Language, to: Language, semantic: string }[]
-    types: Type[]
-    subtyping: Relation[]
-    // grammars: (l: Language) => Grammar
-    // translations: (l: Language) => Translation
-}
-
-namespace Frontend {
-    namespace CodeExtractor {
-        interface Query {
-            lang: Language
-            root: URI
-        }
-
-        interface Response {
-            code: (Code | URI)[]
-        }
-
-        interface Extractor {
-            extract(q: Query): Response;
-        }
-    }
-
-    namespace SystemInfo {
-        interface GenerateRequest {
-            where: URI
-        }
-
-        interface InfoRequest {
-            from: URI
-        }
-
-        type Query = GenerateRequest | InfoRequest
-
-        interface Response {
-            info: Code
-        }
-
-    /*class*/ interface SystemInfoProvider {
-        /*private*/ generate(system: System): void
-            info(q: Query): Response
-        }
-    }
-}
-
-// TODO: develop further
-namespace Analyzer {
-    type Constraint = {}
-
-    interface Constraints {
-        constraints: Constraint[]
-    }
-
-    interface Resolution {
-        psi: any
-        phi: any
-    }
-
-    namespace SyntaxTranslator {
-        interface GenerateParser {
-            lang: Language
-            grammar: URI | Grammar
-        }
-
-        // translation should be in some sort of language, DSL?
-        // L-attributed/S-attributed https://www.csd.uwo.ca/~mmorenom/CS447/Lectures/Translation.html/node4.html
-        interface GenerateTranslator {
-            lang: Language
-            translation: URI | Translation
-        }
-
-        interface RunTranslation {
-            lang: Language
-        }
-
-        type Query =
-            GenerateParser |
-            GenerateTranslator |
-            RunTranslation
-
-        type Response =
-            Constraints
-
-        interface Translator {
-            constraints(q: Query): Response
-        }
-    }
-
-    // NOTE: Maybe borrow some constraint solver?
-    namespace Solver {
-        interface SolveConstraints {
-            constraints: Constraint[]
-        }
-
-        type Query = SolveConstraints
-
-        type Response = Resolution
-
-        interface Solver {
-            solve(q: Query): Response
-        }
-    }
-}
-
-```
 
 # TODO
 
@@ -186,7 +52,7 @@ namespace Analyzer {
 - [x] Расписать evaluation/usecases
     - [x] Источники данных
     - [x] Конфигурация окружения (и нужные данные из него)
-- [ ] Сделать начальные траверсеры (отображения text -> AST + траверс) для каждого из включенных языков
+- [ ] Сделать начальные трансляторы (отображения text -> AST + траверс) для каждого из включенных языков
     * [X] Golang
     * [x] JSON
     * [x] HTML
@@ -206,6 +72,9 @@ namespace Analyzer {
     можно не прорабатывать, а тупо использовать на незнакомой строке все виды трансляторов какие есть. Хотя, концептуально
     стоит такой модуль сделать внешним, а у арбитра лишь оставить возможность обращаться к такому модулю
 - [ ] Реструктурировать протокол
+- [ ] Переделать всё под JSON
+    - [ ] toDot
+    - [ ] трансляторы
 
 ## Срочно неважно
   

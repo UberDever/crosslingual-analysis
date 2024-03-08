@@ -13,7 +13,7 @@ def walk(tree, f):
         
 
 if len(sys.argv) < 2:
-    print("Please provide source code to traverse")
+    print("Expected JSON string with code")
     exit(-1)
 
 source = sys.argv[1]

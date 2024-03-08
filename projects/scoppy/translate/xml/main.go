@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"translate/shared"
 
 	"aqwari.net/xml/xmltree"
 )
@@ -15,14 +16,17 @@ func traverse(v xmltree.Element, f func(v xmltree.Element) bool) {
 	}
 }
 
-func main() {
+func Run() {
 	if len(os.Args) < 2 {
-		fmt.Println("Please provide the source code to compile")
-		os.Exit(-1)
+		fmt.Println("No argument were provided to translator")
+		return
 	}
-	source := os.Args[1]
+	request := shared.TryParseArguments(os.Args[1])
+	if request == nil {
+		return
+	}
 
-	root, err := xmltree.Parse([]byte(source))
+	root, err := xmltree.Parse([]byte(request.Code))
 	if err != nil {
 		log.Fatal(err)
 	}

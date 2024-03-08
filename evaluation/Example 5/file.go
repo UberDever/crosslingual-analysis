@@ -51,21 +51,21 @@ func printTree[T any](t Tree) {
 	}
 }
 
-func main() {
-	a := Just[int]{5}
-	b := Nothing{}
-	foo[int](a)
-	foo[struct{}](b)
+// func main() {
+// 	a := Just[int]{5}
+// 	b := Nothing{}
+// 	foo[int](a)
+// 	foo[struct{}](b)
 
-	tree := Branch[int]{
-		Leaf[int]{1},
-		Branch[int]{
-			Branch[int]{
-				Leaf[int]{16},
-				Leaf[int]{28},
-			},
-			Leaf[int]{10},
-		},
-	}
-	printTree[int](tree)
-}
+// 	tree := Branch[int]{
+// 		Leaf[int]{1},
+// 		Branch[int]{
+// 			Branch[int]{
+// 				Leaf[int]{16},
+// 				Leaf[int]{28},
+// 			},
+// 			Leaf[int]{10},
+// 		},
+// 	}
+// 	printTree[int](tree)
+// }
