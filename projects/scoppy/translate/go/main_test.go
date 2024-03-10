@@ -9,7 +9,7 @@ import (
 const MAIN_PATH = "../../../../evaluation/Example 5/server.go"
 
 func TestSmoke(t *testing.T) {
-	out := shared.TestAsCommand([]string{}, golang.Run)
+	out := shared.RunAsCommand([]string{}, golang.Run)
 	if len(out) == 0 {
 		t.Errorf("Expected non-empty error")
 	}

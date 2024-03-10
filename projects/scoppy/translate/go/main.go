@@ -5,7 +5,6 @@ import (
 	"go/ast"
 	"go/parser"
 	"go/token"
-	"log"
 	"os"
 	"translate/shared"
 )
@@ -23,7 +22,7 @@ func Run() {
 	fset := token.NewFileSet()
 	root, err := parser.ParseFile(fset, "stub.go", source, parser.ParseComments)
 	if err != nil {
-		log.Fatal(err)
+		fmt.Println(err)
 	}
 
 	ast.Inspect(root, func(n ast.Node) bool {

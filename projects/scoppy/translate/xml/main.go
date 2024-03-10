@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"os"
 	"translate/shared"
 
@@ -28,7 +27,7 @@ func Run() {
 
 	root, err := xmltree.Parse([]byte(request.Code))
 	if err != nil {
-		log.Fatal(err)
+		fmt.Println(err)
 	}
 
 	traverse(*root, func(v xmltree.Element) bool {

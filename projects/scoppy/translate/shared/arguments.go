@@ -15,8 +15,6 @@ func TryParseArguments(arg string) *arguments {
 	var args arguments
 	err := json.Unmarshal([]byte(arg), &args)
 	if err != nil {
-		message := "Error in parsing request"
-		err := newError(errorParse, &message)
 		fmt.Println(err)
 		return nil
 	}
