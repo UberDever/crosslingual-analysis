@@ -1,7 +1,7 @@
 package main
 
 import (
-	"fmt"
+	"log"
 	"os"
 	"translate/shared"
 
@@ -17,8 +17,8 @@ func traverse(v xmltree.Element, f func(v xmltree.Element) bool) {
 
 func Run() {
 	if len(os.Args) < 2 {
-		fmt.Println("No argument were provided to translator")
-		return
+		log.Print("No argument were provided to translator")
+		os.Exit(1)
 	}
 	request := shared.TryParseArguments(os.Args[1])
 	if request == nil {
@@ -27,11 +27,12 @@ func Run() {
 
 	root, err := xmltree.Parse([]byte(request.Code))
 	if err != nil {
-		fmt.Println(err)
+		log.Print(err)
+		os.Exit(1)
 	}
 
 	traverse(*root, func(v xmltree.Element) bool {
-		fmt.Println(string(v.Content))
+		log.Print(string(v.Content))
 		return true
 	})
 }

@@ -2,7 +2,7 @@ package shared
 
 import (
 	"encoding/json"
-	"fmt"
+	"log"
 )
 
 type arguments struct {
@@ -15,7 +15,7 @@ func TryParseArguments(arg string) *arguments {
 	var args arguments
 	err := json.Unmarshal([]byte(arg), &args)
 	if err != nil {
-		fmt.Println(err)
+		log.Print(err)
 		return nil
 	}
 	return &args

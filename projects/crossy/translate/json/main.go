@@ -2,7 +2,7 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
+	"log"
 	"os"
 	"translate/shared"
 )
@@ -23,8 +23,8 @@ func traverse(v any, f func(v any) bool) {
 
 func Run() {
 	if len(os.Args) < 2 {
-		fmt.Println("No argument were provided to translator")
-		return
+		log.Print("No argument were provided to translator")
+		os.Exit(1)
 	}
 	request := shared.TryParseArguments(os.Args[1])
 	if request == nil {
@@ -33,7 +33,8 @@ func Run() {
 	var root any
 	err := json.Unmarshal([]byte(request.Code), &root)
 	if err != nil {
-		fmt.Println(err)
+		log.Print(err)
+		os.Exit(1)
 	}
 
 	traverse(root, func(v any) bool {
@@ -51,9 +52,10 @@ func Run() {
 	}
 	j, err := json.Marshal(c)
 	if err != nil {
-		fmt.Println(err)
+		log.Print(err)
+		os.Exit(1)
 	}
-	fmt.Println(string(j))
+	log.Print(string(j))
 }
 
 func main() {

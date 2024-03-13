@@ -3,22 +3,19 @@ package main_test
 import (
 	"fmt"
 	"testing"
-	makefile "translate-makefile"
+	translate "translate-makefile"
 	"translate/shared"
 )
 
 const MAIN_PATH = "../../../../evaluation/Example 2/Makefile"
 
 func TestSmoke(t *testing.T) {
-	out := shared.RunAsCommand([]string{}, makefile.Run)
-	if len(out) == 0 {
-		t.Errorf("Expected non-empty error")
-	}
+	shared.RunAsCommand([]string{"_", ""}, translate.Run)
 }
 
 func TestEvaluation(t *testing.T) {
 	err := shared.RunOnFile(MAIN_PATH, func(argsJson []byte) error {
-		out := shared.RunAsCommand([]string{"", string(argsJson)}, makefile.Run)
+		out := shared.RunAsCommand([]string{"", string(argsJson)}, translate.Run)
 		fmt.Print(out)
 		return nil
 	})

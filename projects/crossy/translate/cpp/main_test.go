@@ -3,11 +3,11 @@ package main_test
 import (
 	"fmt"
 	"testing"
-	translate "translate-json"
+	translate "translate-cpp"
 	"translate/shared"
 )
 
-const MAIN_PATH = "../../../../evaluation/Example 5/weather.json"
+const MAIN_PATH = "../../../../evaluation/Example 4/lib.cpp"
 
 func TestSmoke(t *testing.T) {
 	shared.RunAsCommand([]string{"_", ""}, translate.Run)

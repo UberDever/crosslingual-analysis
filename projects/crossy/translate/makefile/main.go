@@ -2,14 +2,14 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
+	"log"
 	"os"
 	"translate/shared"
 )
 
 func Run() {
 	if len(os.Args) < 2 {
-		fmt.Println("No argument were provided to translator")
+		log.Print("No argument were provided to translator")
 		return
 	}
 	request := shared.TryParseArguments(os.Args[1])
@@ -21,10 +21,10 @@ func Run() {
 	})
 	json, err := json.Marshal(result)
 	if err != nil {
-		fmt.Println(err)
+		log.Print(err)
 		return
 	}
-	fmt.Println(string(json))
+	log.Print(string(json))
 }
 
 func main() {
