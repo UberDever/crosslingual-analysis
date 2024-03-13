@@ -1,0 +1,9 @@
+# set -x
+for p in $(find -name 'go.mod')
+do
+    d="$(dirname ${p})"
+    cd "$d"
+    go test ./...
+    cd - &> /dev/null
+done
+# set +x
