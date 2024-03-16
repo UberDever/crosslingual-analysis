@@ -2,7 +2,7 @@ package main
 
 import (
 	"encoding/json"
-	"log"
+	"fmt"
 	"os"
 	"translate/shared"
 )
@@ -23,7 +23,7 @@ func traverse(v any, f func(v any) bool) {
 
 func Run() {
 	if len(os.Args) < 2 {
-		log.Print("No argument were provided to translator")
+		fmt.Println("No argument were provided to translator")
 		os.Exit(1)
 	}
 	request := shared.TryParseArguments(os.Args[1])
@@ -33,7 +33,7 @@ func Run() {
 	var root any
 	err := json.Unmarshal([]byte(request.Code), &root)
 	if err != nil {
-		log.Print(err)
+		fmt.Println(err)
 		os.Exit(1)
 	}
 
@@ -43,19 +43,18 @@ func Run() {
 
 	// TODO: Make this id global to all translators somehow
 	var id uint = 0
-	c := []shared.Constraint{
+	c := shared.MakeTypedConstraints([]shared.Constraint{
 		shared.NewUsage(
-			shared.NewIdentifier(id+0, "a", "/some/path", 0, 1),
+			id+0, "a", "/some/path", 0, 1,
 			shared.UsageDecl,
 			shared.NewVariable(id+1, shared.BindingScope),
-		),
-	}
+		)})
 	j, err := json.Marshal(c)
 	if err != nil {
-		log.Print(err)
+		fmt.Println(err)
 		os.Exit(1)
 	}
-	log.Print(string(j))
+	fmt.Println(string(j))
 }
 
 func main() {

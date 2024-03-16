@@ -1,6 +1,9 @@
 package shared
 
-import "fmt"
+import (
+	"fmt"
+	"reflect"
+)
 
 type locationRange struct {
 	Start  uint `json:"start"`
@@ -16,6 +19,28 @@ type Constraint interface {
 	variantConstraint()
 }
 
+type typedConstraint struct {
+	Constraint string `json:"constraint"`
+	Body       any    `json:"body,inline"`
+}
+
+func (typedConstraint) variantConstraint() {}
+func newConstraint(c Constraint) typedConstraint {
+
+	return typedConstraint{
+		Constraint: reflect.TypeOf(c).Name(),
+		Body:       c,
+	}
+
+}
+func MakeTypedConstraints(xs []Constraint) []Constraint {
+	typed := make([]Constraint, 0, len(xs))
+	for i := range xs {
+		typed = append(typed, newConstraint(xs[i]))
+	}
+	return typed
+}
+
 type identifier struct {
 	Id   uint   `json:"id"`
 	Name string `json:"name"`
@@ -24,7 +49,7 @@ type identifier struct {
 
 func (d identifier) variantConstraint() {}
 
-func NewIdentifier(id uint, name string, path string, start, length uint) identifier {
+func newIdentifier(id uint, name string, path string, start, length uint) identifier {
 	return identifier{
 		Id:   id,
 		Name: name,
@@ -66,12 +91,15 @@ const (
 )
 
 type usage struct {
-	identifier
-	usageType
-	Scope variable `json:"scope"`
+	Id        identifier `json:"identifier"`
+	UsageType usageType  `json:"usage"`
+	Scope     variable   `json:"scope"`
 }
 
-func NewUsage(identifier identifier, usageType usageType, scope variable) usage {
+func (d usage) variantConstraint() {}
+
+func NewUsage(id uint, name string, path string, start, length uint, usageType usageType, scope variable) usage {
+	identifier := newIdentifier(id, name, path, start, length)
 	if !(scope.Name == BindingScope || scope.Name == BindingSigma) {
 		panic(fmt.Sprintf("In usage %v, %v is not a scope variable", identifier, scope))
 	}

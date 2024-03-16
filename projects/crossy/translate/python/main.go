@@ -2,7 +2,7 @@ package main
 
 import (
 	"encoding/json"
-	"log"
+	"fmt"
 	"os"
 	"os/exec"
 	"translate/shared"
@@ -14,7 +14,7 @@ func jsonAst(code string) string {
 	if err != nil {
 		switch e := err.(type) {
 		case *exec.ExitError:
-			log.Print(string(e.Stderr))
+			fmt.Println(string(e.Stderr))
 		}
 		os.Exit(69)
 	}
@@ -23,7 +23,7 @@ func jsonAst(code string) string {
 
 func Run() {
 	if len(os.Args) < 2 {
-		log.Print("No argument were provided to translator")
+		fmt.Println("No argument were provided to translator")
 		os.Exit(69)
 	}
 	request := shared.TryParseArguments(os.Args[1])
@@ -34,11 +34,11 @@ func Run() {
 	var root any
 	err := json.Unmarshal([]byte(codeJson), &root)
 	if err != nil {
-		log.Print(err)
+		fmt.Println(err)
 		os.Exit(69)
 	}
 
-	log.Print(root)
+	fmt.Println(root)
 }
 
 func main() {

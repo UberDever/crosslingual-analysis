@@ -1,17 +1,17 @@
 package main
 
 import (
+	"fmt"
 	"go/ast"
 	"go/parser"
 	"go/token"
-	"log"
 	"os"
 	"translate/shared"
 )
 
 func Run() {
 	if len(os.Args) < 2 {
-		log.Print("No argument were provided to translator")
+		fmt.Println("No argument were provided to translator")
 		os.Exit(1)
 	}
 	request := shared.TryParseArguments(os.Args[1])
@@ -22,12 +22,12 @@ func Run() {
 	fset := token.NewFileSet()
 	root, err := parser.ParseFile(fset, "stub.go", source, parser.ParseComments)
 	if err != nil {
-		log.Print(err)
+		fmt.Println(err)
 		os.Exit(1)
 	}
 
 	ast.Inspect(root, func(n ast.Node) bool {
-		log.Print(n)
+		fmt.Println(n)
 
 		return true
 	})
