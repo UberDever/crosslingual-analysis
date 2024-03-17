@@ -52,7 +52,7 @@ with Parser Parser Combinators](https://dl.acm.org/doi/pdf/10.1145/3314221.33145
 
 [An empirical analysis of the utilization of multiple programming languages in open source projects](https://dl.acm.org/doi/abs/10.1145/2745802.2745805)
 
-[On multi-language software development, cross-language links and accompanying tools: a survey of professional software developers](https://jserd.springeropen.com/articles/10.1186/s40411-017-0035-z)
+[On multi-language software development, cross-language links and accompanying tools: a survey of professional software developers](https://link.springer.com/article/10.1186/s40411-017-0035-z)
 
 [POLYCRUISE: A Cross-Language Dynamic Information Flow Analysis](https://chapering.github.io/pubs/sec22.pdf)
 

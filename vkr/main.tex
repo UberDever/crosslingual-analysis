@@ -13,7 +13,7 @@
 % \includepdf{extra/pz} % Пояснительная записка
 
 % 2 страница (не нумеруется, но учитывается)
-% \includepdf[pages={1,2}]{extra/task} % Задание на ВКР печатается на одном листе с двух сторон
+% \includepdf[pages={1,2}]{extra/tz} % Задание на ВКР печатается на одном листе с двух сторон
 
 % Помимо ПЗ и задания, в ВКР также вкладываются:
 % * отзыв руководителя (otzyv.pdf), на 1 странице с двух сторон
@@ -21,12 +21,14 @@
 % * отчет по антиплагиату (antiplagiat.pdf)
 
 % 3 страница
-% \input{inc/0-annotation} % Аннотация
+% \input{body/0-annotation} % Аннотация
 
 \tableofcontents % Содержание 
 \clearpage
 
-SOME
+\input{body/1-1-scope}
+\input{body/0-glossary}     % Перечень сокращений и условных обозначений
+\input{body/0-bibliography} % Библиографический список
 
 % \input{inc/0-intro}        % Введение
 % \input{inc/1-pz}           % Постановка задачи
@@ -41,12 +43,12 @@ SOME
 % \input{inc/0-bibliography} % Библиографический список
 
 % Список иллюстративного материала
-\lof
-\clearpage
+% \lof
+% \clearpage
 
 % Список табличного материала
-\lot
-\clearpage
+% \lot
+% \clearpage
 
 % Приложения
 % \input{inc/a-app} % Программа мониторинга уязвимостей в программном обеспечении

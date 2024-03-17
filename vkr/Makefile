@@ -1,4 +1,4 @@
-all: build run
+all: build run run-preza
 
 build-main:
 	latexmk -xelatex -synctex=1 -jobname=main main.tex
@@ -20,4 +20,6 @@ build:
 	
 run:
 	docker run --rm -ti -v ${PWD}:/master-thesis:Z docker-latex bash -c "git config --global --add safe.directory /master-thesis && make build-main && make clean"
+	
+run-preza:
 	docker run --rm -ti -v ${PWD}:/master-thesis:Z docker-latex bash -c "git config --global --add safe.directory /master-thesis && make -C presentation && make -C presentation clean"
