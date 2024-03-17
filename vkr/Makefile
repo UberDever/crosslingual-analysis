@@ -4,7 +4,7 @@ build-main:
 	latexmk -xelatex -synctex=1 -jobname=main main.tex
 
 clean:
-	rm *.aux \
+	rm -f *.aux \
 	*.fdb_latexmk \
 	*.fls \
 	*.lof \
