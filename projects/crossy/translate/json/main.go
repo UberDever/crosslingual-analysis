@@ -79,19 +79,8 @@ func Run() {
 	})
 
 	_ = counter
-	// var id uint = 0
-	// c := shared.MakeTypedConstraints([]shared.Constraint{
-	// 	shared.NewUsage(
-	// 		id+0, "a", "/some/path", 0, 1,
-	// 		shared.UsageDecl,
-	// 		shared.NewVariable(id+1, shared.BindingScope),
-	// 	)})
-	// j, err := json.Marshal(c)
-	// if err != nil {
-	// 	fmt.Println(err)
-	// 	os.Exit(1)
-	// }
-	// fmt.Println(string(j))
+
+	fmt.Println(string(""))
 }
 
 func main() {

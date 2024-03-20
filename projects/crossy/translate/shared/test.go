@@ -68,7 +68,8 @@ func RunOnFile(codePath string, onTranslate func(argsJson []byte) error) error {
 }
 
 func CompareJsonOutput(expected, actual string) error {
-	difference, out := jsondiff.Compare([]byte(expected), []byte(actual), nil)
+	opts := jsondiff.DefaultConsoleOptions()
+	difference, out := jsondiff.Compare([]byte(expected), []byte(actual), &opts)
 	if difference != jsondiff.FullMatch {
 		return fmt.Errorf("%s", out)
 	}

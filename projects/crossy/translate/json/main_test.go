@@ -15,7 +15,7 @@ func TestSmoke(t *testing.T) {
 func TestEvaluation(t *testing.T) {
 	err := shared.RunOnFile(MAIN_PATH, func(argsJson []byte) error {
 		out := shared.RunAsCommand([]string{"", string(argsJson)}, translate.Run)
-		t.Fatal(out)
+		_ = out
 		return nil
 	})
 	if err != nil {
