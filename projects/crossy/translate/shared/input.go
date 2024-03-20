@@ -6,9 +6,10 @@ import (
 )
 
 type arguments struct {
-	Id   uint    `json:"id"`
-	Code string  `json:"code"`
-	Path *string `json:"path"`
+	Id         uint    `json:"id"`
+	Code       string  `json:"code"`
+	Path       *string `json:"path"`
+	CounterURL *string `json:"counter_url"`
 }
 
 func TryParseArguments(arg string) *arguments {
@@ -19,12 +20,4 @@ func TryParseArguments(arg string) *arguments {
 		return nil
 	}
 	return &args
-}
-
-func NewArguments(id uint, code string, path *string) arguments {
-	return arguments{
-		Id:   id,
-		Code: code,
-		Path: path,
-	}
 }

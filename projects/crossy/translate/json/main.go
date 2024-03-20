@@ -7,16 +7,28 @@ import (
 	"translate/shared"
 )
 
-func traverse(v any, f func(v any) bool) {
-	f(v)
+// basically, this is a sum type of named tuples
+type state interface{ stateVariant() }
+
+type scope struct{}
+
+func (scope) stateVariant() {}
+
+type scopeRefDecl struct{}
+
+func (scopeRefDecl) stateVariant() {}
+
+type scopeType struct{}
+
+func (scopeType) stateVariant() {}
+
+func traverse(v any, s state, f func(v any, s state) bool) {
+	f(v, s)
 	switch val := v.(type) {
 	case []any:
-		for i := range val {
-			traverse(val[i], f)
-		}
 	case map[string]any:
 		for _, v := range val {
-			traverse(v, f)
+			traverse(v, s, f)
 		}
 	}
 }
@@ -30,6 +42,13 @@ func Run() {
 	if request == nil {
 		return
 	}
+	var counter shared.CounterService
+	if request.CounterURL == nil {
+		counter = &shared.CounterServiceMock{}
+	} else {
+		counter = shared.NewCounterServiceImpl(*request.CounterURL)
+	}
+
 	var root any
 	err := json.Unmarshal([]byte(request.Code), &root)
 	if err != nil {
@@ -37,24 +56,42 @@ func Run() {
 		os.Exit(1)
 	}
 
-	traverse(root, func(v any) bool {
+	traverse(root, nil, func(v any, s state) bool {
+		//NOTE: https://pkg.go.dev/encoding/json
+		switch v.(type) {
+		case float64:
+			break
+		case bool:
+			break
+		case string:
+			break
+		case nil:
+			break
+		case []any:
+			break
+		case map[string]any:
+			break
+		default:
+			panic("Unreachable")
+		}
+
 		return true
 	})
 
-	// TODO: Make this id global to all translators somehow
-	var id uint = 0
-	c := shared.MakeTypedConstraints([]shared.Constraint{
-		shared.NewUsage(
-			id+0, "a", "/some/path", 0, 1,
-			shared.UsageDecl,
-			shared.NewVariable(id+1, shared.BindingScope),
-		)})
-	j, err := json.Marshal(c)
-	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
-	}
-	fmt.Println(string(j))
+	_ = counter
+	// var id uint = 0
+	// c := shared.MakeTypedConstraints([]shared.Constraint{
+	// 	shared.NewUsage(
+	// 		id+0, "a", "/some/path", 0, 1,
+	// 		shared.UsageDecl,
+	// 		shared.NewVariable(id+1, shared.BindingScope),
+	// 	)})
+	// j, err := json.Marshal(c)
+	// if err != nil {
+	// 	fmt.Println(err)
+	// 	os.Exit(1)
+	// }
+	// fmt.Println(string(j))
 }
 
 func main() {

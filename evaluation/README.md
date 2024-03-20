@@ -48,6 +48,30 @@ This thing is temporary -- that is, this should be converted to typed protocol
 
 TODO: This buddies :) removed from [this](<sources/A Constraint Language for Static semantic analysis based on scope graphs.pdf>) qualified names. So we need to model them by ourselves. Fortunatelly, its not hard to do.
 
+## Their explanation for notation
+* <span style="color:green"> A declaration constraint s -> xD specifies that declaration xD belongs to scope s. </span>
+* <span style="color:green"> A reference constraint xR -> s specifies that reference xR
+belongs to scope s </span>
+* <span style="color:lightblue"> A resolution constraint R |-> D specifies that a given reference
+must resolve to a given declaration. Typically, the declaration
+is specified as a declaration variable δ </span>
+* <span style="color:lightblue"> A uniqueness constraint !N specifies that a given name collection N contains no duplicates. </span>
+* <span style="color:white"> A declaration name collection D(s) is obtained by projecting
+the identifiers from the set of declarations in scope s. </span>
+* <span style="color:red"> A type declaration constraint D : T associates a type with a
+declaration. This constraint is used in two flavors: associating
+a type variable (τ) with a concrete declaration, or associating a type variable with a declaration variable </span>
+* <span style="color:red"> A type equality constraint T ≡ T specifies that two types should be equal </span>
+* <span style="color:green"> A direct edge constraint s1 -l-> s2 specifies a direct l-labeled
+edge from scope s1 to s2.</span>
+* <span style="color:green"> An association constraint xD -|> s specifies s as the associated
+scope of declaration xD. </span>
+* <span style="color:green"> A nominal edge constraint s -l-> xR specifies a nominal l-labeled edge from scope s to reference xR. </span>
+* <span style="color:white"> A reference name collection R(s) denotes the multiset of reference identifiers of scope s. </span>
+* <span style="color:white"> A visible name collection V(s) denotes the multiset of declaration identifiers that are visible from scope s (i.e., would be visible from a reference to the declared identifier in s). </span>
+* <span style="color:lightblue"> A subset constraint N ⊂∼ N specifies that one name collection is included in another. </span>
+* <span style="color:lightblue"> An association constraint D ~> S specifies that a given declaration has a given associated scope </span>
+
 # Languages
 
 Difficulty of the implementation of the analysis.

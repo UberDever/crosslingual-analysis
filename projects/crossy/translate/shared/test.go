@@ -2,11 +2,24 @@ package shared
 
 import (
 	"encoding/json"
+	"fmt"
 	"io"
 	"os"
 	"path"
 	"path/filepath"
+
+	"github.com/nsf/jsondiff"
 )
+
+type CounterServiceMock struct {
+	counter int
+}
+
+func (c *CounterServiceMock) Get() (int, error) {
+	tmp := c.counter
+	c.counter++
+	return tmp, nil
+}
 
 func RunAsCommand(args []string, run func()) string {
 	oldArgs := os.Args
@@ -38,7 +51,11 @@ func RunOnFile(codePath string, onTranslate func(argsJson []byte) error) error {
 	if err != nil {
 		return err
 	}
-	request := NewArguments(0, string(code), &abs)
+	request := arguments{
+		Id:   0,
+		Code: string(code),
+		Path: &abs,
+	}
 	argsJson, err := json.Marshal(request)
 	if err != nil {
 		return err
@@ -46,6 +63,14 @@ func RunOnFile(codePath string, onTranslate func(argsJson []byte) error) error {
 	err = onTranslate(argsJson)
 	if err != nil {
 		return err
+	}
+	return nil
+}
+
+func CompareJsonOutput(expected, actual string) error {
+	difference, out := jsondiff.Compare([]byte(expected), []byte(actual), nil)
+	if difference != jsondiff.FullMatch {
+		return fmt.Errorf("%s", out)
 	}
 	return nil
 }
