@@ -158,7 +158,7 @@ class JsonTraverser:
         import inspect
         methods = dict(inspect.getmembers(
             JsonTraverser, predicate=inspect.isfunction))
-        tab = '    '
+        tab = ''
 
         def constraints_to_str(name: str):
             particular = constraints[name[0].upper() + name[1:]]

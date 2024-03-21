@@ -4,39 +4,84 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
-	"translate/shared"
+	ss "translate/shared"
 )
 
 type traverser struct {
-	counter shared.CounterService
+	key     *ss.Identifier
+	counter ss.CounterService
 }
 
-func (t traverser) value(root any) shared.Constraints {
-	cs := shared.Constraints{}
+func (t traverser) value(root any) ss.Constraints {
+	cs := ss.Constraints{}
 	switch v := root.(type) {
 	case map[string]any:
 		cs = cs.Merge(t.object(v))
 	case []any:
 		cs = cs.Merge(t.array(v))
 	case float64:
+		// TODO: types
 		break
 	case bool:
+		// TODO: types
 		break
 	case string:
+		// TODO: types
 		break
 	case nil:
+		// TODO: types
 		break
 	}
 	return cs
 }
 
-func (t traverser) object(v map[string]any) shared.Constraints {
-	cs := shared.Constraints{}
+func (t traverser) object(obj map[string]any) ss.Constraints {
+	cs := ss.Constraints{}
+
+	S := ss.NewVariable(t.counter.FreshForce(), ss.BindingScope)
+	if t.key != nil {
+		cs = cs.Merge(ss.Constraints{
+			AssociationKnown: []ss.AssociationKnown{ss.NewAssociationKnown(
+				t.counter.FreshForce(), *t.key, S,
+			)},
+		})
+	}
+	for k, v := range obj {
+		D := ss.NewIdentifier(k, "?", 0, 0) //TODO: Add path info
+		t.key = &D
+		cs = cs.Merge(ss.Constraints{
+			Usage: []ss.Usage{
+				ss.NewUsage(t.counter.FreshForce(), D, ss.UsageDecl, S),
+			},
+		})
+		cs = cs.Merge(t.value(v))
+	}
+
 	return cs
 }
 
-func (t traverser) array(v []any) shared.Constraints {
-	cs := shared.Constraints{}
+func (t traverser) array(arr []any) ss.Constraints {
+	cs := ss.Constraints{}
+
+	S := ss.NewVariable(t.counter.FreshForce(), ss.BindingScope)
+	if t.key != nil {
+		cs = cs.Merge(ss.Constraints{
+			AssociationKnown: []ss.AssociationKnown{ss.NewAssociationKnown(
+				t.counter.FreshForce(), *t.key, S,
+			)},
+		})
+	}
+	for k, v := range arr {
+		D := ss.NewIdentifier(fmt.Sprintf("%d", k), "?", 0, 0) //TODO: Add path info
+		t.key = &D
+		cs = cs.Merge(ss.Constraints{
+			Usage: []ss.Usage{
+				ss.NewUsage(t.counter.FreshForce(), D, ss.UsageDecl, S),
+			},
+		})
+		cs = cs.Merge(t.value(v))
+	}
+
 	return cs
 }
 
@@ -45,15 +90,15 @@ func Run() {
 		fmt.Println("No argument were provided to translator")
 		os.Exit(1)
 	}
-	request := shared.TryParseArguments(os.Args[1])
+	request := ss.TryParseArguments(os.Args[1])
 	if request == nil {
 		return
 	}
-	var counter shared.CounterService
+	var counter ss.CounterService
 	if request.CounterURL == nil {
-		counter = &shared.CounterServiceMock{}
+		counter = ss.NewCounterServiceMock()
 	} else {
-		counter = shared.NewCounterServiceImpl(*request.CounterURL)
+		counter = ss.NewCounterServiceImpl(*request.CounterURL)
 	}
 
 	var root any
@@ -64,10 +109,11 @@ func Run() {
 	}
 
 	traverser := traverser{
+		key:     nil,
 		counter: counter,
 	}
 	constraints := traverser.value(root)
-	j, err := json.Marshal(constraints)
+	j, err := json.MarshalIndent(constraints, "", "    ")
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)

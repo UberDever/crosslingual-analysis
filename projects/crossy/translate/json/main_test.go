@@ -4,19 +4,19 @@ import (
 	"os/exec"
 	"testing"
 	translate "translate-json"
-	"translate/shared"
+	ss "translate/shared"
 )
 
-const MAIN_PATH = shared.ANCHOR_PATH + "evaluation/Example 5/weather.json"
+const MAIN_PATH = ss.ANCHOR_PATH + "evaluation/Example 5/weather.json"
 
 func TestSmoke(t *testing.T) {
-	shared.RunAsCommand([]string{"_", ""}, translate.Run)
+	ss.RunAsCommand([]string{"_", ""}, translate.Run)
 }
 
 func TestEvaluation(t *testing.T) {
-	err := shared.RunOnFile(MAIN_PATH, func(argsJson []byte) error {
-		out := shared.RunAsCommand([]string{"", string(argsJson)}, translate.Run)
-		dot, err := shared.ToDot(out)
+	err := ss.RunOnFile(MAIN_PATH, func(argsJson []byte) error {
+		out := ss.RunAsCommand([]string{"", string(argsJson)}, translate.Run)
+		dot, err := ss.ToDot(out)
 		if err != nil {
 			switch e := err.(type) {
 			case *exec.ExitError:

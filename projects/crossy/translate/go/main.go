@@ -6,7 +6,7 @@ import (
 	"go/parser"
 	"go/token"
 	"os"
-	"translate/shared"
+	ss "translate/shared"
 )
 
 func Run() {
@@ -14,7 +14,7 @@ func Run() {
 		fmt.Println("No argument were provided to translator")
 		os.Exit(1)
 	}
-	request := shared.TryParseArguments(os.Args[1])
+	request := ss.TryParseArguments(os.Args[1])
 	if request == nil {
 		return
 	}

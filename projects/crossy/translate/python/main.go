@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
-	"translate/shared"
+	ss "translate/shared"
 )
 
 func jsonAst(code string) string {
@@ -26,7 +26,7 @@ func Run() {
 		fmt.Println("No argument were provided to translator")
 		os.Exit(69)
 	}
-	request := shared.TryParseArguments(os.Args[1])
+	request := ss.TryParseArguments(os.Args[1])
 	if request == nil {
 		return
 	}

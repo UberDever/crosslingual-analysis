@@ -3,11 +3,11 @@ package main_test
 import (
 	"testing"
 	translate "translate-xml"
-	"translate/shared"
+	ss "translate/shared"
 )
 
 const MAIN_PATH = "../../../../evaluation/Example 3/CSharp/CSharp.proj"
 
 func TestSmoke(t *testing.T) {
-	shared.RunAsCommand([]string{"_", ""}, translate.Run)
+	ss.RunAsCommand([]string{"_", ""}, translate.Run)
 }

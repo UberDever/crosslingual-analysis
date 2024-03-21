@@ -4,18 +4,18 @@ import (
 	"fmt"
 	"testing"
 	translate "translate-python"
-	"translate/shared"
+	ss "translate/shared"
 )
 
 const MAIN_PATH = "../../../../evaluation/Example 2/compute.py"
 
 func TestSmoke(t *testing.T) {
-	shared.RunAsCommand([]string{"_", ""}, translate.Run)
+	ss.RunAsCommand([]string{"_", ""}, translate.Run)
 }
 
 func TestEvaluation(t *testing.T) {
-	err := shared.RunOnFile(MAIN_PATH, func(argsJson []byte) error {
-		out := shared.RunAsCommand([]string{"", string(argsJson)}, translate.Run)
+	err := ss.RunOnFile(MAIN_PATH, func(argsJson []byte) error {
+		out := ss.RunAsCommand([]string{"", string(argsJson)}, translate.Run)
 		fmt.Print(out)
 		return nil
 	})

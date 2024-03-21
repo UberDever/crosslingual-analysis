@@ -20,40 +20,40 @@ type source struct {
 // Since support for sum types in golang is nonexistent,
 // I forced to use SOA here
 type Constraints struct {
-	Usage              []usage
-	Resolution         []resolution
-	Uniqueness         []uniqueness
-	TypeDeclKnown      []typeDeclKnown
-	TypeDeclUnknown    []typeDeclUnknown
-	DirectEdge         []directEdge
-	AssociationKnown   []associationKnown
-	NominalEdge        []nominalEdge
-	Subset             []subset
-	AssociationUnknown []associationUnknown
+	Usage              []Usage
+	Resolution         []Resolution
+	Uniqueness         []Uniqueness
+	TypeDeclKnown      []TypeDeclKnown
+	TypeDeclUnknown    []TypeDeclUnknown
+	DirectEdge         []DirectEdge
+	AssociationKnown   []AssociationKnown
+	NominalEdge        []NominalEdge
+	Subset             []Subset
+	AssociationUnknown []AssociationUnknown
 }
 
 func (c Constraints) Merge(cs Constraints) Constraints {
 	return Constraints{
-		Usage: append(c.Usage, cs.Usage...),
-		Resolution: append(c.Resolution, cs.Resolution...),
-		Uniqueness: append(c.Uniqueness, cs.Uniqueness...),
-		TypeDeclKnown: append(c.TypeDeclKnown, cs.TypeDeclKnown...),
-		TypeDeclUnknown: append(c.TypeDeclUnknown, cs.TypeDeclUnknown...),
-		DirectEdge: append(c.DirectEdge, cs.DirectEdge...),
-		AssociationKnown: append(c.AssociationKnown, cs.AssociationKnown...),
-		NominalEdge: append(c.NominalEdge, cs.NominalEdge...),
-		Subset: append(c.Subset, cs.Subset...),
+		Usage:              append(c.Usage, cs.Usage...),
+		Resolution:         append(c.Resolution, cs.Resolution...),
+		Uniqueness:         append(c.Uniqueness, cs.Uniqueness...),
+		TypeDeclKnown:      append(c.TypeDeclKnown, cs.TypeDeclKnown...),
+		TypeDeclUnknown:    append(c.TypeDeclUnknown, cs.TypeDeclUnknown...),
+		DirectEdge:         append(c.DirectEdge, cs.DirectEdge...),
+		AssociationKnown:   append(c.AssociationKnown, cs.AssociationKnown...),
+		NominalEdge:        append(c.NominalEdge, cs.NominalEdge...),
+		Subset:             append(c.Subset, cs.Subset...),
 		AssociationUnknown: append(c.AssociationUnknown, cs.AssociationUnknown...),
 	}
 }
 
-type identifier struct {
+type Identifier struct {
 	Name string `json:"name"`
 	source
 }
 
-func NewIdentifier(name string, path string, start, length uint) identifier {
-	return identifier{
+func NewIdentifier(name string, path string, start, length uint) Identifier {
+	return Identifier{
 		Name: name,
 		source: source{
 			Path: path,
@@ -119,152 +119,158 @@ const (
 
 // Declaration constraint (1) (only for the case when declaration is non-variable)
 // Reference constraint (2) (only for the case when reference is non-variable)
-type usage struct {
+type Usage struct {
 	distinct
-	Identifier identifier `json:"identifier"`
+	Identifier Identifier `json:"identifier"`
 	UsageType  usageType  `json:"usage"`
 	Scope      variable   `json:"scope"`
 }
 
-func NewUsage(id uint, identifier identifier, usageType usageType, scope variable) usage {
+func NewUsage(id uint, identifier Identifier, usageType usageType, scope variable) Usage {
 	if !(scope.Name == BindingScope || scope.Name == BindingSigma) {
 		panic(fmt.Sprintf("In usage %v, %v is not a scope variable", id, scope))
 	}
 	if !(usageType == UsageDecl || usageType == UsageRef) {
 		panic(fmt.Sprintf("The usage %v has unexpected usage type %v", id, usageType))
 	}
-	return usage{distinct{id}, identifier, usageType, scope}
+	return Usage{distinct{id}, identifier, usageType, scope}
 }
 
 // Resolution constraint (3) (only for the case when declaration is variable)
-type resolution struct {
+type Resolution struct {
 	distinct
-	Reference   identifier `json:"reference"`
+	Reference   Identifier `json:"reference"`
 	Declaration variable   `json:"declaration"`
 }
 
-func NewResolution(id uint, identifier identifier, declaration variable) resolution {
+func NewResolution(id uint, identifier Identifier, declaration variable) Resolution {
 	if declaration.Name != BindingDelta {
 		panic(fmt.Sprintf("In resolution %v, %v is not a declaration", id, declaration))
 	}
-	return resolution{distinct{id}, identifier, declaration}
+	return Resolution{distinct{id}, identifier, declaration}
 }
 
 // Uniqueness constraint (4)
-type uniqueness struct {
+type Uniqueness struct {
 	distinct
 	Names names `json:"names"`
 }
 
-func NewUniqueness(id uint, names names) uniqueness {
-	return uniqueness{distinct{id}, names}
+func NewUniqueness(id uint, names names) Uniqueness {
+	return Uniqueness{distinct{id}, names}
 }
 
 // Type declaration constraint (6), where D is known
-type typeDeclKnown struct {
+type TypeDeclKnown struct {
 	distinct
-	Declaration identifier `json:"declaration"`
+	Declaration Identifier `json:"declaration"`
 	Type        variable   `json:"variable"`
 }
 
-func NewTypeDeclKnown(id uint, identifier identifier, typevar variable) typeDeclKnown {
+func NewTypeDeclKnown(id uint, identifier Identifier, typevar variable) TypeDeclKnown {
 	if typevar.Name != BindingTau {
 		panic(fmt.Sprintf("In type declaration %v, %v is not a typevariable", id, typevar))
 	}
-	return typeDeclKnown{distinct{id}, identifier, typevar}
+	return TypeDeclKnown{distinct{id}, identifier, typevar}
 }
 
 // Type declaration constraint (6), where D is decl variable
-type typeDeclUnknown struct {
+type TypeDeclUnknown struct {
 	distinct
 	Declaration variable `json:"declaration"`
 	Type        variable `json:"variable"`
 }
 
-func NewTypeDeclUnknown(id uint, identifier variable, typevar variable) typeDeclUnknown {
+func NewTypeDeclUnknown(id uint, identifier variable, typevar variable) TypeDeclUnknown {
 	if identifier.Name != BindingDelta {
 		panic(fmt.Sprintf("In type declaration %v, %v is not a declaration", id, identifier))
 	}
 	if typevar.Name != BindingTau {
 		panic(fmt.Sprintf("In type declaration %v, %v is not a typevariable", id, typevar))
 	}
-	return typeDeclUnknown{distinct{id}, identifier, typevar}
+	return TypeDeclUnknown{distinct{id}, identifier, typevar}
+}
+
+type EqualKnown struct {
+	distinct
+	T1 variable `json:"tau"`
+	//TODO: type...
 }
 
 // Direct edge constraint (8)
-type directEdge struct {
+type DirectEdge struct {
 	distinct
 	Lhs   variable `json:"lhs"`
 	Rhs   variable `json:"rhs"`
 	Label string   `json:"label"`
 }
 
-func NewDirectEdge(id uint, lhs, rhs variable, label string) directEdge {
+func NewDirectEdge(id uint, lhs, rhs variable, label string) DirectEdge {
 	if !(lhs.Name == BindingScope || lhs.Name == BindingSigma) {
 		panic(fmt.Sprintf("In direct edge %v, %v is not a scope variable", id, lhs))
 	}
 	if !(rhs.Name == BindingScope || rhs.Name == BindingSigma) {
 		panic(fmt.Sprintf("In direct edge %v, %v is not a scope variable", id, rhs))
 	}
-	return directEdge{distinct{id}, lhs, rhs, label}
+	return DirectEdge{distinct{id}, lhs, rhs, label}
 }
 
 // Association constraint (9) (only for the case when declaration is known)
-type associationKnown struct {
+type AssociationKnown struct {
 	distinct
-	Declaration identifier `json:"declaration"`
+	Declaration Identifier `json:"declaration"`
 	Scope       variable   `json:"scope"`
 }
 
-func NewAssociationKnown(id uint, identifier identifier, scope variable) associationKnown {
+func NewAssociationKnown(id uint, identifier Identifier, scope variable) AssociationKnown {
 	if !(scope.Name == BindingScope || scope.Name == BindingSigma) {
 		panic(fmt.Sprintf("In usage %v, %v is not a scope variable", id, scope))
 	}
-	return associationKnown{distinct{id}, identifier, scope}
+	return AssociationKnown{distinct{id}, identifier, scope}
 }
 
 // Nominal edge constraint (10)
-type nominalEdge struct {
+type NominalEdge struct {
 	distinct
 	Scope     variable   `json:"scope"`
-	Reference identifier `json:"reference"`
+	Reference Identifier `json:"reference"`
 	Label     string     `json:"label"`
 }
 
-func NewNominalEdge(id uint, reference identifier, scope variable, label string) nominalEdge {
+func NewNominalEdge(id uint, reference Identifier, scope variable, label string) NominalEdge {
 	if !(scope.Name == BindingScope || scope.Name == BindingSigma) {
 		panic(fmt.Sprintf("In usage %v, %v is not a scope variable", id, scope))
 	}
-	return nominalEdge{distinct{id}, scope, reference, label}
+	return NominalEdge{distinct{id}, scope, reference, label}
 }
 
 // Subset constraint (13)
-type subset struct {
+type Subset struct {
 	distinct
 	Lhs names `json:"lhs"`
 	Rhs names `json:"rhs"`
 }
 
-func NewSubset(id uint, lhs, rhs names) subset {
+func NewSubset(id uint, lhs, rhs names) Subset {
 	if lhs.NamesType != rhs.NamesType {
 		panic(fmt.Sprintf("In subset %v, %v and %v has different types", id, lhs, rhs))
 	}
-	return subset{distinct{id}, lhs, rhs}
+	return Subset{distinct{id}, lhs, rhs}
 }
 
-// Association constraint (9) (only for the case when declaration is a variable)
-type associationUnknown struct {
+// Association constraint (14) (only for the case when declaration is a variable)
+type AssociationUnknown struct {
 	distinct
 	Declaration variable `json:"declaration"`
 	Scope       variable `json:"scope"`
 }
 
-func NewAssociationUnknown(id uint, identifier variable, scope variable) associationUnknown {
+func NewAssociationUnknown(id uint, identifier variable, scope variable) AssociationUnknown {
 	if !(scope.Name == BindingScope || scope.Name == BindingSigma) {
 		panic(fmt.Sprintf("In usage %v, %v is not a scope variable", id, scope))
 	}
 	if identifier.Name != BindingDelta {
 		panic(fmt.Sprintf("In type declaration %v, %v is not a declaration", id, identifier))
 	}
-	return associationUnknown{distinct{id}, identifier, scope}
+	return AssociationUnknown{distinct{id}, identifier, scope}
 }

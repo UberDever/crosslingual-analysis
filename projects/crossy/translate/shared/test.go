@@ -15,13 +15,25 @@ import (
 const ANCHOR_PATH = "../../../../" // dir "crosslingual-analysis"
 
 type CounterServiceMock struct {
-	counter int
+	counter *uint
 }
 
-func (c *CounterServiceMock) Get() (int, error) {
-	tmp := c.counter
-	c.counter++
+func NewCounterServiceMock() CounterServiceMock {
+	return CounterServiceMock{counter: new(uint)}
+}
+
+func (c CounterServiceMock) Fresh() (uint, error) {
+	tmp := *c.counter
+	*c.counter++
 	return tmp, nil
+}
+
+func (c CounterServiceMock) FreshForce() uint {
+	i, err := c.Fresh()
+	if err != nil {
+		panic(err)
+	}
+	return i
 }
 
 func RunAsCommand(args []string, run func()) string {
@@ -106,7 +118,7 @@ func ToDot(json string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	
+
 	output.Close()
 	out, err := os.ReadFile(output.Name())
 	if err != nil {
