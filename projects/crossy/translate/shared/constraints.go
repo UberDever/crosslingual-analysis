@@ -32,6 +32,21 @@ type Constraints struct {
 	AssociationUnknown []associationUnknown
 }
 
+func (c Constraints) Merge(cs Constraints) Constraints {
+	return Constraints{
+		Usage: append(c.Usage, cs.Usage...),
+		Resolution: append(c.Resolution, cs.Resolution...),
+		Uniqueness: append(c.Uniqueness, cs.Uniqueness...),
+		TypeDeclKnown: append(c.TypeDeclKnown, cs.TypeDeclKnown...),
+		TypeDeclUnknown: append(c.TypeDeclUnknown, cs.TypeDeclUnknown...),
+		DirectEdge: append(c.DirectEdge, cs.DirectEdge...),
+		AssociationKnown: append(c.AssociationKnown, cs.AssociationKnown...),
+		NominalEdge: append(c.NominalEdge, cs.NominalEdge...),
+		Subset: append(c.Subset, cs.Subset...),
+		AssociationUnknown: append(c.AssociationUnknown, cs.AssociationUnknown...),
+	}
+}
+
 type identifier struct {
 	Name string `json:"name"`
 	source

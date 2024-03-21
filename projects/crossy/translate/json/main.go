@@ -7,30 +7,37 @@ import (
 	"translate/shared"
 )
 
-// basically, this is a sum type of named tuples
-type state interface{ stateVariant() }
+type traverser struct {
+	counter shared.CounterService
+}
 
-type scope struct{}
-
-func (scope) stateVariant() {}
-
-type scopeRefDecl struct{}
-
-func (scopeRefDecl) stateVariant() {}
-
-type scopeType struct{}
-
-func (scopeType) stateVariant() {}
-
-func traverse(v any, s state, f func(v any, s state) bool) {
-	f(v, s)
-	switch val := v.(type) {
-	case []any:
+func (t traverser) value(root any) shared.Constraints {
+	cs := shared.Constraints{}
+	switch v := root.(type) {
 	case map[string]any:
-		for _, v := range val {
-			traverse(v, s, f)
-		}
+		cs = cs.Merge(t.object(v))
+	case []any:
+		cs = cs.Merge(t.array(v))
+	case float64:
+		break
+	case bool:
+		break
+	case string:
+		break
+	case nil:
+		break
 	}
+	return cs
+}
+
+func (t traverser) object(v map[string]any) shared.Constraints {
+	cs := shared.Constraints{}
+	return cs
+}
+
+func (t traverser) array(v []any) shared.Constraints {
+	cs := shared.Constraints{}
+	return cs
 }
 
 func Run() {
@@ -56,31 +63,17 @@ func Run() {
 		os.Exit(1)
 	}
 
-	traverse(root, nil, func(v any, s state) bool {
-		//NOTE: https://pkg.go.dev/encoding/json
-		switch v.(type) {
-		case float64:
-			break
-		case bool:
-			break
-		case string:
-			break
-		case nil:
-			break
-		case []any:
-			break
-		case map[string]any:
-			break
-		default:
-			panic("Unreachable")
-		}
+	traverser := traverser{
+		counter: counter,
+	}
+	constraints := traverser.value(root)
+	j, err := json.Marshal(constraints)
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
 
-		return true
-	})
-
-	_ = counter
-
-	fmt.Println(string(""))
+	fmt.Println(string(j))
 }
 
 func main() {

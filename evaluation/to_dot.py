@@ -161,9 +161,11 @@ class JsonTraverser:
         tab = '    '
 
         def constraints_to_str(name: str):
+            particular = constraints[name[0].upper() + name[1:]]
+            if not particular:
+                return ''
             return tab + ''.join(
-                methods['_' + name](self, u)
-                for u in constraints[name[0].upper() + name[1:]])
+                methods['_' + name](self, u) for u in particular)
         constraints_names = [
             'usage',
             'resolution',
@@ -182,7 +184,6 @@ class JsonTraverser:
         for t in constraints_names:
             graph += constraints_to_str(t)
         graph += '}'
-        print(graph)
         return graph
 
     def _identifier(self, id):

@@ -5,11 +5,14 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"os/exec"
 	"path"
 	"path/filepath"
 
 	"github.com/nsf/jsondiff"
 )
+
+const ANCHOR_PATH = "../../../../" // dir "crosslingual-analysis"
 
 type CounterServiceMock struct {
 	counter int
@@ -74,4 +77,41 @@ func CompareJsonOutput(expected, actual string) error {
 		return fmt.Errorf("%s", out)
 	}
 	return nil
+}
+
+const toDotPath = ANCHOR_PATH + "evaluation/to_dot.py"
+
+func ToDot(json string) (string, error) {
+	input, err := os.CreateTemp("", "")
+	if err != nil {
+		return "", err
+	}
+	defer os.Remove(input.Name())
+	_, err = input.Write([]byte(json))
+	if err != nil {
+		return "", err
+	}
+
+	output, err := os.CreateTemp("", "")
+	if err != nil {
+		return "", err
+	}
+	defer os.Remove(output.Name())
+
+	cmd := []string{"python3", toDotPath,
+		"-p", input.Name(),
+		"-o", output.Name(),
+		"-t", "json"}
+	_, err = exec.Command(cmd[0], cmd[1:]...).Output()
+	if err != nil {
+		return "", err
+	}
+	
+	output.Close()
+	out, err := os.ReadFile(output.Name())
+	if err != nil {
+		return "", err
+	}
+
+	return string(out), nil
 }
