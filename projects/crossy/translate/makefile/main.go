@@ -1,7 +1,6 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
 	"os"
 	"translate/shared"
@@ -16,15 +15,8 @@ func Run() {
 	if request == nil {
 		return
 	}
-	result := shared.NewResult(request.Id, []shared.Constraint{}, []shared.Unrecognized{
-		shared.NewUnrecognized(*request.Path, 0, uint(len(request.Code)), request.Code),
-	})
-	json, err := json.Marshal(result)
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-	fmt.Println(string(json))
+
+	fmt.Println()
 }
 
 func main() {

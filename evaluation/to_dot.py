@@ -2,9 +2,10 @@
 
 import argparse
 import sexpdata
+import json
 
 
-class Traverser:
+class SexprTraverser:
     ignore_unmatched = False
 
     def __init__(self, ignore_unmatched):
@@ -130,7 +131,7 @@ class Traverser:
     def traverse_tree(self, tree):
         import inspect
         methods = dict(inspect.getmembers(
-            Traverser, predicate=inspect.isfunction))
+            SexprTraverser, predicate=inspect.isfunction))
         match tree:
             case [sexpdata.Symbol(s), *args]:
                 return methods['_' + s](self, args)
@@ -147,6 +148,158 @@ class Traverser:
             raise Exception("Unreachable " + str(tree))
 
 
+class JsonTraverser:
+    ignore_unmatched = False
+
+    def __init__(self, ignore_unmatched):
+        self.ignore_unmatched = ignore_unmatched
+
+    def traverse_tree(self, constraints):
+        import inspect
+        methods = dict(inspect.getmembers(
+            JsonTraverser, predicate=inspect.isfunction))
+        tab = '    '
+
+        def constraints_to_str(name: str):
+            return tab + ''.join(
+                methods['_' + name](self, u)
+                for u in constraints[name[0].upper() + name[1:]])
+        constraints_names = [
+            'usage',
+            'resolution',
+            'uniqueness',
+            'typeDeclKnown',
+            'typeDeclUnknown',
+            'directEdge',
+            'associationKnown',
+            'nominalEdge',
+            'subset',
+            'associationUnknown',
+        ]
+
+        graph = ""
+        graph += 'digraph G {\n'
+        for t in constraints_names:
+            graph += constraints_to_str(t)
+        graph += '}'
+        print(graph)
+        return graph
+
+    def _identifier(self, id):
+        return f"'{id['name']}' at {id['path']}:{id['start']}:{id['length']}"
+
+    def _variable(self, v):
+        match v:
+            case {"index": id, "name": name}:
+                match name:
+                    case "delta":
+                        return f'δ {id}'
+                    case "sigma":
+                        return f'ς {id}'
+                    case "tau":
+                        return f'τ {id}'
+                    case "_":
+                        return str(id)
+            case _:
+                self._raise(v)
+
+    def _names_collection(self, names):
+        match names:
+            case {"collection": collection, "scope": scope}:
+                c = str(collection[0]).upper()
+                s = self._variable(scope)
+                return f'{c}({s})'
+            case _: self._raise(args)
+
+    def _usage(self, args):
+        match args:
+            case {"id": _, "identifier": identifier,
+                  "usage": usage, "scope": scope}:
+                i = self._identifier(identifier)
+                s = self._variable(scope)
+                if usage == 'declaration':
+                    return f'"{s}" -> "{i}"\n'
+                else:
+                    return f'"{i}" -> "{s}"\n'
+            case _: self._raise(args)
+
+    def _resolution(self, args):
+        match args:
+            case {"id": _, "reference": identifier,
+                  "declaration": decl}:
+                i = self._identifier(identifier)
+                d = self._variable(decl)
+                return f'"{i}" -> "{d}" [style=dotted]\n'
+            case _: self._raise(args)
+
+    def _uniqueness(self, args):
+        match args:
+            case {"id": _, "names": names}:
+                n = self._names_collection(names)
+                return f'/* !{n} */\n'
+            case _: self._raise(args)
+
+    def _typeDeclKnown(self, args):
+        match args:
+            case {"id": _, "declaration": decl, "variable": tau}:
+                d = self._identifier(decl)
+                t = self._variable(tau)
+                return f'/* {d} :: {t} */\n'
+            case _: self._raise(args)
+
+    def _typeDeclUnknown(self, args):
+        match args:
+            case {"id": _, "declaration": decl, "variable": tau}:
+                d = self._variable(decl)
+                t = self._variable(tau)
+                return f'/* {d} :: {t} */\n'
+            case _: self._raise(args)
+
+    def _directEdge(self, args):
+        match args:
+            case {"id": _, "lhs": lhs, "rhs": rhs, "label": label}:
+                s1 = self._variable(lhs)
+                s2 = self._variable(rhs)
+                return f'"{s1}" -> "{s2}" [label="{label}"]\n'
+            case _: self._raise(args)
+
+    def _associationKnown(self, args):
+        match args:
+            case {"id": _, "declaration": decl, "scope": scope}:
+                d = self._identifier(decl)
+                s = self._variable(scope)
+                return f'"{d}" -> "{s}" [arrowhead=onormal]\n'
+            case _: self._raise(args)
+
+    def _associationUnknown(self, args):
+        match args:
+            case {"id": _, "declaration": decl, "scope": scope}:
+                d = self._variable(decl)
+                s = self._variable(scope)
+                return f'"{d}" -> "{s}" [arrowhead=onormal]\n'
+            case _: self._raise(args)
+
+    def _nominalEdge(self, args):
+        match args:
+            case {"id": _, "reference": ref, "scope": scope, "label": label}:
+                r = self._identifier(ref)
+                s = self._variable(scope)
+                return f'"{r}" -> "{s}" [label="{label}"]\n'
+            case _: self._raise(args)
+
+    def _subset(self, args):
+        match args:
+            case {"id": _, "lhs": lhs, "rhs": rhs}:
+                ll = self._names_collection(lhs)
+                rr = self._names_collection(rhs)
+                return f'/* {ll} ⊆ {rr} */\n'
+            case _: self._raise(args)
+
+    def _raise(self, tree):
+        if not self.ignore_unmatched:
+            raise Exception("Unreachable " + str(tree))
+
+
 parser = argparse.ArgumentParser(usage="""
 Convert sexpr notation from the README in project
 files to dot notation for easy visualisation
@@ -156,14 +309,25 @@ parser.add_argument(
     '-p', '--path', help='Path to sexpr notation', required=True)
 parser.add_argument(
     '-o', '--output', help='Path to resulting dot notation', required=True)
+parser.add_argument(
+    '-t', '--traverser', help='Use the following traverser type',
+    choices=['sexpr', 'json'], default='json')
 
 args = parser.parse_args()
 
-with open(args.path, 'r') as file:
-    text = file.read()
-    tree = sexpdata.loads(text)
+match args.traverser:
+    case "sexpr":
+        with open(args.path, 'r') as file:
+            text = file.read()
+            tree = sexpdata.loads(text)
+        out = SexprTraverser(ignore_unmatched=False).traverse_tree(tree)
+    case "json":
+        with open(args.path, 'r') as file:
+            tree = json.load(file)
+        out = JsonTraverser(ignore_unmatched=False).traverse_tree(tree)
+    case _:
+        raise Exception("Unreachable")
 
-out = Traverser(ignore_unmatched=False).traverse_tree(tree)
 
 with open(args.output, 'w+') as file:
     file.write(out)

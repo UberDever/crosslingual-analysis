@@ -1,9 +1,7 @@
 package shared
 
 import (
-	"encoding/json"
 	"fmt"
-	"reflect"
 )
 
 // NOTE: Golang type system is rigid and isn't designed for such
@@ -19,102 +17,19 @@ type source struct {
 	locationRange
 }
 
-type Constraint interface {
-	Id() uint
-	variantConstraint()
-}
-
-type typedConstraint struct {
-	Constraint string          `json:"constraint"`
-	Body       json.RawMessage `json:"body"`
-}
-
-func AssignType(c Constraint) typedConstraint {
-	body, err := json.Marshal(c)
-	if err != nil {
-		panic(fmt.Sprintf("Unreachable %v", err))
-	}
-	return typedConstraint{
-		Constraint: reflect.TypeOf(c).Name(),
-		Body:       body,
-	}
-}
-
-func EraseType(c typedConstraint) Constraint {
-	if c.Constraint == reflect.TypeOf(usage{}).Name() {
-		var result usage
-		err := json.Unmarshal(c.Body, &result)
-		if err != nil {
-			panic(err)
-		}
-		return result
-	} else if c.Constraint == reflect.TypeOf(resolution{}).Name() {
-		var result resolution
-		err := json.Unmarshal(c.Body, &result)
-		if err != nil {
-			panic(err)
-		}
-		return result
-	} else if c.Constraint == reflect.TypeOf(uniqueness{}).Name() {
-		var result uniqueness
-		err := json.Unmarshal(c.Body, &result)
-		if err != nil {
-			panic(err)
-		}
-		return result
-	} else if c.Constraint == reflect.TypeOf(typeDeclKnown{}).Name() {
-		var result typeDeclKnown
-		err := json.Unmarshal(c.Body, &result)
-		if err != nil {
-			panic(err)
-		}
-		return result
-	} else if c.Constraint == reflect.TypeOf(typeDeclUnknown{}).Name() {
-		var result typeDeclUnknown
-		err := json.Unmarshal(c.Body, &result)
-		if err != nil {
-			panic(err)
-		}
-		return result
-	} else if c.Constraint == reflect.TypeOf(directEdge{}).Name() {
-		var result directEdge
-		err := json.Unmarshal(c.Body, &result)
-		if err != nil {
-			panic(err)
-		}
-		return result
-	} else if c.Constraint == reflect.TypeOf(associationKnown{}).Name() {
-		var result associationKnown
-		err := json.Unmarshal(c.Body, &result)
-		if err != nil {
-			panic(err)
-		}
-		return result
-	} else if c.Constraint == reflect.TypeOf(associationUnknown{}).Name() {
-		var result associationUnknown
-		err := json.Unmarshal(c.Body, &result)
-		if err != nil {
-			panic(err)
-		}
-		return result
-	} else if c.Constraint == reflect.TypeOf(nominalEdge{}).Name() {
-		var result nominalEdge
-		err := json.Unmarshal(c.Body, &result)
-		if err != nil {
-			panic(err)
-		}
-		return result
-	} else if c.Constraint == reflect.TypeOf(subset{}).Name() {
-		var result subset
-		err := json.Unmarshal(c.Body, &result)
-		if err != nil {
-			panic(err)
-		}
-		return result
-	} else {
-		panic("Unreachable")
-	}
-
+// Since support for sum types in golang is nonexistent,
+// I forced to use SOA here
+type Constraints struct {
+	Usage              []usage
+	Resolution         []resolution
+	Uniqueness         []uniqueness
+	TypeDeclKnown      []typeDeclKnown
+	TypeDeclUnknown    []typeDeclUnknown
+	DirectEdge         []directEdge
+	AssociationKnown   []associationKnown
+	NominalEdge        []nominalEdge
+	Subset             []subset
+	AssociationUnknown []associationUnknown
 }
 
 type identifier struct {
@@ -196,8 +111,6 @@ type usage struct {
 	Scope      variable   `json:"scope"`
 }
 
-func (usage) variantConstraint() {}
-
 func NewUsage(id uint, identifier identifier, usageType usageType, scope variable) usage {
 	if !(scope.Name == BindingScope || scope.Name == BindingSigma) {
 		panic(fmt.Sprintf("In usage %v, %v is not a scope variable", id, scope))
@@ -215,8 +128,6 @@ type resolution struct {
 	Declaration variable   `json:"declaration"`
 }
 
-func (resolution) variantConstraint() {}
-
 func NewResolution(id uint, identifier identifier, declaration variable) resolution {
 	if declaration.Name != BindingDelta {
 		panic(fmt.Sprintf("In resolution %v, %v is not a declaration", id, declaration))
@@ -230,8 +141,6 @@ type uniqueness struct {
 	Names names `json:"names"`
 }
 
-func (uniqueness) variantConstraint() {}
-
 func NewUniqueness(id uint, names names) uniqueness {
 	return uniqueness{distinct{id}, names}
 }
@@ -242,8 +151,6 @@ type typeDeclKnown struct {
 	Declaration identifier `json:"declaration"`
 	Type        variable   `json:"variable"`
 }
-
-func (typeDeclKnown) variantConstraint() {}
 
 func NewTypeDeclKnown(id uint, identifier identifier, typevar variable) typeDeclKnown {
 	if typevar.Name != BindingTau {
@@ -258,8 +165,6 @@ type typeDeclUnknown struct {
 	Declaration variable `json:"declaration"`
 	Type        variable `json:"variable"`
 }
-
-func (typeDeclUnknown) variantConstraint() {}
 
 func NewTypeDeclUnknown(id uint, identifier variable, typevar variable) typeDeclUnknown {
 	if identifier.Name != BindingDelta {
@@ -279,8 +184,6 @@ type directEdge struct {
 	Label string   `json:"label"`
 }
 
-func (directEdge) variantConstraint() {}
-
 func NewDirectEdge(id uint, lhs, rhs variable, label string) directEdge {
 	if !(lhs.Name == BindingScope || lhs.Name == BindingSigma) {
 		panic(fmt.Sprintf("In direct edge %v, %v is not a scope variable", id, lhs))
@@ -298,8 +201,6 @@ type associationKnown struct {
 	Scope       variable   `json:"scope"`
 }
 
-func (associationKnown) variantConstraint() {}
-
 func NewAssociationKnown(id uint, identifier identifier, scope variable) associationKnown {
 	if !(scope.Name == BindingScope || scope.Name == BindingSigma) {
 		panic(fmt.Sprintf("In usage %v, %v is not a scope variable", id, scope))
@@ -315,8 +216,6 @@ type nominalEdge struct {
 	Label     string     `json:"label"`
 }
 
-func (nominalEdge) variantConstraint() {}
-
 func NewNominalEdge(id uint, reference identifier, scope variable, label string) nominalEdge {
 	if !(scope.Name == BindingScope || scope.Name == BindingSigma) {
 		panic(fmt.Sprintf("In usage %v, %v is not a scope variable", id, scope))
@@ -331,8 +230,6 @@ type subset struct {
 	Rhs names `json:"rhs"`
 }
 
-func (subset) variantConstraint() {}
-
 func NewSubset(id uint, lhs, rhs names) subset {
 	if lhs.NamesType != rhs.NamesType {
 		panic(fmt.Sprintf("In subset %v, %v and %v has different types", id, lhs, rhs))
@@ -346,8 +243,6 @@ type associationUnknown struct {
 	Declaration variable `json:"declaration"`
 	Scope       variable `json:"scope"`
 }
-
-func (associationUnknown) variantConstraint() {}
 
 func NewAssociationUnknown(id uint, identifier variable, scope variable) associationUnknown {
 	if !(scope.Name == BindingScope || scope.Name == BindingSigma) {

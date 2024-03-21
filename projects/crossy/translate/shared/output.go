@@ -21,11 +21,11 @@ func NewUnrecognized(path string, start uint, length uint, text string) Unrecogn
 
 type result struct {
 	Id           uint           `json:"id"`
-	Constraints  []Constraint   `json:"constraints"`
+	Constraints  Constraints    `json:"constraints"`
 	Unrecognized []Unrecognized `json:"unrecognized"`
 }
 
-func NewResult(id uint, constraints []Constraint, unrecognized []Unrecognized) result {
+func NewResult(id uint, constraints Constraints, unrecognized []Unrecognized) result {
 	return result{
 		Id:           id,
 		Constraints:  constraints,
