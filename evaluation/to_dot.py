@@ -176,6 +176,8 @@ class JsonTraverser:
             'associationKnown',
             'nominalEdge',
             'subset',
+            'equalKnown',
+            'equalUnknown',
             'associationUnknown',
         ]
 
@@ -188,6 +190,16 @@ class JsonTraverser:
 
     def _identifier(self, id):
         return f"'{id['name']}' at {id['path']}:{id['start']}:{id['length']}"
+
+    def _type(self, t):
+        match t:
+            case {"tag": "ground", "name": name}:
+                return name
+            case {"tag": "application",
+                  "app": {"constructor": {"name": name}, "args": [*args]}}:
+                return f'{name}({", ".join(self._type(t) for t in args)})'
+
+            case _: self._raise(t)
 
     def _variable(self, v):
         match v:
@@ -294,6 +306,22 @@ class JsonTraverser:
                 ll = self._names_collection(lhs)
                 rr = self._names_collection(rhs)
                 return f'/* {ll} ⊆ {rr} */\n'
+            case _: self._raise(args)
+
+    def _equalKnown(self, args):
+        match args:
+            case {"id": _, "t1": lhs, "t2": rhs}:
+                ll = self._variable(lhs)
+                rr = self._type(rhs)
+                return f'/* {ll} == {rr} */\n'
+            case _: self._raise(args)
+
+    def _equalUnknown(self, args):
+        match args:
+            case {"id": _, "t1": lhs, "t2": rhs}:
+                ll = self._variable(lhs)
+                rr = self._variable(rhs)
+                return f'/* {ll} == {rr} */\n'
             case _: self._raise(args)
 
     def _raise(self, tree):

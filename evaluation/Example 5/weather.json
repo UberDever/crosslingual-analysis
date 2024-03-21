@@ -45,5 +45,7 @@
     "timezone": 7200,
     "id": 3163858,
     "name": "Zocca",
-    "cod": 200
+    "cod": 200,
+    "undefined": null,
+    "true": true
 }

@@ -29,6 +29,8 @@ type Constraints struct {
 	AssociationKnown   []AssociationKnown
 	NominalEdge        []NominalEdge
 	Subset             []Subset
+	EqualKnown         []EqualKnown
+	EqualUnknown       []EqualUnknown
 	AssociationUnknown []AssociationUnknown
 }
 
@@ -43,6 +45,8 @@ func (c Constraints) Merge(cs Constraints) Constraints {
 		AssociationKnown:   append(c.AssociationKnown, cs.AssociationKnown...),
 		NominalEdge:        append(c.NominalEdge, cs.NominalEdge...),
 		Subset:             append(c.Subset, cs.Subset...),
+		EqualKnown:         append(c.EqualKnown, cs.EqualKnown...),
+		EqualUnknown:       append(c.EqualUnknown, cs.EqualUnknown...),
 		AssociationUnknown: append(c.AssociationUnknown, cs.AssociationUnknown...),
 	}
 }
@@ -193,8 +197,31 @@ func NewTypeDeclUnknown(id uint, identifier variable, typevar variable) TypeDecl
 
 type EqualKnown struct {
 	distinct
-	T1 variable `json:"tau"`
-	//TODO: type...
+	T1 variable `json:"t1"`
+	T2 ground   `json:"t2"`
+}
+
+func NewEqualKnown(id uint, t1 variable, t2 ground) EqualKnown {
+	if t1.Name != BindingTau {
+		panic(fmt.Sprintf("In type declaration %v, %v is not a typevariable", id, t1))
+	}
+	return EqualKnown{distinct{id}, t1, t2}
+}
+
+type EqualUnknown struct {
+	distinct
+	T1 variable `json:"t1"`
+	T2 variable `json:"t2"`
+}
+
+func NewEqualUnknown(id uint, t1 variable, t2 variable) EqualUnknown {
+	if t1.Name != BindingTau {
+		panic(fmt.Sprintf("In type declaration %v, %v is not a typevariable", id, t1))
+	}
+	if t2.Name != BindingTau {
+		panic(fmt.Sprintf("In type declaration %v, %v is not a typevariable", id, t2))
+	}
+	return EqualUnknown{distinct{id}, t1, t2}
 }
 
 // Direct edge constraint (8)

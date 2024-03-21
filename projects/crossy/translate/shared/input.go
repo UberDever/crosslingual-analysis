@@ -6,10 +6,11 @@ import (
 )
 
 type arguments struct {
-	Id         uint    `json:"id"`
-	Code       string  `json:"code"`
-	Path       *string `json:"path"`
-	CounterURL *string `json:"counter_url"`
+	Id          uint    `json:"id"`
+	Code        string  `json:"code"`
+	Path        *string `json:"path"`
+	CounterURL  *string `json:"counter_url"`
+	TypeContext *string `json:"type_context_path"`
 }
 
 func TryParseArguments(arg string) *arguments {

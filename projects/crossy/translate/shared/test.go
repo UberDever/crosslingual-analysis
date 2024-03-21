@@ -6,8 +6,6 @@ import (
 	"io"
 	"os"
 	"os/exec"
-	"path"
-	"path/filepath"
 
 	"github.com/nsf/jsondiff"
 )
@@ -53,24 +51,7 @@ func RunAsCommand(args []string, run func()) string {
 	return string(out)
 }
 
-func RunOnFile(codePath string, onTranslate func(argsJson []byte) error) error {
-	code, err := os.ReadFile(codePath)
-	if err != nil {
-		return err
-	}
-	dir, err := os.Getwd()
-	if err != nil {
-		return err
-	}
-	abs, err := filepath.Abs(path.Join(dir, codePath))
-	if err != nil {
-		return err
-	}
-	request := arguments{
-		Id:   0,
-		Code: string(code),
-		Path: &abs,
-	}
+func RunOnFile(request arguments, onTranslate func(argsJson []byte) error) error {
 	argsJson, err := json.Marshal(request)
 	if err != nil {
 		return err

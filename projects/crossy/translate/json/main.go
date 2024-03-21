@@ -8,6 +8,7 @@ import (
 )
 
 type traverser struct {
+	ctx     ss.TypeContext
 	key     *ss.Identifier
 	counter ss.CounterService
 }
@@ -20,17 +21,13 @@ func (t traverser) value(root any) ss.Constraints {
 	case []any:
 		cs = cs.Merge(t.array(v))
 	case float64:
-		// TODO: types
-		break
+		cs = cs.Merge(t.ctx.NewDeclarationConstraint(t.counter, *t.key, t.ctx.T("Numeric")))
 	case bool:
-		// TODO: types
-		break
+		cs = cs.Merge(t.ctx.NewDeclarationConstraint(t.counter, *t.key, t.ctx.T("Bool")))
 	case string:
-		// TODO: types
-		break
+		cs = cs.Merge(t.ctx.NewDeclarationConstraint(t.counter, *t.key, t.ctx.T("String")))
 	case nil:
-		// TODO: types
-		break
+		cs = cs.Merge(t.ctx.NewDeclarationConstraint(t.counter, *t.key, t.ctx.T("Top")))
 	}
 	return cs
 }
@@ -39,6 +36,9 @@ func (t traverser) object(obj map[string]any) ss.Constraints {
 	cs := ss.Constraints{}
 
 	S := ss.NewVariable(t.counter.FreshForce(), ss.BindingScope)
+	cs = cs.Merge(ss.Constraints{
+		Uniqueness: []ss.Uniqueness{ss.NewUniqueness(t.counter.FreshForce(), ss.NewNamesCollection(ss.NamesDeclarations, S))},
+	})
 	if t.key != nil {
 		cs = cs.Merge(ss.Constraints{
 			AssociationKnown: []ss.AssociationKnown{ss.NewAssociationKnown(
@@ -100,6 +100,19 @@ func Run() {
 	} else {
 		counter = ss.NewCounterServiceImpl(*request.CounterURL)
 	}
+	var ctx ss.TypeContext
+	if request.TypeContext != nil {
+		j, err := os.ReadFile(*request.TypeContext)
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+		ctx, err = ss.UnmarshalContext(j)
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+	}
 
 	var root any
 	err := json.Unmarshal([]byte(request.Code), &root)
@@ -111,6 +124,7 @@ func Run() {
 	traverser := traverser{
 		key:     nil,
 		counter: counter,
+		ctx:     ctx,
 	}
 	constraints := traverser.value(root)
 	j, err := json.MarshalIndent(constraints, "", "    ")
