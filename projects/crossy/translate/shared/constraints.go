@@ -1,6 +1,7 @@
 package shared
 
 import (
+	"encoding/json"
 	"fmt"
 	"reflect"
 )
@@ -24,38 +25,96 @@ type Constraint interface {
 }
 
 type typedConstraint struct {
-	Constraint string `json:"constraint"`
-	Body       any    `json:"body"`
+	Constraint string          `json:"constraint"`
+	Body       json.RawMessage `json:"body"`
 }
 
-func newTypedConstraint(c Constraint) typedConstraint {
+func AssignType(c Constraint) typedConstraint {
+	body, err := json.Marshal(c)
+	if err != nil {
+		panic(fmt.Sprintf("Unreachable %v", err))
+	}
 	return typedConstraint{
 		Constraint: reflect.TypeOf(c).Name(),
-		Body:       c,
+		Body:       body,
 	}
 }
 
-func AssignTypes(xs []Constraint) []typedConstraint {
-	typed := make([]typedConstraint, 0, len(xs))
-	for i := range xs {
-		typed = append(typed, newTypedConstraint(xs[i]))
-	}
-	return typed
-}
-
-func EraseTypes(xs []typedConstraint) []Constraint {
-	untyped := make([]Constraint, 0, len(xs))
-	for i := range xs {
-		switch c := xs[i].Body.(type) {
-		case usage:
-			untyped = append(untyped, c)
-		case resolution:
-			untyped = append(untyped, c)
-		default:
-			panic("Unreachable")
+func EraseType(c typedConstraint) Constraint {
+	if c.Constraint == reflect.TypeOf(usage{}).Name() {
+		var result usage
+		err := json.Unmarshal(c.Body, &result)
+		if err != nil {
+			panic(err)
 		}
+		return result
+	} else if c.Constraint == reflect.TypeOf(resolution{}).Name() {
+		var result resolution
+		err := json.Unmarshal(c.Body, &result)
+		if err != nil {
+			panic(err)
+		}
+		return result
+	} else if c.Constraint == reflect.TypeOf(uniqueness{}).Name() {
+		var result uniqueness
+		err := json.Unmarshal(c.Body, &result)
+		if err != nil {
+			panic(err)
+		}
+		return result
+	} else if c.Constraint == reflect.TypeOf(typeDeclKnown{}).Name() {
+		var result typeDeclKnown
+		err := json.Unmarshal(c.Body, &result)
+		if err != nil {
+			panic(err)
+		}
+		return result
+	} else if c.Constraint == reflect.TypeOf(typeDeclUnknown{}).Name() {
+		var result typeDeclUnknown
+		err := json.Unmarshal(c.Body, &result)
+		if err != nil {
+			panic(err)
+		}
+		return result
+	} else if c.Constraint == reflect.TypeOf(directEdge{}).Name() {
+		var result directEdge
+		err := json.Unmarshal(c.Body, &result)
+		if err != nil {
+			panic(err)
+		}
+		return result
+	} else if c.Constraint == reflect.TypeOf(associationKnown{}).Name() {
+		var result associationKnown
+		err := json.Unmarshal(c.Body, &result)
+		if err != nil {
+			panic(err)
+		}
+		return result
+	} else if c.Constraint == reflect.TypeOf(associationUnknown{}).Name() {
+		var result associationUnknown
+		err := json.Unmarshal(c.Body, &result)
+		if err != nil {
+			panic(err)
+		}
+		return result
+	} else if c.Constraint == reflect.TypeOf(nominalEdge{}).Name() {
+		var result nominalEdge
+		err := json.Unmarshal(c.Body, &result)
+		if err != nil {
+			panic(err)
+		}
+		return result
+	} else if c.Constraint == reflect.TypeOf(subset{}).Name() {
+		var result subset
+		err := json.Unmarshal(c.Body, &result)
+		if err != nil {
+			panic(err)
+		}
+		return result
+	} else {
+		panic("Unreachable")
 	}
-	return untyped
+
 }
 
 type identifier struct {
