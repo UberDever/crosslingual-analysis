@@ -23,16 +23,16 @@ type applicationC struct {
 	Args        []application `json:"args"`
 }
 
-type appKind string
+type appTag string
 
 const (
-	appC appKind = "application"
-	appG appKind = "ground"
+	TagApplication appTag = "application"
+	TagGround      appTag = "ground"
 )
 
 // NOTE: This is like an union, one is active at the time
 type application struct {
-	Tag  appKind       `json:"tag"`
+	Tag  appTag        `json:"tag"`
 	App  *applicationC `json:"app,omitempty"`
 	Name *string       `json:"name,omitempty"`
 }
@@ -54,7 +54,7 @@ type TypeContext struct {
 func (c TypeContext) T(name string) ground {
 	var t *ground
 	for _, g := range c.Ground {
-		if g.Tag == appG && *g.Name == name {
+		if g.Tag == TagGround && *g.Name == name {
 			t = &g
 			break
 		}
@@ -77,7 +77,7 @@ func (ctx TypeContext) NewT(ctorName string, args ...ground) ground {
 		panic("Unreachable " + ctorName)
 	}
 	t := application{
-		Tag: appC,
+		Tag: TagApplication,
 		App: &applicationC{
 			Constructor: *ctor,
 			Args:        args,
@@ -99,7 +99,7 @@ func (ctx TypeContext) NewDeclarationConstraint(counter CounterService, decl Ide
 
 func VerifyType(t ground) error {
 	switch t.Tag {
-	case appC:
+	case TagApplication:
 		if t.App == nil {
 			return fmt.Errorf("%v should be application of constructor", t)
 		}
@@ -113,7 +113,7 @@ func VerifyType(t ground) error {
 		if got != expected {
 			return fmt.Errorf("%v should have same kind as amount of arguments it applies to; expected %d, got %d", t, expected, got)
 		}
-	case appG:
+	case TagGround:
 		if t.Name == nil {
 			return fmt.Errorf("%v should be ground type", t)
 		}

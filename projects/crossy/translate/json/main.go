@@ -3,23 +3,52 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"io"
 	"os"
+	"path/filepath"
+	"strings"
 	ss "translate/shared"
 )
 
 type traverser struct {
+	key *ss.Identifier
+
+	path    string
 	ctx     ss.TypeContext
-	key     *ss.Identifier
 	counter ss.CounterService
+	decoder *json.Decoder
 }
 
-func (t traverser) value(root any) ss.Constraints {
+func (t traverser) value(value *json.Token) ss.Constraints {
 	cs := ss.Constraints{}
-	switch v := root.(type) {
-	case map[string]any:
-		cs = cs.Merge(t.object(v))
-	case []any:
-		cs = cs.Merge(t.array(v))
+	if !t.decoder.More() {
+		return cs
+	}
+
+	var token json.Token
+	if value != nil {
+		token = *value
+	} else {
+		tt, err := t.decoder.Token()
+		if err == io.EOF {
+			return cs
+		} else if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+		token = tt
+	}
+	switch v := token.(type) {
+	case json.Delim:
+		if v == '{' {
+			cs = cs.Merge(t.object())
+			_, _ = t.decoder.Token() // '}'
+		} else if v == '[' {
+			cs = cs.Merge(t.array())
+			_, _ = t.decoder.Token() // ']'
+		} else {
+			panic("Unreachable")
+		}
 	case float64:
 		cs = cs.Merge(t.ctx.NewDeclarationConstraint(t.counter, *t.key, t.ctx.T("Numeric")))
 	case bool:
@@ -29,10 +58,11 @@ func (t traverser) value(root any) ss.Constraints {
 	case nil:
 		cs = cs.Merge(t.ctx.NewDeclarationConstraint(t.counter, *t.key, t.ctx.T("Top")))
 	}
+
 	return cs
 }
 
-func (t traverser) object(obj map[string]any) ss.Constraints {
+func (t traverser) object() ss.Constraints {
 	cs := ss.Constraints{}
 
 	S := ss.NewVariable(t.counter.FreshForce(), ss.BindingScope)
@@ -46,21 +76,29 @@ func (t traverser) object(obj map[string]any) ss.Constraints {
 			)},
 		})
 	}
-	for k, v := range obj {
-		D := ss.NewIdentifier(k, "?", 0, 0) //TODO: Add path info
+	for t.decoder.More() {
+		start := uint(t.decoder.InputOffset())
+		token, err := t.decoder.Token()
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+		end := uint(t.decoder.InputOffset())
+		k := token.(string)
+		D := ss.NewIdentifier(k, t.path, start, end)
 		t.key = &D
 		cs = cs.Merge(ss.Constraints{
 			Usage: []ss.Usage{
 				ss.NewUsage(t.counter.FreshForce(), D, ss.UsageDecl, S),
 			},
 		})
-		cs = cs.Merge(t.value(v))
+		cs = cs.Merge(t.value(nil))
 	}
 
 	return cs
 }
 
-func (t traverser) array(arr []any) ss.Constraints {
+func (t traverser) array() ss.Constraints {
 	cs := ss.Constraints{}
 
 	S := ss.NewVariable(t.counter.FreshForce(), ss.BindingScope)
@@ -71,15 +109,24 @@ func (t traverser) array(arr []any) ss.Constraints {
 			)},
 		})
 	}
-	for k, v := range arr {
-		D := ss.NewIdentifier(fmt.Sprintf("%d", k), "?", 0, 0) //TODO: Add path info
+	index := 0
+	for t.decoder.More() {
+		start := uint(t.decoder.InputOffset())
+		token, err := t.decoder.Token()
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+		end := uint(t.decoder.InputOffset())
+		D := ss.NewIdentifier(fmt.Sprintf("%d", index), t.path, start, end)
+		index++
 		t.key = &D
 		cs = cs.Merge(ss.Constraints{
 			Usage: []ss.Usage{
 				ss.NewUsage(t.counter.FreshForce(), D, ss.UsageDecl, S),
 			},
 		})
-		cs = cs.Merge(t.value(v))
+		cs = cs.Merge(t.value(&token))
 	}
 
 	return cs
@@ -121,13 +168,21 @@ func Run() {
 		os.Exit(1)
 	}
 
+	dec := json.NewDecoder(strings.NewReader(request.Code))
+	base_path := "?"
+	if request.Path != nil {
+		base_path = filepath.Base(*request.Path)
+	}
+
 	traverser := traverser{
 		key:     nil,
+		path:    base_path,
 		counter: counter,
 		ctx:     ctx,
+		decoder: dec,
 	}
-	constraints := traverser.value(root)
-	j, err := json.MarshalIndent(constraints, "", "    ")
+	constraints := traverser.value(nil)
+	j, err := json.Marshal(constraints)
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)

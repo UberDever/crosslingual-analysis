@@ -20,18 +20,24 @@ type source struct {
 // Since support for sum types in golang is nonexistent,
 // I forced to use SOA here
 type Constraints struct {
+	// scope graph
 	Usage              []Usage
-	Resolution         []Resolution
-	Uniqueness         []Uniqueness
-	TypeDeclKnown      []TypeDeclKnown
-	TypeDeclUnknown    []TypeDeclUnknown
 	DirectEdge         []DirectEdge
 	AssociationKnown   []AssociationKnown
 	NominalEdge        []NominalEdge
+
+	// constraints on resolution
+	Resolution         []Resolution
+	Uniqueness         []Uniqueness
 	Subset             []Subset
+	AssociationUnknown []AssociationUnknown
+
+	// typing constraints
+	TypeDeclKnown      []TypeDeclKnown
+	TypeDeclUnknown    []TypeDeclUnknown
 	EqualKnown         []EqualKnown
 	EqualUnknown       []EqualUnknown
-	AssociationUnknown []AssociationUnknown
+
 }
 
 func (c Constraints) Merge(cs Constraints) Constraints {
