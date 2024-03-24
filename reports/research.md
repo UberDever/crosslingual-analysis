@@ -62,6 +62,8 @@ with Parser Parser Combinators](https://dl.acm.org/doi/pdf/10.1145/3314221.33145
 
 [Typing in lambda calculus, Lambda cube](https://en.m.wikipedia.org/wiki/Lambda_cube)
 
+[Pragmatic evidence of cross-language link detection: A systematic literature review](https://www.sciencedirect.com/science/article/abs/pii/S0164121223002200)
+
 When it comes to semantic information representation in the context of programming languages, there are several main kinds of models that are commonly used. These models aim to capture the meaning and structure of programs to enable various analysis and processing tasks. Here are some of the prominent models:
 
 1. Abstract Syntax Tree (AST): An AST represents the hierarchical structure of a program by abstracting away the low-level details. It captures the syntax and the relationships between different components of the program, such as statements, expressions, and declarations. ASTs are widely used in compilers, static analyzers, and program transformations.

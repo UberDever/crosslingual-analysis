@@ -9,6 +9,8 @@ import (
 	ss "translate/shared"
 )
 
+// TODO: SPA 5.7 Reaching Definitions Analysis (def-use)
+
 func Run() {
 	if len(os.Args) < 2 {
 		fmt.Println("No argument were provided to translator")
