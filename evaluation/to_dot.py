@@ -335,9 +335,9 @@ files to dot notation for easy visualisation
 """)
 
 parser.add_argument(
-    '-p', '--path', help='Path to sexpr notation', required=True)
+    '-p', '--path', help='Path to sexpr notation', default='in.json')
 parser.add_argument(
-    '-o', '--output', help='Path to resulting dot notation', required=True)
+    '-o', '--output', help='Path to resulting dot notation', default='out.graph')
 parser.add_argument(
     '-t', '--traverser', help='Use the following traverser type',
     choices=['sexpr', 'json'], default='json')

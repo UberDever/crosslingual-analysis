@@ -29,7 +29,7 @@ func main() {
 	}
 
 	response := ""
-	if js["main"].(JSON)["temp"].(float64) >= 300 {
+	if js["main"].(map[string]interface{})["temp"].(float64) >= 300 {
 		response = "hot"
 	} else {
 		response = "cold"

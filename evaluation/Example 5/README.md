@@ -32,6 +32,7 @@ Implicit (encoded in the translators):
 
     (Reference (Ref "~/dev/mag/crosslingual-analysis/evaluation/Example 5/weather.json" 5) -3)
     (Resolves (Ref "~/dev/mag/crosslingual-analysis/evaluation/Example 5/weather.json" 5) (Delta 6))
+    
 
     (Declare -2 (Decl weather.json 6))
     (Associated (Decl weather.json 6) -16)
@@ -51,10 +52,8 @@ Implicit (encoded in the translators):
 ### Scenarios
 
 - Pull diagnostics: First run pull diagnostics as is, then rename `temp` in `weather.json:16:9`
-to `temperature` and run diagnostics again. Should expect squigglies or some stuff in
- `server.go:32:8` on json access
-- Document Link Request/Resolve: Resolve `weather.json` line in `server.go:25:29` to the actual file
-(yeah vscode already can do this, but who cares) 
+to `temperature` and run diagnostics again. Should expect squigglies or some stuff in `server.go:32:8` on json access
+- Document Link Request/Resolve: Resolve `weather.json` line in `server.go:25:29` to the actual file (yeah vscode already can do this, but who cares) 
 
 ## Languages
 
