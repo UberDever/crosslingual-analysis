@@ -1,7 +1,6 @@
 package main_test
 
 import (
-	"fmt"
 	"testing"
 	translate "translate-cpp"
 	ss "translate/shared"
@@ -14,12 +13,12 @@ func TestSmoke(t *testing.T) {
 }
 
 func TestEvaluation(t *testing.T) {
-	err := ss.RunOnFile(MAIN_PATH, func(argsJson []byte) error {
-		out := ss.RunAsCommand([]string{"", string(argsJson)}, translate.Run)
-		fmt.Print(out)
-		return nil
-	})
+	expected := ""
+	got, err := ss.ExtractConstraintsFromFile(MAIN_PATH, translate.Run)
 	if err != nil {
+		t.Fatal(err)
+	}
+	if err := ss.CompareJsonOutput(expected, got); err != nil {
 		t.Fatal(err)
 	}
 }

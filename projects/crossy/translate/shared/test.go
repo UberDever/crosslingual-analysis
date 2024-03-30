@@ -6,6 +6,8 @@ import (
 	"io"
 	"os"
 	"os/exec"
+	"path"
+	"path/filepath"
 
 	"github.com/nsf/jsondiff"
 )
@@ -51,18 +53,6 @@ func RunAsCommand(args []string, run func()) string {
 	return string(out)
 }
 
-func RunOnFile(request arguments, onTranslate func(argsJson []byte) error) error {
-	argsJson, err := json.Marshal(request)
-	if err != nil {
-		return err
-	}
-	err = onTranslate(argsJson)
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
 func CompareJsonOutput(expected, actual string) error {
 	opts := jsondiff.DefaultConsoleOptions()
 	difference, out := jsondiff.Compare([]byte(expected), []byte(actual), &opts)
@@ -70,6 +60,39 @@ func CompareJsonOutput(expected, actual string) error {
 		return fmt.Errorf("%s", out)
 	}
 	return nil
+}
+
+func ExtractConstraintsFromFile(file string, translator func()) (string, error) {
+	code, err := os.ReadFile(file)
+	if err != nil {
+		return "", err
+	}
+	dir, err := os.Getwd()
+	if err != nil {
+		return "", err
+	}
+	abs, err := filepath.Abs(path.Join(dir, file))
+	if err != nil {
+		return "", err
+	}
+	args := map[string]any{
+		"id":                0,
+		"code":              string(code),
+		"path":              abs,
+		"type_context_path": ANCHOR_PATH + "evaluation/type_context.json",
+	}
+	j, err := json.Marshal(args)
+	if err != nil {
+		return "", err
+	}
+	request := TryParseArguments(string(j))
+
+	argsJson, err := json.Marshal(request)
+	if err != nil {
+		return "", err
+	}
+	got := RunAsCommand([]string{"", string(argsJson)}, translator)
+	return got, nil
 }
 
 const toDotPath = ANCHOR_PATH + "evaluation/to_dot.py"
