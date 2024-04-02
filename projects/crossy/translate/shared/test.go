@@ -79,7 +79,7 @@ func ExtractConstraintsFromFile(file string, translator func()) (string, error) 
 		"id":                0,
 		"code":              string(code),
 		"path":              abs,
-		"type_context_path": ANCHOR_PATH + "evaluation/type_context.json",
+		"type_context_path": ANCHOR_PATH + "evaluation/ontology.json",
 	}
 	j, err := json.Marshal(args)
 	if err != nil {

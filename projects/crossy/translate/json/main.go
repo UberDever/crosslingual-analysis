@@ -14,7 +14,7 @@ type traverser struct {
 	key *ss.Identifier
 
 	path    string
-	ctx     ss.TypeContext
+	ctx     ss.Ontology
 	counter ss.CounterService
 	decoder *json.Decoder
 }
@@ -50,13 +50,13 @@ func (t traverser) value(value *json.Token) ss.Constraints {
 			panic("Unreachable")
 		}
 	case float64:
-		cs = cs.Merge(t.ctx.NewDeclarationConstraint(t.counter, *t.key, t.ctx.T("Numeric")))
+		cs = cs.Merge(ss.NewDeclarationConstraint(t.counter, *t.key, t.ctx.Types.T("Numeric")))
 	case bool:
-		cs = cs.Merge(t.ctx.NewDeclarationConstraint(t.counter, *t.key, t.ctx.T("Bool")))
+		cs = cs.Merge(ss.NewDeclarationConstraint(t.counter, *t.key, t.ctx.Types.T("Bool")))
 	case string:
-		cs = cs.Merge(t.ctx.NewDeclarationConstraint(t.counter, *t.key, t.ctx.T("String")))
+		cs = cs.Merge(ss.NewDeclarationConstraint(t.counter, *t.key, t.ctx.Types.T("String")))
 	case nil:
-		cs = cs.Merge(t.ctx.NewDeclarationConstraint(t.counter, *t.key, t.ctx.T("Top")))
+		cs = cs.Merge(ss.NewDeclarationConstraint(t.counter, *t.key, t.ctx.Types.T("Top")))
 	}
 
 	return cs
@@ -147,14 +147,14 @@ func Run() {
 	} else {
 		counter = ss.NewCounterServiceImpl(*request.CounterURL)
 	}
-	var ctx ss.TypeContext
-	if request.TypeContext != nil {
-		j, err := os.ReadFile(*request.TypeContext)
+	var ctx ss.Ontology
+	if request.Ontology != nil {
+		j, err := os.ReadFile(*request.Ontology)
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)
 		}
-		ctx, err = ss.UnmarshalContext(j)
+		err = json.Unmarshal(j, &ctx)
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)

@@ -5,6 +5,28 @@ import (
 	"fmt"
 )
 
+type Ontology struct {
+	Types TypeContext `json:"type_context"`
+}
+
+func (c *Ontology) UnmarshalJSON(data []byte) error {
+	type aux Ontology
+	var o aux
+	err := json.Unmarshal(data, &o)
+	if err != nil {
+		return err
+	}
+	top := c.Types.T("Top")
+	for _, t := range c.Types.Ground {
+		c.Types.Subtypes = append(c.Types.Subtypes, subtype{t, top})
+	}
+	if err = verifyContext(c.Types); err != nil {
+		return err
+	}
+	*c = Ontology(o)
+	return nil
+}
+
 type variance string
 
 const (
@@ -83,28 +105,20 @@ func (ctx TypeContext) NewT(ctorName string, args ...ground) ground {
 			Args:        args,
 		},
 	}
-	if err := VerifyType(t); err != nil {
+	if err := verifyType(t); err != nil {
 		panic(err)
 	}
 	return t
 }
 
-func (ctx TypeContext) NewDeclarationConstraint(counter CounterService, decl Identifier, typ ground) Constraints {
-	tau := NewVariable(counter.FreshForce(), BindingTau)
-	return Constraints{
-		TypeDeclKnown: []TypeDeclKnown{NewTypeDeclKnown(counter.FreshForce(), decl, tau)},
-		EqualKnown:    []EqualKnown{NewEqualKnown(counter.FreshForce(), tau, typ)},
-	}
-}
-
-func VerifyType(t ground) error {
+func verifyType(t ground) error {
 	switch t.Tag {
 	case TagApplication:
 		if t.App == nil {
 			return fmt.Errorf("%v should be application of constructor", t)
 		}
 		for _, arg := range t.App.Args {
-			if err := VerifyType(ground(arg)); err != nil {
+			if err := verifyType(ground(arg)); err != nil {
 				return err
 			}
 		}
@@ -121,43 +135,26 @@ func VerifyType(t ground) error {
 	return nil
 }
 
-func VerifySubtype(s subtype) error {
-	if err := VerifyType(ground(s.Lhs)); err != nil {
+func verifySubtype(s subtype) error {
+	if err := verifyType(ground(s.Lhs)); err != nil {
 		return err
 	}
-	if err := VerifyType(ground(s.Rhs)); err != nil {
+	if err := verifyType(ground(s.Rhs)); err != nil {
 		return err
 	}
 	return nil
 }
 
-func VerifyContext(c TypeContext) error {
+func verifyContext(c TypeContext) error {
 	for _, t := range c.Ground {
-		if err := VerifyType(t); err != nil {
+		if err := verifyType(t); err != nil {
 			return err
 		}
 	}
 	for _, s := range c.Subtypes {
-		if err := VerifySubtype(s); err != nil {
+		if err := verifySubtype(s); err != nil {
 			return err
 		}
 	}
 	return nil
-}
-
-// TODO: make an interface
-func UnmarshalContext(j []byte) (TypeContext, error) {
-	c := TypeContext{}
-	err := json.Unmarshal(j, &c)
-	if err != nil {
-		return c, err
-	}
-	top := c.T("Top")
-	for _, t := range c.Ground {
-		c.Subtypes = append(c.Subtypes, subtype{t, top})
-	}
-	if err = VerifyContext(c); err != nil {
-		return c, err
-	}
-	return c, nil
 }
