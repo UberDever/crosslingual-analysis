@@ -21,22 +21,32 @@ type source struct {
 // I forced to use SOA here
 type Constraints struct {
 	// scope graph constraints
+
 	Usage            []Usage            // (1) A declaration constraint s -> xD specifies that declaration xD belongs to scope s. (2) A reference constraint xR -> s specifies that reference xR belongs to scope s
 	DirectEdge       []DirectEdge       // (8) A direct edge constraint s1 -l-> s2 specifies a direct l-labeled
 	AssociationKnown []AssociationKnown // (9) An association constraint xD -|> s specifies s as the associated scope of declaration xD. Associated scopes can be used to connect the declaration (e.g. a module) of a collection of names to the scope declaring those names (e.g. the body of a module).
 	NominalEdge      []NominalEdge      // (10) A nominal edge constraint s -l-> xR specifies a nominal l-labeled edge from scope s to reference xR. uch an edge makes visible in s all declarations that are visible in the associated scope of the declaration to which xR resolves, according to the label on the edge
 
 	// type-directed resolution constraints
+
 	Resolution         []Resolution         // (3) A resolution constraint R |-> D specifies that a given reference must resolve to a given declaration. Typically, the declaration is specified as a declaration variable δ
 	Uniqueness         []Uniqueness         // (4) A uniqueness constraint !N specifies that a given name collection N contains no duplicates.
 	Subset             []Subset             // (13) A subset constraint N ⊂∼ N specifies that one name collection is included in another.
 	AssociationUnknown []AssociationUnknown // (14) An association constraint D ~> S specifies that a given declaration has a given associated scope
 
 	// typing constraints
+
 	TypeDeclKnown   []TypeDeclKnown   // (6) A type declaration constraint D : T associates a type with a declaration.
 	TypeDeclUnknown []TypeDeclUnknown // (6) This constraint is used in two flavors: associating a type variable (τ) with a concrete declaration, or associating a type variable with a declaration variable
 	EqualKnown      []EqualKnown      // (7) A type equality constraint T ≡ T specifies that two types should be equal
 	EqualUnknown    []EqualUnknown    // (7)
+
+	// consistency constraints
+
+	MustResolve []MustResolve // given reference must resolve to a declaration
+	Essential   []Essential   // given declaration must have at least one reference (i.e. its essential for the project)
+	Exclusive   []Exclusive   // given declaration must have at most one reference
+	Iconic      []Iconic      // given declaration must be unique across WHOLE scope-graph, despite the scopes
 }
 
 func (c Constraints) Merge(cs Constraints) Constraints {
@@ -53,6 +63,10 @@ func (c Constraints) Merge(cs Constraints) Constraints {
 		EqualKnown:         append(c.EqualKnown, cs.EqualKnown...),
 		EqualUnknown:       append(c.EqualUnknown, cs.EqualUnknown...),
 		AssociationUnknown: append(c.AssociationUnknown, cs.AssociationUnknown...),
+		MustResolve:        append(c.MustResolve, cs.MustResolve...),
+		Essential:          append(c.Essential, cs.Essential...),
+		Exclusive:          append(c.Exclusive, cs.Exclusive...),
+		Iconic:             append(c.Iconic, cs.Iconic...),
 	}
 }
 
@@ -305,4 +319,44 @@ func NewAssociationUnknown(id uint, identifier variable, scope variable) Associa
 		panic(fmt.Sprintf("In type declaration %v, %v is not a declaration", id, identifier))
 	}
 	return AssociationUnknown{distinct{id}, identifier, scope}
+}
+
+// Consistency constraint, given reference must resolve to a declaration
+type MustResolve struct {
+	distinct
+	Reference Identifier `json:"reference"`
+}
+
+func NewMustResolve(id uint, reference Identifier) MustResolve {
+	return MustResolve{distinct{id}, reference}
+}
+
+// Consistency constraint, given declaration must have at least one reference (i.e. its essential for the project)
+type Essential struct {
+	distinct
+	Declaration Identifier `json:"declaration"`
+}
+
+func NewEssential(id uint, declaration Identifier) Essential {
+	return Essential{distinct{id}, declaration}
+}
+
+// Consistency constraint, given declaration must have at most one reference
+type Exclusive struct {
+	distinct
+	Declaration Identifier `json:"declaration"`
+}
+
+func NewExclusive(id uint, declaration Identifier) Exclusive {
+	return Exclusive{distinct{id}, declaration}
+}
+
+// Consistency constraint, given declaration must be unique across WHOLE scope-graph, despite the scopes
+type Iconic struct {
+	distinct
+	Declaration Identifier `json:"declaration"`
+}
+
+func NewIconic(id uint, declaration Identifier) Iconic {
+	return Iconic{distinct{id}, declaration}
 }
