@@ -16,6 +16,8 @@ func (c *Ontology) UnmarshalJSON(data []byte) error {
 	if err != nil {
 		return err
 	}
+	*c = Ontology(o)
+
 	top := c.Types.T("Top")
 	for _, t := range c.Types.Ground {
 		c.Types.Subtypes = append(c.Types.Subtypes, subtype{t, top})
@@ -23,7 +25,6 @@ func (c *Ontology) UnmarshalJSON(data []byte) error {
 	if err = verifyContext(c.Types); err != nil {
 		return err
 	}
-	*c = Ontology(o)
 	return nil
 }
 

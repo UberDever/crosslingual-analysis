@@ -313,10 +313,10 @@ type AssociationUnknown struct {
 
 func NewAssociationUnknown(id uint, identifier variable, scope variable) AssociationUnknown {
 	if !(scope.Name == BindingScope || scope.Name == BindingSigma) {
-		panic(fmt.Sprintf("In usage %v, %v is not a scope variable", id, scope))
+		panic(fmt.Sprintf("In %v, %v is not a scope variable", id, scope))
 	}
 	if identifier.Name != BindingDelta {
-		panic(fmt.Sprintf("In type declaration %v, %v is not a declaration", id, identifier))
+		panic(fmt.Sprintf("In %v, %v is not a declaration", id, identifier))
 	}
 	return AssociationUnknown{distinct{id}, identifier, scope}
 }
@@ -325,30 +325,42 @@ func NewAssociationUnknown(id uint, identifier variable, scope variable) Associa
 type MustResolve struct {
 	distinct
 	Reference Identifier `json:"reference"`
+	Scope     variable   `json:"scope"`
 }
 
-func NewMustResolve(id uint, reference Identifier) MustResolve {
-	return MustResolve{distinct{id}, reference}
+func NewMustResolve(id uint, reference Identifier, scope variable) MustResolve {
+	if !(scope.Name == BindingScope || scope.Name == BindingSigma) {
+		panic(fmt.Sprintf("In %v, %v is not a scope variable", id, scope))
+	}
+	return MustResolve{distinct{id}, reference, scope}
 }
 
 // Consistency constraint, given declaration must have at least one reference (i.e. its essential for the project)
 type Essential struct {
 	distinct
 	Declaration Identifier `json:"declaration"`
+	Scope       variable   `json:"scope"`
 }
 
-func NewEssential(id uint, declaration Identifier) Essential {
-	return Essential{distinct{id}, declaration}
+func NewEssential(id uint, declaration Identifier, scope variable) Essential {
+	if !(scope.Name == BindingScope || scope.Name == BindingSigma) {
+		panic(fmt.Sprintf("In %v, %v is not a scope variable", id, scope))
+	}
+	return Essential{distinct{id}, declaration, scope}
 }
 
 // Consistency constraint, given declaration must have at most one reference
 type Exclusive struct {
 	distinct
 	Declaration Identifier `json:"declaration"`
+	Scope       variable   `json:"scope"`
 }
 
-func NewExclusive(id uint, declaration Identifier) Exclusive {
-	return Exclusive{distinct{id}, declaration}
+func NewExclusive(id uint, declaration Identifier, scope variable) Exclusive {
+	if !(scope.Name == BindingScope || scope.Name == BindingSigma) {
+		panic(fmt.Sprintf("In %v, %v is not a scope variable", id, scope))
+	}
+	return Exclusive{distinct{id}, declaration, scope}
 }
 
 // Consistency constraint, given declaration must be unique across WHOLE scope-graph, despite the scopes
