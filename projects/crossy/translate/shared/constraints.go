@@ -1,6 +1,7 @@
 package shared
 
 import (
+	"encoding/json"
 	"fmt"
 )
 
@@ -68,6 +69,11 @@ func (c Constraints) Merge(cs Constraints) Constraints {
 		Exclusive:          append(c.Exclusive, cs.Exclusive...),
 		Iconic:             append(c.Iconic, cs.Iconic...),
 	}
+}
+
+func (c Constraints) String() string {
+	s, _ := json.Marshal(c)
+	return string(s)
 }
 
 type Identifier struct {

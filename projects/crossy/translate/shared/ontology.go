@@ -3,10 +3,13 @@ package shared
 import (
 	"encoding/json"
 	"fmt"
+
+	"github.com/mitchellh/mapstructure"
 )
 
 type Ontology struct {
-	Types TypeContext `json:"type_context"`
+	Types     TypeContext `json:"type_context"`
+	Templates []Template  `json:"templates"`
 }
 
 func (c *Ontology) UnmarshalJSON(data []byte) error {
@@ -26,6 +29,180 @@ func (c *Ontology) UnmarshalJSON(data []byte) error {
 		return err
 	}
 	return nil
+}
+
+type ResultT struct {
+	T  string `json:"type"`
+	Id uint   `json:"id"`
+}
+
+type Template struct {
+	Name   string         `json:"name"`
+	Input  []string       `json:"input"`
+	Body   map[string]any `json:"body"`
+	Result []ResultT      `json:"result"`
+}
+
+func typecheck(input []string, stack Stack[any]) error {
+	if len(stack.Values()) != len(input) {
+		return fmt.Errorf("expected %d arguments to template, found %d", len(input), len(stack.Values()))
+	}
+	for i := range stack.Values() {
+		input_type := input[i]
+		v := stack.Values()[i]
+		switch input_type {
+		case "scope":
+			scope, ok := v.(variable)
+			if !ok && !(scope.Name == BindingScope || scope.Name == BindingSigma) {
+				return fmt.Errorf("value %v at position %d expected to be a %s", v, i, input_type)
+			}
+		case "identifier":
+			_, ok := v.(Identifier)
+			if !ok {
+				return fmt.Errorf("value %v at position %d expected to be a %s", v, i, input_type)
+			}
+		default:
+			panic("Unreachable")
+		}
+	}
+	return nil
+}
+
+func substitute(body map[string]any, stack Stack[any]) (map[string]any, error) {
+	isParameter := func(value any) *int {
+		switch v := value.(type) {
+		case map[string]any:
+			if len(v) != 1 {
+				return nil
+			}
+			arg, ok := v["argument"]
+			if !ok {
+				return nil
+			}
+			argVal, ok := arg.(float64)
+			if !ok {
+				return nil
+			}
+			i := int(argVal)
+			return &i
+		default:
+			return nil
+		}
+	}
+
+	var traverse func(value any) error
+	traverse = func(value any) error {
+		switch v := value.(type) {
+		case map[string]any:
+			for key, val := range v {
+				if idx := isParameter(val); idx != nil {
+					// NOTE: index is always negative and starts from -1
+					len := len(stack.Values())
+					i := -(*idx + 1)
+					if i >= len {
+						return fmt.Errorf("argument %d is not in the stack, len = %d", idx, len)
+					}
+					v[key] = stack.Values()[i]
+				}
+				traverse(val)
+			}
+		case []any:
+			for index, val := range v {
+				if idx := isParameter(val); idx != nil {
+					// NOTE: index is always negative and starts from -1
+					len := len(stack.Values())
+					i := -(*idx + 1)
+					if i >= len {
+						return fmt.Errorf("argument %d is not in the stack, len = %d", idx, len)
+					}
+					v[index] = stack.Values()[i]
+				}
+				traverse(val)
+			}
+		}
+		return nil
+	}
+
+	err := traverse(body)
+	if err != nil {
+		return nil, err
+	}
+
+	return body, nil
+}
+
+func getResults(body map[string]any, returns []ResultT) (Stack[any], error) {
+	s := Stack[any]{}
+	var traverse func(value any) error
+	traverse = func(value any) error {
+		switch o := value.(type) {
+		case map[string]any:
+			for k, v := range o {
+				if k == "id" {
+					resultKey := uint(v.(float64))
+					for _, r := range returns {
+						if r.Id == resultKey {
+							untyped := map[string]any{}
+							untyped[r.T] = []any{}
+							untyped[r.T] = append(untyped[r.T].([]any), o)
+							var cs Constraints
+							err := mapstructure.Decode(untyped, &cs)
+							if err != nil {
+								return err
+							}
+							s.Push(cs)
+							break
+						}
+					}
+				}
+				err := traverse(v)
+				if err != nil {
+					return err
+				}
+			}
+		case []any:
+			for _, v := range o {
+				err := traverse(v)
+				if err != nil {
+					return err
+				}
+			}
+		}
+		return nil
+	}
+
+	err := traverse(body)
+	if err != nil {
+		return s, err
+	}
+
+	return s, nil
+}
+
+func (tm Template) Evaluate(stack *Stack[any]) (Constraints, error) {
+	var cs Constraints
+
+	err := typecheck(tm.Input, *stack)
+	if err != nil {
+		return cs, err
+	}
+	b := DeepCopyJSON(tm.Body)
+	body, err := substitute(b.(map[string]any), *stack)
+	if err != nil {
+		return cs, err
+	}
+	s, err := getResults(body, tm.Result)
+	if err != nil {
+		return cs, err
+	}
+	*stack = s
+
+	err = mapstructure.Decode(body, &cs)
+	if err != nil {
+		return cs, err
+	}
+
+	return cs, nil
 }
 
 type variance string
