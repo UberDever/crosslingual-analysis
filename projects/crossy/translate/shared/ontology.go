@@ -3,6 +3,7 @@ package shared
 import (
 	"encoding/json"
 	"fmt"
+	"reflect"
 
 	"github.com/mitchellh/mapstructure"
 )
@@ -31,7 +32,7 @@ func (c *Ontology) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
-type ResultT struct {
+type Output struct {
 	T  string `json:"type"`
 	Id uint   `json:"id"`
 }
@@ -40,7 +41,7 @@ type Template struct {
 	Name   string         `json:"name"`
 	Input  []string       `json:"input"`
 	Body   map[string]any `json:"body"`
-	Result []ResultT      `json:"result"`
+	Output []Output       `json:"output"`
 }
 
 func typecheck(input []string, stack Stack[any]) error {
@@ -52,7 +53,7 @@ func typecheck(input []string, stack Stack[any]) error {
 		v := stack.Values()[i]
 		switch input_type {
 		case "scope":
-			scope, ok := v.(variable)
+			scope, ok := v.(Variable)
 			if !ok && !(scope.Name == BindingScope || scope.Name == BindingSigma) {
 				return fmt.Errorf("value %v at position %d expected to be a %s", v, i, input_type)
 			}
@@ -131,7 +132,7 @@ func substitute(body map[string]any, stack Stack[any]) (map[string]any, error) {
 	return body, nil
 }
 
-func getResults(body map[string]any, returns []ResultT) (Stack[any], error) {
+func getOutput(body map[string]any, returns []Output) (Stack[any], error) {
 	s := Stack[any]{}
 	var traverse func(value any) error
 	traverse = func(value any) error {
@@ -179,7 +180,51 @@ func getResults(body map[string]any, returns []ResultT) (Stack[any], error) {
 	return s, nil
 }
 
-func (tm Template) Evaluate(stack *Stack[any]) (Constraints, error) {
+func (Template) ShiftIndices(counter CounterService, cs map[string]any) map[string]any {
+	seen := map[uint]uint{}
+
+	var traverse func(v any)
+	traverse = func(value any) {
+		switch v := value.(type) {
+		case []any:
+			for i := 0; i < len(v); i++ {
+				traverse(v[i])
+			}
+		case map[string]any:
+			var newId uint
+			if v.Type() == reflect.TypeOf(Distinct{}) {
+				id := v.Interface().(Distinct)
+				val := id.I
+				if i, found := seen[val]; found {
+					newId = i
+				} else {
+					newId = counter.FreshForce()
+					seen[val] = newId
+				}
+				v.FieldByName("I").SetUint(uint64(newId))
+			}
+			if v.Type() == reflect.TypeOf(Variable{}) {
+				variable := v.Interface().(Variable)
+				if i, found := seen[variable.Index]; found {
+					newId = i
+				} else {
+					newId = counter.FreshForce()
+					seen[variable.Index] = newId
+				}
+				v.FieldByName("Index").SetUint(uint64(newId))
+			}
+			for _, child := range v {
+				traverse(child)
+			}
+		}
+	}
+
+	traverse(value)
+
+	return copy
+}
+
+func (tm Template) Evaluate(counter CounterService, stack *Stack[any]) (Constraints, error) {
 	var cs Constraints
 
 	err := typecheck(tm.Input, *stack)
@@ -191,7 +236,8 @@ func (tm Template) Evaluate(stack *Stack[any]) (Constraints, error) {
 	if err != nil {
 		return cs, err
 	}
-	s, err := getResults(body, tm.Result)
+	shiftedBody := tm.ShiftIndices(counter, body)
+	s, err := getOutput(shiftedBody, tm.Output)
 	if err != nil {
 		return cs, err
 	}

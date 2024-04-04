@@ -135,7 +135,7 @@
                     }
                 ]
             },
-            "result": [
+            "output": [
                 {
                     "type": "AssociationKnown",
                     "id": 6

@@ -103,20 +103,20 @@ const (
 	BindingScope bindingType = "_"     // Alpha is for common ground scopes
 )
 
-type variable struct {
+type Variable struct {
 	Index uint        `json:"index"`
 	Name  bindingType `json:"name"`
 }
 
-func NewVariable(index uint, Type bindingType) variable {
-	return variable{index, Type}
+func NewVariable(index uint, Type bindingType) Variable {
+	return Variable{index, Type}
 }
 
-type distinct struct {
-	I uint `json:"id"`
+type Distinct struct {
+	I uint `json:"id" mapstructure:"id"`
 }
 
-func (i distinct) Id() uint { return i.I }
+func (i Distinct) Id() uint { return i.I }
 
 type namesType string
 
@@ -129,10 +129,10 @@ const (
 // Name collections (5, 11, 12)
 type names struct {
 	NamesType namesType `json:"collection"`
-	Scope     variable  `json:"scope"`
+	Scope     Variable  `json:"scope"`
 }
 
-func NewNamesCollection(t namesType, scope variable) names {
+func NewNamesCollection(t namesType, scope Variable) names {
 	if !(scope.Name == BindingScope || scope.Name == BindingSigma) {
 		panic(fmt.Sprintf("In names collection %v, %v is not a scope variable", t, scope))
 	}
@@ -149,232 +149,232 @@ const (
 // Declaration constraint (1) (only for the case when declaration is non-variable)
 // Reference constraint (2) (only for the case when reference is non-variable)
 type Usage struct {
-	distinct
+	Distinct   `mapstructure:",squash"`
 	Identifier Identifier `json:"identifier"`
 	UsageType  usageType  `json:"usage"`
-	Scope      variable   `json:"scope"`
+	Scope      Variable   `json:"scope"`
 }
 
-func NewUsage(id uint, identifier Identifier, usageType usageType, scope variable) Usage {
+func NewUsage(id uint, identifier Identifier, usageType usageType, scope Variable) Usage {
 	if !(scope.Name == BindingScope || scope.Name == BindingSigma) {
 		panic(fmt.Sprintf("In usage %v, %v is not a scope variable", id, scope))
 	}
 	if !(usageType == UsageDecl || usageType == UsageRef) {
 		panic(fmt.Sprintf("The usage %v has unexpected usage type %v", id, usageType))
 	}
-	return Usage{distinct{id}, identifier, usageType, scope}
+	return Usage{Distinct{id}, identifier, usageType, scope}
 }
 
 // Resolution constraint (3) (only for the case when declaration is variable)
 type Resolution struct {
-	distinct
+	Distinct    `mapstructure:",squash"`
 	Reference   Identifier `json:"reference"`
-	Declaration variable   `json:"declaration"`
+	Declaration Variable   `json:"declaration"`
 }
 
-func NewResolution(id uint, identifier Identifier, declaration variable) Resolution {
+func NewResolution(id uint, identifier Identifier, declaration Variable) Resolution {
 	if declaration.Name != BindingDelta {
 		panic(fmt.Sprintf("In resolution %v, %v is not a declaration", id, declaration))
 	}
-	return Resolution{distinct{id}, identifier, declaration}
+	return Resolution{Distinct{id}, identifier, declaration}
 }
 
 // Uniqueness constraint (4)
 type Uniqueness struct {
-	distinct
-	Names names `json:"names"`
+	Distinct `mapstructure:",squash"`
+	Names    names `json:"names"`
 }
 
 func NewUniqueness(id uint, names names) Uniqueness {
-	return Uniqueness{distinct{id}, names}
+	return Uniqueness{Distinct{id}, names}
 }
 
 // Type declaration constraint (6), where D is known
 type TypeDeclKnown struct {
-	distinct
+	Distinct    `mapstructure:",squash"`
 	Declaration Identifier `json:"declaration"`
-	Type        variable   `json:"variable"`
+	Type        Variable   `json:"variable"`
 }
 
-func NewTypeDeclKnown(id uint, identifier Identifier, typevar variable) TypeDeclKnown {
+func NewTypeDeclKnown(id uint, identifier Identifier, typevar Variable) TypeDeclKnown {
 	if typevar.Name != BindingTau {
 		panic(fmt.Sprintf("In type declaration %v, %v is not a typevariable", id, typevar))
 	}
-	return TypeDeclKnown{distinct{id}, identifier, typevar}
+	return TypeDeclKnown{Distinct{id}, identifier, typevar}
 }
 
 // Type declaration constraint (6), where D is decl variable
 type TypeDeclUnknown struct {
-	distinct
-	Declaration variable `json:"declaration"`
-	Type        variable `json:"variable"`
+	Distinct    `mapstructure:",squash"`
+	Declaration Variable `json:"declaration"`
+	Type        Variable `json:"variable"`
 }
 
-func NewTypeDeclUnknown(id uint, identifier variable, typevar variable) TypeDeclUnknown {
+func NewTypeDeclUnknown(id uint, identifier Variable, typevar Variable) TypeDeclUnknown {
 	if identifier.Name != BindingDelta {
 		panic(fmt.Sprintf("In type declaration %v, %v is not a declaration", id, identifier))
 	}
 	if typevar.Name != BindingTau {
 		panic(fmt.Sprintf("In type declaration %v, %v is not a typevariable", id, typevar))
 	}
-	return TypeDeclUnknown{distinct{id}, identifier, typevar}
+	return TypeDeclUnknown{Distinct{id}, identifier, typevar}
 }
 
 type EqualKnown struct {
-	distinct
-	T1 variable `json:"t1"`
-	T2 ground   `json:"t2"`
+	Distinct `mapstructure:",squash"`
+	T1       Variable `json:"t1"`
+	T2       ground   `json:"t2"`
 }
 
-func NewEqualKnown(id uint, t1 variable, t2 ground) EqualKnown {
+func NewEqualKnown(id uint, t1 Variable, t2 ground) EqualKnown {
 	if t1.Name != BindingTau {
 		panic(fmt.Sprintf("In type declaration %v, %v is not a typevariable", id, t1))
 	}
-	return EqualKnown{distinct{id}, t1, t2}
+	return EqualKnown{Distinct{id}, t1, t2}
 }
 
 type EqualUnknown struct {
-	distinct
-	T1 variable `json:"t1"`
-	T2 variable `json:"t2"`
+	Distinct `mapstructure:",squash"`
+	T1       Variable `json:"t1"`
+	T2       Variable `json:"t2"`
 }
 
-func NewEqualUnknown(id uint, t1 variable, t2 variable) EqualUnknown {
+func NewEqualUnknown(id uint, t1 Variable, t2 Variable) EqualUnknown {
 	if t1.Name != BindingTau {
 		panic(fmt.Sprintf("In type declaration %v, %v is not a typevariable", id, t1))
 	}
 	if t2.Name != BindingTau {
 		panic(fmt.Sprintf("In type declaration %v, %v is not a typevariable", id, t2))
 	}
-	return EqualUnknown{distinct{id}, t1, t2}
+	return EqualUnknown{Distinct{id}, t1, t2}
 }
 
 // Direct edge constraint (8)
 type DirectEdge struct {
-	distinct
-	Lhs   variable `json:"lhs"`
-	Rhs   variable `json:"rhs"`
-	Label string   `json:"label"`
+	Distinct `mapstructure:",squash"`
+	Lhs      Variable `json:"lhs"`
+	Rhs      Variable `json:"rhs"`
+	Label    string   `json:"label"`
 }
 
-func NewDirectEdge(id uint, lhs, rhs variable, label string) DirectEdge {
+func NewDirectEdge(id uint, lhs, rhs Variable, label string) DirectEdge {
 	if !(lhs.Name == BindingScope || lhs.Name == BindingSigma) {
 		panic(fmt.Sprintf("In direct edge %v, %v is not a scope variable", id, lhs))
 	}
 	if !(rhs.Name == BindingScope || rhs.Name == BindingSigma) {
 		panic(fmt.Sprintf("In direct edge %v, %v is not a scope variable", id, rhs))
 	}
-	return DirectEdge{distinct{id}, lhs, rhs, label}
+	return DirectEdge{Distinct{id}, lhs, rhs, label}
 }
 
 // Association constraint (9) (only for the case when declaration is known)
 type AssociationKnown struct {
-	distinct
+	Distinct    `mapstructure:",squash"`
 	Declaration Identifier `json:"declaration"`
-	Scope       variable   `json:"scope"`
+	Scope       Variable   `json:"scope"`
 }
 
-func NewAssociationKnown(id uint, identifier Identifier, scope variable) AssociationKnown {
+func NewAssociationKnown(id uint, identifier Identifier, scope Variable) AssociationKnown {
 	if !(scope.Name == BindingScope || scope.Name == BindingSigma) {
 		panic(fmt.Sprintf("In usage %v, %v is not a scope variable", id, scope))
 	}
-	return AssociationKnown{distinct{id}, identifier, scope}
+	return AssociationKnown{Distinct{id}, identifier, scope}
 }
 
 // Nominal edge constraint (10)
 type NominalEdge struct {
-	distinct
-	Scope     variable   `json:"scope"`
+	Distinct  `mapstructure:",squash"`
+	Scope     Variable   `json:"scope"`
 	Reference Identifier `json:"reference"`
 	Label     string     `json:"label"`
 }
 
-func NewNominalEdge(id uint, reference Identifier, scope variable, label string) NominalEdge {
+func NewNominalEdge(id uint, reference Identifier, scope Variable, label string) NominalEdge {
 	if !(scope.Name == BindingScope || scope.Name == BindingSigma) {
 		panic(fmt.Sprintf("In usage %v, %v is not a scope variable", id, scope))
 	}
-	return NominalEdge{distinct{id}, scope, reference, label}
+	return NominalEdge{Distinct{id}, scope, reference, label}
 }
 
 // Subset constraint (13)
 type Subset struct {
-	distinct
-	Lhs names `json:"lhs"`
-	Rhs names `json:"rhs"`
+	Distinct `mapstructure:",squash"`
+	Lhs      names `json:"lhs"`
+	Rhs      names `json:"rhs"`
 }
 
 func NewSubset(id uint, lhs, rhs names) Subset {
 	if lhs.NamesType != rhs.NamesType {
 		panic(fmt.Sprintf("In subset %v, %v and %v has different types", id, lhs, rhs))
 	}
-	return Subset{distinct{id}, lhs, rhs}
+	return Subset{Distinct{id}, lhs, rhs}
 }
 
 // Association constraint (14) (only for the case when declaration is a variable)
 type AssociationUnknown struct {
-	distinct
-	Declaration variable `json:"declaration"`
-	Scope       variable `json:"scope"`
+	Distinct    `mapstructure:",squash"`
+	Declaration Variable `json:"declaration"`
+	Scope       Variable `json:"scope"`
 }
 
-func NewAssociationUnknown(id uint, identifier variable, scope variable) AssociationUnknown {
+func NewAssociationUnknown(id uint, identifier Variable, scope Variable) AssociationUnknown {
 	if !(scope.Name == BindingScope || scope.Name == BindingSigma) {
 		panic(fmt.Sprintf("In %v, %v is not a scope variable", id, scope))
 	}
 	if identifier.Name != BindingDelta {
 		panic(fmt.Sprintf("In %v, %v is not a declaration", id, identifier))
 	}
-	return AssociationUnknown{distinct{id}, identifier, scope}
+	return AssociationUnknown{Distinct{id}, identifier, scope}
 }
 
 // Consistency constraint, given reference must resolve to a declaration
 type MustResolve struct {
-	distinct
+	Distinct  `mapstructure:",squash"`
 	Reference Identifier `json:"reference"`
-	Scope     variable   `json:"scope"`
+	Scope     Variable   `json:"scope"`
 }
 
-func NewMustResolve(id uint, reference Identifier, scope variable) MustResolve {
+func NewMustResolve(id uint, reference Identifier, scope Variable) MustResolve {
 	if !(scope.Name == BindingScope || scope.Name == BindingSigma) {
 		panic(fmt.Sprintf("In %v, %v is not a scope variable", id, scope))
 	}
-	return MustResolve{distinct{id}, reference, scope}
+	return MustResolve{Distinct{id}, reference, scope}
 }
 
 // Consistency constraint, given declaration must have at least one reference (i.e. its essential for the project)
 type Essential struct {
-	distinct
+	Distinct    `mapstructure:",squash"`
 	Declaration Identifier `json:"declaration"`
-	Scope       variable   `json:"scope"`
+	Scope       Variable   `json:"scope"`
 }
 
-func NewEssential(id uint, declaration Identifier, scope variable) Essential {
+func NewEssential(id uint, declaration Identifier, scope Variable) Essential {
 	if !(scope.Name == BindingScope || scope.Name == BindingSigma) {
 		panic(fmt.Sprintf("In %v, %v is not a scope variable", id, scope))
 	}
-	return Essential{distinct{id}, declaration, scope}
+	return Essential{Distinct{id}, declaration, scope}
 }
 
 // Consistency constraint, given declaration must have at most one reference
 type Exclusive struct {
-	distinct
+	Distinct    `mapstructure:",squash"`
 	Declaration Identifier `json:"declaration"`
-	Scope       variable   `json:"scope"`
+	Scope       Variable   `json:"scope"`
 }
 
-func NewExclusive(id uint, declaration Identifier, scope variable) Exclusive {
+func NewExclusive(id uint, declaration Identifier, scope Variable) Exclusive {
 	if !(scope.Name == BindingScope || scope.Name == BindingSigma) {
 		panic(fmt.Sprintf("In %v, %v is not a scope variable", id, scope))
 	}
-	return Exclusive{distinct{id}, declaration, scope}
+	return Exclusive{Distinct{id}, declaration, scope}
 }
 
 // Consistency constraint, given declaration must be unique across WHOLE scope-graph, despite the scopes
 type Iconic struct {
-	distinct
+	Distinct    `mapstructure:",squash"`
 	Declaration Identifier `json:"declaration"`
 }
 
 func NewIconic(id uint, declaration Identifier) Iconic {
-	return Iconic{distinct{id}, declaration}
+	return Iconic{Distinct{id}, declaration}
 }
