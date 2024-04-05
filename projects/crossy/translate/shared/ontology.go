@@ -3,7 +3,6 @@ package shared
 import (
 	"encoding/json"
 	"fmt"
-	"reflect"
 
 	"github.com/mitchellh/mapstructure"
 )
@@ -53,7 +52,7 @@ func typecheck(input []string, stack Stack[any]) error {
 		v := stack.Values()[i]
 		switch input_type {
 		case "scope":
-			scope, ok := v.(Variable)
+			scope, ok := v.(variable)
 			if !ok && !(scope.Name == BindingScope || scope.Name == BindingSigma) {
 				return fmt.Errorf("value %v at position %d expected to be a %s", v, i, input_type)
 			}
@@ -132,8 +131,7 @@ func substitute(body map[string]any, stack Stack[any]) (map[string]any, error) {
 	return body, nil
 }
 
-func getOutput(body map[string]any, returns []Output) (Stack[any], error) {
-	s := Stack[any]{}
+func getOutput(body map[string]any, results []Output) (out Constraints, err error) {
 	var traverse func(value any) error
 	traverse = func(value any) error {
 		switch o := value.(type) {
@@ -141,7 +139,7 @@ func getOutput(body map[string]any, returns []Output) (Stack[any], error) {
 			for k, v := range o {
 				if k == "id" {
 					resultKey := uint(v.(float64))
-					for _, r := range returns {
+					for _, r := range results {
 						if r.Id == resultKey {
 							untyped := map[string]any{}
 							untyped[r.T] = []any{}
@@ -151,7 +149,7 @@ func getOutput(body map[string]any, returns []Output) (Stack[any], error) {
 							if err != nil {
 								return err
 							}
-							s.Push(cs)
+							out = out.Merge(cs)
 							break
 						}
 					}
@@ -172,18 +170,18 @@ func getOutput(body map[string]any, returns []Output) (Stack[any], error) {
 		return nil
 	}
 
-	err := traverse(body)
+	err = traverse(body)
 	if err != nil {
-		return s, err
+		return
 	}
 
-	return s, nil
+	return
 }
 
-func (Template) ShiftIndices(counter CounterService, cs map[string]any) map[string]any {
+func shiftIndices(counter CounterService, cs map[string]any) map[string]any {
 	seen := map[uint]uint{}
 
-	var traverse func(v any)
+	var traverse func(value any)
 	traverse = func(value any) {
 		switch v := value.(type) {
 		case []any:
@@ -192,26 +190,25 @@ func (Template) ShiftIndices(counter CounterService, cs map[string]any) map[stri
 			}
 		case map[string]any:
 			var newId uint
-			if v.Type() == reflect.TypeOf(Distinct{}) {
-				id := v.Interface().(Distinct)
-				val := id.I
+			if (Distinct{}).SameStruct(v) {
+				val := uint(v["id"].(float64))
 				if i, found := seen[val]; found {
 					newId = i
 				} else {
 					newId = counter.FreshForce()
 					seen[val] = newId
 				}
-				v.FieldByName("I").SetUint(uint64(newId))
+				v["id"] = float64(newId)
 			}
-			if v.Type() == reflect.TypeOf(Variable{}) {
-				variable := v.Interface().(Variable)
-				if i, found := seen[variable.Index]; found {
+			if (variable{}).SameStruct(v) {
+				val := uint(v["index"].(float64))
+				if i, found := seen[val]; found {
 					newId = i
 				} else {
 					newId = counter.FreshForce()
-					seen[variable.Index] = newId
+					seen[val] = newId
 				}
-				v.FieldByName("Index").SetUint(uint64(newId))
+				v["index"] = float64(newId)
 			}
 			for _, child := range v {
 				traverse(child)
@@ -219,36 +216,33 @@ func (Template) ShiftIndices(counter CounterService, cs map[string]any) map[stri
 		}
 	}
 
-	traverse(value)
+	traverse(cs)
 
-	return copy
+	return cs
 }
 
-func (tm Template) Evaluate(counter CounterService, stack *Stack[any]) (Constraints, error) {
-	var cs Constraints
-
-	err := typecheck(tm.Input, *stack)
+func (tm Template) Evaluate(counter CounterService, stack Stack[any]) (cs Constraints, output Constraints, err error) {
+	err = typecheck(tm.Input, stack)
 	if err != nil {
-		return cs, err
+		return
 	}
-	b := DeepCopyJSON(tm.Body)
-	body, err := substitute(b.(map[string]any), *stack)
+	copy := DeepCopyJSON(tm.Body).(map[string]any)
+	shifted := shiftIndices(counter, copy)
+	body, err := substitute(shifted, stack)
 	if err != nil {
-		return cs, err
+		return
 	}
-	shiftedBody := tm.ShiftIndices(counter, body)
-	s, err := getOutput(shiftedBody, tm.Output)
+	output, err = getOutput(body, tm.Output)
 	if err != nil {
-		return cs, err
+		return
 	}
-	*stack = s
 
 	err = mapstructure.Decode(body, &cs)
 	if err != nil {
-		return cs, err
+		return
 	}
 
-	return cs, nil
+	return
 }
 
 type variance string
