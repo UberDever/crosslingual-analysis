@@ -132,28 +132,24 @@ func substitute(body map[string]any, stack Stack[any]) (map[string]any, error) {
 }
 
 func getOutput(body map[string]any, results []Output) (out Constraints, err error) {
+	csUntyped := map[string][]any{}
+
 	var traverse func(value any) error
 	traverse = func(value any) error {
 		switch o := value.(type) {
 		case map[string]any:
-			for k, v := range o {
-				if k == "id" {
-					resultKey := uint(v.(float64))
-					for _, r := range results {
-						if r.Id == resultKey {
-							untyped := map[string]any{}
-							untyped[r.T] = []any{}
-							untyped[r.T] = append(untyped[r.T].([]any), o)
-							var cs Constraints
-							err := mapstructure.Decode(untyped, &cs)
-							if err != nil {
-								return err
-							}
-							out = out.Merge(cs)
-							break
-						}
+			if (Distinct{}).SameStruct(o) {
+				val := uint(o["id"].(float64))
+				var res Output
+				for _, r := range results {
+					if val == r.Id {
+						res = r
+						break
 					}
 				}
+				csUntyped[res.T] = append(csUntyped[res.T], o)
+			}
+			for _, v := range o {
 				err := traverse(v)
 				if err != nil {
 					return err
@@ -174,11 +170,12 @@ func getOutput(body map[string]any, results []Output) (out Constraints, err erro
 	if err != nil {
 		return
 	}
+	mapstructure.Decode(csUntyped, &out)
 
 	return
 }
 
-func shiftIndices(counter CounterService, cs map[string]any) map[string]any {
+func shiftIndices(counter CounterService, cs *map[string]any, output *[]Output) error {
 	seen := map[uint]uint{}
 
 	var traverse func(value any)
@@ -215,33 +212,52 @@ func shiftIndices(counter CounterService, cs map[string]any) map[string]any {
 			}
 		}
 	}
+	traverse(*cs)
 
-	traverse(cs)
+	newOut := make([]Output, 0, len(*output))
+	for _, out := range *output {
+		if i, found := seen[out.Id]; found {
+			out.Id = i
+			newOut = append(newOut, out)
+		} else {
+			return fmt.Errorf("the result %v is not found in the body", out)
+		}
+	}
+	*output = newOut
 
-	return cs
+	return nil
 }
 
-func (tm Template) Evaluate(counter CounterService, stack Stack[any]) (cs Constraints, output Constraints, err error) {
+func (tm Template) evaluate(counter CounterService, stack Stack[any]) (cs Constraints, output Constraints, err error) {
 	err = typecheck(tm.Input, stack)
 	if err != nil {
 		return
 	}
 	copy := DeepCopyJSON(tm.Body).(map[string]any)
-	shifted := shiftIndices(counter, copy)
-	body, err := substitute(shifted, stack)
+	err = shiftIndices(counter, &copy, &tm.Output)
 	if err != nil {
 		return
 	}
-	output, err = getOutput(body, tm.Output)
+	result, err := substitute(copy, stack)
+	if err != nil {
+		return
+	}
+	output, err = getOutput(result, tm.Output)
 	if err != nil {
 		return
 	}
 
-	err = mapstructure.Decode(body, &cs)
+	err = mapstructure.Decode(result, &cs)
 	if err != nil {
 		return
 	}
 
+	return
+}
+
+func (tm Template) Eval(counter CounterService, stack *Stack[any]) (cs Constraints, output Constraints, err error) {
+	cs, output, err = tm.evaluate(counter, *stack)
+	stack.Clear()
 	return
 }
 

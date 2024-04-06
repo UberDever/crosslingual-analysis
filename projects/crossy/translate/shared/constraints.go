@@ -72,7 +72,7 @@ func (c Constraints) Merge(cs Constraints) Constraints {
 }
 
 func (c Constraints) String() string {
-	s, _ := json.MarshalIndent(c, "", "    ")
+	s, _ := json.Marshal(c)
 	return string(s)
 }
 

@@ -50,7 +50,7 @@
     },
     "templates": [
         {
-            "name": "def Web server",
+            "name": "declare Web server",
             "input": [
                 "scope",
                 "identifier"
