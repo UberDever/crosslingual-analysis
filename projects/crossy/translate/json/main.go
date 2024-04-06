@@ -148,21 +148,19 @@ func Run() {
 		counter = ss.NewCounterServiceImpl(*request.CounterURL)
 	}
 	var ctx ss.Ontology
-	if request.Ontology != nil {
-		j, err := os.ReadFile(*request.Ontology)
-		if err != nil {
-			fmt.Println(err)
-			os.Exit(1)
-		}
-		err = json.Unmarshal(j, &ctx)
-		if err != nil {
-			fmt.Println(err)
-			os.Exit(1)
-		}
+	j, err := os.ReadFile(*request.Ontology)
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+	err = json.Unmarshal(j, &ctx)
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
 	}
 
 	var root any
-	err := json.Unmarshal([]byte(request.Code), &root)
+	err = json.Unmarshal([]byte(request.Code), &root)
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
@@ -182,7 +180,7 @@ func Run() {
 		decoder: dec,
 	}
 	constraints := traverser.value(nil)
-	j, err := json.Marshal(constraints)
+	j, err = json.Marshal(constraints)
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)

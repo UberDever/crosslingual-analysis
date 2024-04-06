@@ -50,7 +50,16 @@
     },
     "templates": [
         {
-            "name": "declare Web server",
+            "name": "declare WebServer",
+            "usage": {
+                "input": [
+                    "Scope - where web server should be declared",
+                    "Identifier - what is the URI of the webserver"
+                ],
+                "output": [
+                    "AssociationKnown - with a scope that corresponds to GET.application/json module"
+                ]
+            },
             "input": [
                 "scope",
                 "identifier"
@@ -139,6 +148,68 @@
                 {
                     "type": "AssociationKnown",
                     "id": 6
+                }
+            ]
+        },
+        {
+            "name": "reference WebServer",
+            "usage": {
+                "input": [
+                    "Scope - where web server is referenced",
+                    "Identifier - what is the URI of the webserver"
+                ],
+                "output": [
+                    "NominalEdge - where scope is a web server field resolution scope"
+                ]
+            },
+            "input": [
+                "scope",
+                "identifier"
+            ],
+            "body": {
+                "Usage": [
+                    {
+                        "id": 1,
+                        "identifier": {
+                            "argument": -2
+                        },
+                        "usage": "reference",
+                        "scope": {
+                            "argument": -1
+                        }
+                    }
+                ],
+                "DirectEdge": [
+                    {
+                        "id": 2,
+                        "lhs": {
+                            "index": 1,
+                            "name": "_"
+                        },
+                        "rhs": {
+                            "argument": -1
+                        },
+                        "label": "parent"
+                    }
+                ],
+                "NominalEdge": [
+                    {
+                        "id": 3,
+                        "scope": {
+                            "index": 1,
+                            "name": "_"
+                        },
+                        "reference": {
+                            "argument": -2
+                        },
+                        "label": "import"
+                    }
+                ]
+            },
+            "output": [
+                {
+                    "type": "NominalEdge",
+                    "id": 3
                 }
             ]
         }

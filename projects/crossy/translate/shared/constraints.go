@@ -9,12 +9,12 @@ import (
 // kind of stuff, so bear with this implementation
 
 type locationRange struct {
-	Start  uint `json:"start"`
-	Length uint `json:"length"`
+	Start  uint `json:"start" mapstructure:"start"`
+	Length uint `json:"length" mapstructure:"length"`
 }
 
 type source struct {
-	Path string `json:"path"`
+	Path string `json:"path" mapstructure:"path"`
 	locationRange
 }
 
@@ -77,7 +77,7 @@ func (c Constraints) String() string {
 }
 
 type Identifier struct {
-	Name string `json:"name"`
+	Name string `json:"name" mapstructure:"name"`
 	source
 }
 
@@ -104,8 +104,8 @@ const (
 )
 
 type variable struct {
-	Index uint        `json:"index"`
-	Name  bindingType `json:"name"`
+	Index uint        `json:"index" mapstructure:"index"`
+	Name  bindingType `json:"name" mapstructure:"name"`
 }
 
 func NewVariable(index uint, Type bindingType) variable {
@@ -132,7 +132,7 @@ func (variable) SameStruct(rhs map[string]any) bool {
 }
 
 type Distinct struct {
-	I uint `json:"id" mapstructure:"id"`
+	I uint `json:"id" mapstructure:"id" mapstructure:"id" mapstructure:"id"`
 }
 
 func (i Distinct) Id() uint { return i.I }
@@ -160,8 +160,8 @@ const (
 
 // Name collections (5, 11, 12)
 type names struct {
-	NamesType namesType `json:"collection"`
-	Scope     variable  `json:"scope"`
+	NamesType namesType `json:"collection" mapstructure:"collection"`
+	Scope     variable  `json:"scope" mapstructure:"scope"`
 }
 
 func NewNamesCollection(t namesType, scope variable) names {
@@ -182,9 +182,9 @@ const (
 // Reference constraint (2) (only for the case when reference is non-variable)
 type Usage struct {
 	Distinct   `mapstructure:",squash"`
-	Identifier Identifier `json:"identifier"`
-	UsageType  usageType  `json:"usage"`
-	Scope      variable   `json:"scope"`
+	Identifier Identifier `json:"identifier" mapstructure:"identifier"`
+	UsageType  usageType  `json:"usage" mapstructure:"usage"`
+	Scope      variable   `json:"scope" mapstructure:"scope"`
 }
 
 func NewUsage(id uint, identifier Identifier, usageType usageType, scope variable) Usage {
@@ -200,8 +200,8 @@ func NewUsage(id uint, identifier Identifier, usageType usageType, scope variabl
 // Resolution constraint (3) (only for the case when declaration is variable)
 type Resolution struct {
 	Distinct    `mapstructure:",squash"`
-	Reference   Identifier `json:"reference"`
-	Declaration variable   `json:"declaration"`
+	Reference   Identifier `json:"reference" mapstructure:"reference"`
+	Declaration variable   `json:"declaration" mapstructure:"declaration"`
 }
 
 func NewResolution(id uint, identifier Identifier, declaration variable) Resolution {
@@ -214,7 +214,7 @@ func NewResolution(id uint, identifier Identifier, declaration variable) Resolut
 // Uniqueness constraint (4)
 type Uniqueness struct {
 	Distinct `mapstructure:",squash"`
-	Names    names `json:"names"`
+	Names    names `json:"names" mapstructure:"names"`
 }
 
 func NewUniqueness(id uint, names names) Uniqueness {
@@ -224,8 +224,8 @@ func NewUniqueness(id uint, names names) Uniqueness {
 // Type declaration constraint (6), where D is known
 type TypeDeclKnown struct {
 	Distinct    `mapstructure:",squash"`
-	Declaration Identifier `json:"declaration"`
-	Type        variable   `json:"variable"`
+	Declaration Identifier `json:"declaration" mapstructure:"declaration"`
+	Type        variable   `json:"variable" mapstructure:"variable"`
 }
 
 func NewTypeDeclKnown(id uint, identifier Identifier, typevar variable) TypeDeclKnown {
@@ -238,8 +238,8 @@ func NewTypeDeclKnown(id uint, identifier Identifier, typevar variable) TypeDecl
 // Type declaration constraint (6), where D is decl variable
 type TypeDeclUnknown struct {
 	Distinct    `mapstructure:",squash"`
-	Declaration variable `json:"declaration"`
-	Type        variable `json:"variable"`
+	Declaration variable `json:"declaration" mapstructure:"declaration"`
+	Type        variable `json:"variable" mapstructure:"variable"`
 }
 
 func NewTypeDeclUnknown(id uint, identifier variable, typevar variable) TypeDeclUnknown {
@@ -254,8 +254,8 @@ func NewTypeDeclUnknown(id uint, identifier variable, typevar variable) TypeDecl
 
 type EqualKnown struct {
 	Distinct `mapstructure:",squash"`
-	T1       variable `json:"t1"`
-	T2       ground   `json:"t2"`
+	T1       variable `json:"t1" mapstructure:"t1"`
+	T2       ground   `json:"t2" mapstructure:"t2"`
 }
 
 func NewEqualKnown(id uint, t1 variable, t2 ground) EqualKnown {
@@ -267,8 +267,8 @@ func NewEqualKnown(id uint, t1 variable, t2 ground) EqualKnown {
 
 type EqualUnknown struct {
 	Distinct `mapstructure:",squash"`
-	T1       variable `json:"t1"`
-	T2       variable `json:"t2"`
+	T1       variable `json:"t1" mapstructure:"t1"`
+	T2       variable `json:"t2" mapstructure:"t2"`
 }
 
 func NewEqualUnknown(id uint, t1 variable, t2 variable) EqualUnknown {
@@ -284,9 +284,9 @@ func NewEqualUnknown(id uint, t1 variable, t2 variable) EqualUnknown {
 // Direct edge constraint (8)
 type DirectEdge struct {
 	Distinct `mapstructure:",squash"`
-	Lhs      variable `json:"lhs"`
-	Rhs      variable `json:"rhs"`
-	Label    string   `json:"label"`
+	Lhs      variable `json:"lhs" mapstructure:"lhs"`
+	Rhs      variable `json:"rhs" mapstructure:"rhs"`
+	Label    string   `json:"label" mapstructure:"label"`
 }
 
 func NewDirectEdge(id uint, lhs, rhs variable, label string) DirectEdge {
@@ -302,8 +302,8 @@ func NewDirectEdge(id uint, lhs, rhs variable, label string) DirectEdge {
 // Association constraint (9) (only for the case when declaration is known)
 type AssociationKnown struct {
 	Distinct    `mapstructure:",squash"`
-	Declaration Identifier `json:"declaration"`
-	Scope       variable   `json:"scope"`
+	Declaration Identifier `json:"declaration" mapstructure:"declaration"`
+	Scope       variable   `json:"scope" mapstructure:"scope"`
 }
 
 func NewAssociationKnown(id uint, identifier Identifier, scope variable) AssociationKnown {
@@ -316,9 +316,9 @@ func NewAssociationKnown(id uint, identifier Identifier, scope variable) Associa
 // Nominal edge constraint (10)
 type NominalEdge struct {
 	Distinct  `mapstructure:",squash"`
-	Scope     variable   `json:"scope"`
-	Reference Identifier `json:"reference"`
-	Label     string     `json:"label"`
+	Scope     variable   `json:"scope" mapstructure:"scope"`
+	Reference Identifier `json:"reference" mapstructure:"reference"`
+	Label     string     `json:"label" mapstructure:"label"`
 }
 
 func NewNominalEdge(id uint, reference Identifier, scope variable, label string) NominalEdge {
@@ -331,8 +331,8 @@ func NewNominalEdge(id uint, reference Identifier, scope variable, label string)
 // Subset constraint (13)
 type Subset struct {
 	Distinct `mapstructure:",squash"`
-	Lhs      names `json:"lhs"`
-	Rhs      names `json:"rhs"`
+	Lhs      names `json:"lhs" mapstructure:"lhs"`
+	Rhs      names `json:"rhs" mapstructure:"rhs"`
 }
 
 func NewSubset(id uint, lhs, rhs names) Subset {
@@ -345,8 +345,8 @@ func NewSubset(id uint, lhs, rhs names) Subset {
 // Association constraint (14) (only for the case when declaration is a variable)
 type AssociationUnknown struct {
 	Distinct    `mapstructure:",squash"`
-	Declaration variable `json:"declaration"`
-	Scope       variable `json:"scope"`
+	Declaration variable `json:"declaration" mapstructure:"declaration"`
+	Scope       variable `json:"scope" mapstructure:"scope"`
 }
 
 func NewAssociationUnknown(id uint, identifier variable, scope variable) AssociationUnknown {
@@ -362,8 +362,8 @@ func NewAssociationUnknown(id uint, identifier variable, scope variable) Associa
 // Consistency constraint, given reference must resolve to a declaration
 type MustResolve struct {
 	Distinct  `mapstructure:",squash"`
-	Reference Identifier `json:"reference"`
-	Scope     variable   `json:"scope"`
+	Reference Identifier `json:"reference" mapstructure:"reference"`
+	Scope     variable   `json:"scope" mapstructure:"scope"`
 }
 
 func NewMustResolve(id uint, reference Identifier, scope variable) MustResolve {
@@ -376,8 +376,8 @@ func NewMustResolve(id uint, reference Identifier, scope variable) MustResolve {
 // Consistency constraint, given declaration must have at least one reference (i.e. its essential for the project)
 type Essential struct {
 	Distinct    `mapstructure:",squash"`
-	Declaration Identifier `json:"declaration"`
-	Scope       variable   `json:"scope"`
+	Declaration Identifier `json:"declaration" mapstructure:"declaration"`
+	Scope       variable   `json:"scope" mapstructure:"scope"`
 }
 
 func NewEssential(id uint, declaration Identifier, scope variable) Essential {
@@ -390,8 +390,8 @@ func NewEssential(id uint, declaration Identifier, scope variable) Essential {
 // Consistency constraint, given declaration must have at most one reference
 type Exclusive struct {
 	Distinct    `mapstructure:",squash"`
-	Declaration Identifier `json:"declaration"`
-	Scope       variable   `json:"scope"`
+	Declaration Identifier `json:"declaration" mapstructure:"declaration"`
+	Scope       variable   `json:"scope" mapstructure:"scope"`
 }
 
 func NewExclusive(id uint, declaration Identifier, scope variable) Exclusive {
@@ -404,7 +404,7 @@ func NewExclusive(id uint, declaration Identifier, scope variable) Exclusive {
 // Consistency constraint, given declaration must be unique across WHOLE scope-graph, despite the scopes
 type Iconic struct {
 	Distinct    `mapstructure:",squash"`
-	Declaration Identifier `json:"declaration"`
+	Declaration Identifier `json:"declaration" mapstructure:"declaration"`
 }
 
 func NewIconic(id uint, declaration Identifier) Iconic {

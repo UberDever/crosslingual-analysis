@@ -3,6 +3,7 @@ package shared
 import (
 	"encoding/json"
 	"fmt"
+	"slices"
 
 	"github.com/mitchellh/mapstructure"
 )
@@ -29,6 +30,20 @@ func (c *Ontology) UnmarshalJSON(data []byte) error {
 		return err
 	}
 	return nil
+}
+
+func (o Ontology) FindTemplate(name string) (Template, error) {
+	var tm Template
+	for _, t := range o.Templates {
+		if t.Name == name {
+			tm = t
+			break
+		}
+	}
+	if tm.Name == "" {
+		return tm, fmt.Errorf("template %s not found in ontology", name)
+	}
+	return tm, nil
 }
 
 type Output struct {
@@ -96,7 +111,9 @@ func substitute(body map[string]any, stack Stack[any]) (map[string]any, error) {
 		case map[string]any:
 			for key, val := range v {
 				if idx := isParameter(val); idx != nil {
-					// NOTE: index is always negative and starts from -1
+					if !(*idx <= -1) {
+						return fmt.Errorf("index %d should be <= -1", *idx)
+					}
 					len := len(stack.Values())
 					i := -(*idx + 1)
 					if i >= len {
@@ -109,7 +126,9 @@ func substitute(body map[string]any, stack Stack[any]) (map[string]any, error) {
 		case []any:
 			for index, val := range v {
 				if idx := isParameter(val); idx != nil {
-					// NOTE: index is always negative and starts from -1
+					if !(*idx <= -1) {
+						return fmt.Errorf("index %d should be <= -1", *idx)
+					}
 					len := len(stack.Values())
 					i := -(*idx + 1)
 					if i >= len {
@@ -140,14 +159,16 @@ func getOutput(body map[string]any, results []Output) (out Constraints, err erro
 		case map[string]any:
 			if (Distinct{}).SameStruct(o) {
 				val := uint(o["id"].(float64))
-				var res Output
+				var res *Output
 				for _, r := range results {
 					if val == r.Id {
-						res = r
+						res = &r
 						break
 					}
 				}
-				csUntyped[res.T] = append(csUntyped[res.T], o)
+				if res != nil {
+					csUntyped[res.T] = append(csUntyped[res.T], o)
+				}
 			}
 			for _, v := range o {
 				err := traverse(v)
@@ -207,8 +228,14 @@ func shiftIndices(counter CounterService, cs *map[string]any, output *[]Output) 
 				}
 				v["index"] = float64(newId)
 			}
-			for _, child := range v {
-				traverse(child)
+			//NOTE: always traverse keys in sorted order to ensure shifting stability
+			keys := []string{}
+			for k := range v {
+				keys = append(keys, k)
+			}
+			slices.Sort(keys)
+			for _, i := range keys {
+				traverse(v[i])
 			}
 		}
 	}
@@ -246,7 +273,6 @@ func (tm Template) evaluate(counter CounterService, stack Stack[any]) (cs Constr
 	if err != nil {
 		return
 	}
-
 	err = mapstructure.Decode(result, &cs)
 	if err != nil {
 		return

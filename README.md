@@ -151,6 +151,8 @@
 - [x] Дополнить онтологию конструкциями, позволяющими задавать подграфы определенной структуры для
 общности семантического анализа между разными анализаторами
 - [ ] Golang translator mock
+    * [ ] Как сделать грамотный референс?
+- [ ] JS translator mock?
 - [ ] Analyzer
     * [ ] Recognizer mock + infrastructure
     * [ ] SystemInfoProvider mock + infrastructure

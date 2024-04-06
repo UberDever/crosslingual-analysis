@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"go/ast"
 	"go/importer"
@@ -8,11 +9,49 @@ import (
 	"go/token"
 	"go/types"
 	"os"
+	"strings"
 	ss "translate/shared"
 
 	"golang.org/x/tools/go/ssa"
 	"golang.org/x/tools/go/ssa/ssautil"
 )
+
+func Mock(request ss.Arguments) {
+	data, err := os.ReadFile(*request.Ontology)
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+
+	var ontology ss.Ontology
+	err = json.Unmarshal(data, &ontology)
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+
+	var counter ss.CounterService
+	if request.CounterURL == nil {
+		counter = ss.NewCounterServiceMock()
+	} else {
+		counter = ss.NewCounterServiceImpl(*request.CounterURL)
+	}
+	extracted := map[string]func(){
+		"evaluation/Example 1/backend/server.go": func() {
+			_ = counter
+		},
+		"evaluation/Example 5/server.go": func() {
+			_ = counter
+		},
+	}
+
+	for path := range extracted {
+		if request.Path != nil && strings.Contains(*request.Path, path) {
+			extracted[path]()
+			break
+		}
+	}
+}
 
 // TODO: SPA 5.7 Reaching Definitions Analysis (def-use)
 

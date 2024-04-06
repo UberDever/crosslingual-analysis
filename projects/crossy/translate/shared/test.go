@@ -76,10 +76,10 @@ func ExtractConstraintsFromFile(file string, translator func()) (string, error) 
 		return "", err
 	}
 	args := map[string]any{
-		"id":                0,
-		"code":              string(code),
-		"path":              abs,
-		"type_context_path": ANCHOR_PATH + "evaluation/ontology.json",
+		"id":       0,
+		"code":     string(code),
+		"path":     abs,
+		"ontology": ANCHOR_PATH + "evaluation/ontology.json",
 	}
 	j, err := json.Marshal(args)
 	if err != nil {
