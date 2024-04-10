@@ -6,7 +6,7 @@ import (
 	ss "translate/shared"
 )
 
-const MAIN_PATH = ss.ANCHOR_PATH + "evaluation/Example 1/backend/server.go"
+const MAIN_PATH = ss.ANCHOR_PATH + "evaluation/Example 5/server.go"
 
 func TestSmoke(t *testing.T) {
 	ss.RunAsCommand([]string{"_", ""}, translate.Run)
