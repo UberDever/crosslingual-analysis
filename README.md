@@ -158,5 +158,5 @@
     * [ ] SystemInfoProvider mock + infrastructure
     * [ ] Solver
     * [ ] Polytranslator (Mediator)
-    * [ ] Analyzer protocol
+    * [ ] Analyzer protocol {Language version}
 - [ ] LSP Adapter
