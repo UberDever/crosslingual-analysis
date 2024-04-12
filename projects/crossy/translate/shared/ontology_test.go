@@ -27,7 +27,7 @@ func setup() (o Ontology, counter CounterServiceMock, err error) {
 	return
 }
 
-func checkEval(tm Template, counter CounterService, stack Stack[any], expectedConstraints, expectedResult string) error {
+func checkEval(tm template, counter CounterService, stack Stack[any], expectedConstraints, expectedResult string) error {
 	before := tm
 	cs, result, err := tm.Eval(counter, &stack)
 	// return fmt.Errorf("%v\n%v", cs, result)

@@ -48,18 +48,10 @@
             }
         ]
     },
+    "template_path": "./templates/",
     "templates": [
         {
             "name": "declare WebServer",
-            "usage": {
-                "input": [
-                    "Scope - where web server should be declared",
-                    "Identifier - what is the URI of the webserver"
-                ],
-                "output": [
-                    "AssociationKnown - with a scope that corresponds to GET.application/json module"
-                ]
-            },
             "input": [
                 "scope",
                 "identifier"
