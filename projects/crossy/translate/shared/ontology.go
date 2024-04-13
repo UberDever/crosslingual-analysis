@@ -6,20 +6,23 @@ import (
 	"io/fs"
 	"os"
 	"path/filepath"
-	"strings"
 
 	"github.com/dop251/goja"
+	"github.com/mitchellh/mapstructure"
 )
 
 type Ontology struct {
 	Types        TypeContext `json:"type_context"`
 	TemplatePath string      `json:"template_path"`
+	counter      CounterService
 	engine       *goja.Runtime
 }
 
 func loadTemplates(e *goja.Runtime, path string) error {
-	script := strings.Builder{}
 	err := filepath.WalkDir(path, func(path string, d fs.DirEntry, err error) error {
+		if err != nil {
+			return err
+		}
 		if d.IsDir() {
 			return nil
 		}
@@ -28,12 +31,18 @@ func loadTemplates(e *goja.Runtime, path string) error {
 		if err != nil {
 			return err
 		}
-		if filepath.Ext(info.Name()) == "js" {
+		if filepath.Ext(info.Name()) == ".js" {
 			data, err := os.ReadFile(path)
 			if err != nil {
 				return err
 			}
-			script.Write(data)
+			val, err := e.RunString(string(data))
+			if err != nil {
+				return err
+			}
+			if !val.SameAs(goja.Undefined()) {
+				return fmt.Errorf("haven't expected return value %v from engine", val)
+			}
 		}
 		return nil
 	})
@@ -41,18 +50,13 @@ func loadTemplates(e *goja.Runtime, path string) error {
 		return err
 	}
 
-	val, err := e.RunString(script.String())
-	if err != nil {
-		return err
-	}
-	if !val.SameAs(goja.Undefined()) {
-		return fmt.Errorf("haven't expected return value %v from engine", val)
-	}
-
 	return nil
 }
 
-func NewOntology(path string) (c Ontology, err error) {
+func NewOntology(counter CounterService, path string) (c Ontology, err error) {
+	c.counter = counter
+	c.engine = goja.New()
+	c.engine.SetFieldNameMapper(goja.TagFieldNameMapper("json", true))
 	data, err := os.ReadFile(path)
 	if err != nil {
 		return
@@ -62,7 +66,7 @@ func NewOntology(path string) (c Ontology, err error) {
 		return
 	}
 
-	err = loadTemplates(c.engine, path+c.TemplatePath)
+	err = loadTemplates(c.engine, filepath.Join(filepath.Dir(path), c.TemplatePath))
 	if err != nil {
 		return
 	}
@@ -77,264 +81,38 @@ func NewOntology(path string) (c Ontology, err error) {
 	return
 }
 
-// func (c Ontology) EvalTemplate(name string, args ...any) ([]any, error) {
+func (c Ontology) EvalTemplate(name string, counter CounterService, args ...any) (cs Constraints, result []any, err error) {
+	var f func([]any) ([]any, error)
+	fn := c.engine.Get(name)
+	if fn == nil {
+		err = fmt.Errorf("cannot find %s", name)
+		return
+	}
+	err = c.engine.ExportTo(fn, &f)
+	if err != nil {
+		return
+	}
+	result, err = f(append([]any{counter}, args...))
+	if err != nil {
+		return
+	}
+	if len(result) < 1 {
+		err = fmt.Errorf("expected return value in %s", name)
+		return
+	}
+	dynCs, ok := result[0].(map[string]any)
+	if !ok {
+		err = fmt.Errorf("expected constraints as first return value, not %v", dynCs)
+		return
+	}
+	err = mapstructure.Decode(dynCs, &cs)
+	if err != nil {
+		return
+	}
+	result = result[1:]
 
-// }
-
-// func (o Ontology) FindTemplate(name string) (Template, error) {
-// 	var tm Template
-// 	for _, t := range o.Templates {
-// 		if t.Name == name {
-// 			tm = t
-// 			break
-// 		}
-// 	}
-// 	if tm.Name == "" {
-// 		return tm, fmt.Errorf("template %s not found in ontology", name)
-// 	}
-// 	return tm, nil
-// }
-
-// type Output struct {
-// 	T  string `json:"type"`
-// 	Id uint   `json:"id"`
-// }
-
-// type Template struct {
-// 	Name   string         `json:"name"`
-// 	Input  []string       `json:"input"`
-// 	Body   map[string]any `json:"body"`
-// 	Output []Output       `json:"output"`
-// }
-
-// func typecheck(input []string, stack Stack[any]) error {
-// 	if len(stack.Values()) != len(input) {
-// 		return fmt.Errorf("expected %d arguments to template, found %d", len(input), len(stack.Values()))
-// 	}
-// 	for i := range stack.Values() {
-// 		input_type := input[i]
-// 		v := stack.Values()[i]
-// 		switch input_type {
-// 		case "scope":
-// 			scope, ok := v.(variable)
-// 			if !ok && !(scope.Name == BindingScope || scope.Name == BindingSigma) {
-// 				return fmt.Errorf("value %v at position %d expected to be a %s", v, i, input_type)
-// 			}
-// 		case "identifier":
-// 			_, ok := v.(Identifier)
-// 			if !ok {
-// 				return fmt.Errorf("value %v at position %d expected to be a %s", v, i, input_type)
-// 			}
-// 		default:
-// 			panic("Unreachable")
-// 		}
-// 	}
-// 	return nil
-// }
-
-// func substitute(body map[string]any, stack Stack[any]) (map[string]any, error) {
-// 	isParameter := func(value any) *int {
-// 		switch v := value.(type) {
-// 		case map[string]any:
-// 			if len(v) != 1 {
-// 				return nil
-// 			}
-// 			arg, ok := v["argument"]
-// 			if !ok {
-// 				return nil
-// 			}
-// 			argVal, ok := arg.(float64)
-// 			if !ok {
-// 				return nil
-// 			}
-// 			i := int(argVal)
-// 			return &i
-// 		default:
-// 			return nil
-// 		}
-// 	}
-
-// 	var traverse func(value any) error
-// 	traverse = func(value any) error {
-// 		switch v := value.(type) {
-// 		case map[string]any:
-// 			for key, val := range v {
-// 				if idx := isParameter(val); idx != nil {
-// 					if !(*idx <= -1) {
-// 						return fmt.Errorf("index %d should be <= -1", *idx)
-// 					}
-// 					len := len(stack.Values())
-// 					i := -(*idx + 1)
-// 					if i >= len {
-// 						return fmt.Errorf("argument %d is not in the stack, len = %d", idx, len)
-// 					}
-// 					v[key] = stack.Values()[i]
-// 				}
-// 				traverse(val)
-// 			}
-// 		case []any:
-// 			for index, val := range v {
-// 				if idx := isParameter(val); idx != nil {
-// 					if !(*idx <= -1) {
-// 						return fmt.Errorf("index %d should be <= -1", *idx)
-// 					}
-// 					len := len(stack.Values())
-// 					i := -(*idx + 1)
-// 					if i >= len {
-// 						return fmt.Errorf("argument %d is not in the stack, len = %d", idx, len)
-// 					}
-// 					v[index] = stack.Values()[i]
-// 				}
-// 				traverse(val)
-// 			}
-// 		}
-// 		return nil
-// 	}
-
-// 	err := traverse(body)
-// 	if err != nil {
-// 		return nil, err
-// 	}
-
-// 	return body, nil
-// }
-
-// func getOutput(body map[string]any, results []Output) (out Constraints, err error) {
-// 	csUntyped := map[string][]any{}
-
-// 	var traverse func(value any) error
-// 	traverse = func(value any) error {
-// 		switch o := value.(type) {
-// 		case map[string]any:
-// 			if (Distinct{}).SameStruct(o) {
-// 				val := uint(o["id"].(float64))
-// 				var res *Output
-// 				for _, r := range results {
-// 					if val == r.Id {
-// 						res = &r
-// 						break
-// 					}
-// 				}
-// 				if res != nil {
-// 					csUntyped[res.T] = append(csUntyped[res.T], o)
-// 				}
-// 			}
-// 			for _, v := range o {
-// 				err := traverse(v)
-// 				if err != nil {
-// 					return err
-// 				}
-// 			}
-// 		case []any:
-// 			for _, v := range o {
-// 				err := traverse(v)
-// 				if err != nil {
-// 					return err
-// 				}
-// 			}
-// 		}
-// 		return nil
-// 	}
-
-// 	err = traverse(body)
-// 	if err != nil {
-// 		return
-// 	}
-// 	mapstructure.Decode(csUntyped, &out)
-
-// 	return
-// }
-
-// func shiftIndices(counter CounterService, cs *map[string]any, output *[]Output) error {
-// 	seen := map[uint]uint{}
-
-// 	var traverse func(value any)
-// 	traverse = func(value any) {
-// 		switch v := value.(type) {
-// 		case []any:
-// 			for i := 0; i < len(v); i++ {
-// 				traverse(v[i])
-// 			}
-// 		case map[string]any:
-// 			var newId uint
-// 			if (Distinct{}).SameStruct(v) {
-// 				val := uint(v["id"].(float64))
-// 				if i, found := seen[val]; found {
-// 					newId = i
-// 				} else {
-// 					newId = counter.FreshForce()
-// 					seen[val] = newId
-// 				}
-// 				v["id"] = float64(newId)
-// 			}
-// 			if (variable{}).SameStruct(v) {
-// 				val := uint(v["index"].(float64))
-// 				if i, found := seen[val]; found {
-// 					newId = i
-// 				} else {
-// 					newId = counter.FreshForce()
-// 					seen[val] = newId
-// 				}
-// 				v["index"] = float64(newId)
-// 			}
-// 			//NOTE: always traverse keys in sorted order to ensure shifting stability
-// 			keys := []string{}
-// 			for k := range v {
-// 				keys = append(keys, k)
-// 			}
-// 			slices.Sort(keys)
-// 			for _, i := range keys {
-// 				traverse(v[i])
-// 			}
-// 		}
-// 	}
-// 	traverse(*cs)
-
-// 	newOut := make([]Output, 0, len(*output))
-// 	for _, out := range *output {
-// 		if i, found := seen[out.Id]; found {
-// 			out.Id = i
-// 			newOut = append(newOut, out)
-// 		} else {
-// 			return fmt.Errorf("the result %v is not found in the body", out)
-// 		}
-// 	}
-// 	*output = newOut
-
-// 	return nil
-// }
-
-// func (tm Template) evaluate(counter CounterService, stack Stack[any]) (cs Constraints, output Constraints, err error) {
-// 	err = typecheck(tm.Input, stack)
-// 	if err != nil {
-// 		return
-// 	}
-// 	copy := DeepCopyJSON(tm.Body).(map[string]any)
-// 	err = shiftIndices(counter, &copy, &tm.Output)
-// 	if err != nil {
-// 		return
-// 	}
-// 	result, err := substitute(copy, stack)
-// 	if err != nil {
-// 		return
-// 	}
-// 	output, err = getOutput(result, tm.Output)
-// 	if err != nil {
-// 		return
-// 	}
-// 	err = mapstructure.Decode(result, &cs)
-// 	if err != nil {
-// 		return
-// 	}
-
-// 	return
-// }
-
-// func (tm Template) Eval(counter CounterService, stack *Stack[any]) (cs Constraints, output Constraints, err error) {
-// 	cs, output, err = tm.evaluate(counter, *stack)
-// 	stack.Clear()
-// 	return
-// }
+	return
+}
 
 type variance string
 

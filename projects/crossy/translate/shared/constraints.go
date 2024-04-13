@@ -132,7 +132,7 @@ func (variable) SameStruct(rhs map[string]any) bool {
 }
 
 type Distinct struct {
-	I uint `json:"id" mapstructure:"id" mapstructure:"id" mapstructure:"id"`
+	I uint `json:"id" mapstructure:"id"`
 }
 
 func (i Distinct) Id() uint { return i.I }
