@@ -1,4 +1,3 @@
-
 function declare_WebServer(args) {
     need(args, isCounter, isScope, isIdentifier)
     let [counter, scope, id] = args
