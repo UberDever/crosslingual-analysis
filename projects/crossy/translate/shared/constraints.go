@@ -255,10 +255,10 @@ func NewTypeDeclUnknown(id uint, identifier variable, typevar variable) TypeDecl
 type EqualKnown struct {
 	Distinct `mapstructure:",squash"`
 	T1       variable `json:"t1" mapstructure:"t1"`
-	T2       ground   `json:"t2" mapstructure:"t2"`
+	T2       Type     `json:"t2" mapstructure:"t2"`
 }
 
-func NewEqualKnown(id uint, t1 variable, t2 ground) EqualKnown {
+func NewEqualKnown(id uint, t1 variable, t2 Type) EqualKnown {
 	if t1.Name != BindingTau {
 		panic(fmt.Sprintf("In type declaration %v, %v is not a typevariable", id, t1))
 	}

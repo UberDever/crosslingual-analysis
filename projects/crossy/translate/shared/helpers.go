@@ -63,10 +63,10 @@ func deepCopySlice(s []any) []any {
 	return result
 }
 
-func NewDeclarationConstraint(counter CounterService, decl Identifier, typ ground) Constraints {
+func NewDeclarationConstraint(counter CounterService, decl Identifier, ty Type) Constraints {
 	tau := NewVariable(counter.FreshForce(), BindingTau)
 	return Constraints{
 		TypeDeclKnown: []TypeDeclKnown{NewTypeDeclKnown(counter.FreshForce(), decl, tau)},
-		EqualKnown:    []EqualKnown{NewEqualKnown(counter.FreshForce(), tau, typ)},
+		EqualKnown:    []EqualKnown{NewEqualKnown(counter.FreshForce(), tau, ty)},
 	}
 }

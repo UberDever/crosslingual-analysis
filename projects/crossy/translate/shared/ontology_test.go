@@ -9,7 +9,7 @@ import (
 
 const ONTOLOGY_PATH = ANCHOR_PATH + "evaluation/ontology/ontology.json"
 
-func setup() (o Ontology, counter CounterServiceMock, err error) {
+func setupCounterAndOntology() (o Ontology, counter CounterServiceMock, err error) {
 	counter = NewCounterServiceMock()
 	i := uint(69) // Arbitrary counter so test results can be more diverse
 	counter.counter = &i
@@ -19,7 +19,7 @@ func setup() (o Ontology, counter CounterServiceMock, err error) {
 }
 
 func TestTemplateEvaluationRegression1(t *testing.T) {
-	o, counter, err := setup()
+	o, counter, err := setupCounterAndOntology()
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -55,7 +55,7 @@ func TestTemplateEvaluationRegression1(t *testing.T) {
 }
 
 func TestTemplateEvaluationRegression2(t *testing.T) {
-	o, counter, err := setup()
+	o, counter, err := setupCounterAndOntology()
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -87,5 +87,23 @@ func TestTemplateEvaluationRegression2(t *testing.T) {
 	}
 	if err := CompareJsonOutput(expectedResult, result_str); err != nil {
 		t.Fatal(err)
+	}
+}
+
+func TestTypesConcrete(t *testing.T) {
+	o, counter, err := setupCounterAndOntology()
+	if err != nil {
+		t.Fatal(err)
+	}
+	_ = counter
+
+	_, err = o.ConcreteType("String")
+	if err != nil {
+		t.Fatal(err)
+	}
+	
+	_, err = o.ConcreteType("Something")
+	if err == nil {
+		t.Fatal("Found 'Something'")
 	}
 }
