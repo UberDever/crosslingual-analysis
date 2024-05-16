@@ -131,6 +131,7 @@ func (variable) SameStruct(rhs map[string]any) bool {
 	return true
 }
 
+// TODO: add source of this constraint
 type Distinct struct {
 	I uint `json:"id" mapstructure:"id"`
 }

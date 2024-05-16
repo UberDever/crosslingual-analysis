@@ -1,0 +1,3 @@
+[submodule "projects/vscode-extension-samples"]
+	path = projects/vscode-extension-samples
+	url = https://github.com/microsoft/vscode-extension-samples.git

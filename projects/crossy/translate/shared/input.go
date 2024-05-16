@@ -5,6 +5,7 @@ import (
 	"fmt"
 )
 
+// TODO: Use source instead of Code and Path
 type Arguments struct {
 	Id         uint    `json:"id"`
 	Code       string  `json:"code"`
