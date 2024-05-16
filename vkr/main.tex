@@ -14,7 +14,7 @@
 % \includepdf{extra/pz} % Пояснительная записка
 
 % 2 страница (не нумеруется, но учитывается)
-% \includepdf[pages={1,2}]{extra/tz} % Задание на ВКР печатается на одном листе с двух сторон
+\includepdf[pages={1,2}]{extra/tz} % Задание на ВКР печатается на одном листе с двух сторон
 
 % Помимо ПЗ и задания, в ВКР также вкладываются:
 % * отзыв руководителя (otzyv.pdf), на 1 странице с двух сторон
@@ -22,19 +22,20 @@
 % * отчет по антиплагиату (antiplagiat.pdf)
 
 % 3 страница
-% \input{body/0-annotation} % Аннотация
+\input{body/0-annotation} % Аннотация
 
 \tableofcontents % Содержание 
 \clearpage
 
+\input{body/0-intro}        % Введение
 \input{body/1-1-scope}
 \input{body/1-2-current-state}
 \input{body/1-3-requirements}
 \input{body/1-4-crosslingual-analysis}
+\input{body/2-1-tooling}
 \input{body/0-glossary}     % Перечень сокращений и условных обозначений
 \input{body/0-bibliography} % Библиографический список
 
-% \input{inc/0-intro}        % Введение
 % \input{inc/1-pz}           % Постановка задачи
 % \input{inc/2-literature}   % Обзор литературных источников
 % \input{inc/3-sysanalyz}    % Системный анализ
