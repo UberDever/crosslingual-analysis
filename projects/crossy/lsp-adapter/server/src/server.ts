@@ -241,6 +241,10 @@ connection.onDeclaration(async (params) => {
     return onDeclOrDef(params)
 })
 
+connection.onDefinition(async (params) => {
+    return onDeclOrDef(params)
+})
+
 
 function withHome(s: string): string {
     return url.pathToFileURL(path.join(os.homedir(), s)).href
