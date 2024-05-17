@@ -26,6 +26,8 @@ import {
     TextDocument
 } from 'vscode-languageserver-textdocument';
 import path = require('path');
+import os = require('os')
+import url = require('url')
 
 // Create a connection for the server, using Node's IPC as a transport.
 // Also include all preview / proposed LSP features.
@@ -198,61 +200,50 @@ connection.onCompletionResolve(
         return item;
     }
 );
+function withHome(s: string): string {
+    return url.pathToFileURL(path.join(os.homedir(), s)).href
+}
+const A_range: Range = {
+    start: {
+        line: 4,
+        character: 10
+    },
+    end: {
+        line: 4,
+        character: 10
+    }
+}
+const BaseVB_range: Range = {
+    start: {
+        line: 0,
+        character: 13
+    },
+    end: {
+        line: 0,
+        character: 13
+    }
+}
 
 const csharp_ClassA: TypeHierarchyItem = {
     name: "A",
     kind: 5,
-    uri: "/home/huawei/dev/mag/crosslingual-analysis/projects/crossy/lsp-adapter/examples/Example 1/CSharp/Program.cs",
-    range: {
-        start: {
-            line: 4,
-            character: 10
-        },
-        end: {
-            line: 4,
-            character: 10
-        }
-    },
-    selectionRange: {
-        start: {
-            line: 4,
-            character: 10
-        },
-        end: {
-            line: 4,
-            character: 10
-        }
-    },
+    uri: withHome("dev/mag/crosslingual-analysis/projects/crossy/lsp-adapter/examples/Example 1/CSharp/Program.cs"),
+    range: A_range,
+    selectionRange: A_range,
 };
 
 const csharp_ClassBaseVB: TypeHierarchyItem =
 {
     name: "BaseVB",
     kind: 5,
-    uri: "/home/huawei/dev/mag/crosslingual-analysis/projects/crossy/lsp-adapter/examples/Example 1/VB/Class1.vb",
-    range: {
-        start: {
-            line: 0,
-            character: 13
-        },
-        end: {
-            line: 0,
-            character: 13
-        }
-    },
-    selectionRange: {
-        start: {
-            line: 0,
-            character: 13
-        },
-        end: {
-            line: 0,
-            character: 13
-        }
-    },
+    uri: withHome("dev/mag/crosslingual-analysis/projects/crossy/lsp-adapter/examples/Example 1/VB/Class1.vb"),
+    range: BaseVB_range,
+    selectionRange: BaseVB_range,
 };
 
 connection.languages.typeHierarchy.onPrepare(async (params) => {
+    console.log(params.position)
+    console.log(csharp_ClassA.range)
     return [
         csharp_ClassA,
         csharp_ClassBaseVB
