@@ -29,7 +29,7 @@ export function activate(context: ExtensionContext) {
     // Options to control the language client
     const clientOptions: LanguageClientOptions = {
         documentSelector: [
-            { scheme: 'file', pattern: "**/*.{cs,vb}" },
+            { scheme: 'file', pattern: "**/*.{cs,vb,py,cpp,sh,go,js}" },
         ],
         synchronize: {
             // Notify the server about file changes to '.clientrc files contained in the workspace
