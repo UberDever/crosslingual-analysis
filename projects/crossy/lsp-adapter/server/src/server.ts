@@ -19,7 +19,9 @@ import {
     type DocumentDiagnosticReport,
     TypeHierarchyItem,
     Range,
-    Position
+    Position,
+    LocationLink,
+    DeclarationParams
 } from 'vscode-languageserver/node';
 
 import {
@@ -60,6 +62,8 @@ connection.onInitialize((params: InitializeParams) => {
     const result: InitializeResult = {
         capabilities: {
             textDocumentSync: TextDocumentSyncKind.Full,
+            declarationProvider: true,
+            definitionProvider: true,
             // Tell the client that this server supports code completion.
             completionProvider: {
                 resolveProvider: true
@@ -200,6 +204,44 @@ connection.onCompletionResolve(
         return item;
     }
 );
+
+const csharp_path = withHome("dev/mag/crosslingual-analysis/projects/crossy/lsp-adapter/examples/Example 1/CSharp/Program.cs")
+const vb_path = withHome("dev/mag/crosslingual-analysis/projects/crossy/lsp-adapter/examples/Example 1/VB/Class1.vb")
+
+function onDeclOrDef(params: DeclarationParams): LocationLink[] {
+    const field_ranges: Range[] = [
+        {
+            start: { line: 8, character: 12 },
+            end: { line: 8, character: 17 }
+        },
+        {
+            start: { line: 12, character: 42 },
+            end: { line: 12, character: 47 }
+        },
+    ]
+    const vb_field_range = Range.create(1, 11, 1, 16)
+    const field_location = LocationLink.create(vb_path, vb_field_range, vb_field_range)
+    const included = (p: Position, r: Range): boolean => {
+        return r.start.line == p.line &&
+            r.start.character <= p.character &&
+            p.line == r.end.line &&
+            p.character <= r.end.character;
+    }
+    if (params.textDocument.uri === csharp_path) {
+        for (const r of field_ranges) {
+            if (included(params.position, r)) {
+                return [field_location]
+            }
+        }
+    }
+    return []
+}
+
+connection.onDeclaration(async (params) => {
+    return onDeclOrDef(params)
+})
+
+
 function withHome(s: string): string {
     return url.pathToFileURL(path.join(os.homedir(), s)).href
 }
@@ -224,19 +266,19 @@ const BaseVB_range: Range = {
     }
 }
 
-const csharp_ClassA: TypeHierarchyItem = {
+const csharp_A: TypeHierarchyItem = {
     name: "A",
     kind: 5,
-    uri: withHome("dev/mag/crosslingual-analysis/projects/crossy/lsp-adapter/examples/Example 1/CSharp/Program.cs"),
+    uri: csharp_path,
     range: A_range,
     selectionRange: A_range,
 };
 
-const csharp_ClassBaseVB: TypeHierarchyItem =
+const vb_baseVB: TypeHierarchyItem =
 {
     name: "BaseVB",
     kind: 5,
-    uri: withHome("dev/mag/crosslingual-analysis/projects/crossy/lsp-adapter/examples/Example 1/VB/Class1.vb"),
+    uri: vb_path,
     range: BaseVB_range,
     selectionRange: BaseVB_range,
 };
@@ -244,11 +286,11 @@ const csharp_ClassBaseVB: TypeHierarchyItem =
 connection.languages.typeHierarchy.onPrepare(async (params) => {
     if (params.textDocument.uri.endsWith("cs")) {
         return [
-            csharp_ClassA
+            csharp_A
         ]
     } else {
         return [
-            csharp_ClassBaseVB
+            vb_baseVB
         ]
     }
 })
@@ -256,7 +298,7 @@ connection.languages.typeHierarchy.onPrepare(async (params) => {
 connection.languages.typeHierarchy.onSupertypes(async (params) => {
     if (params.item.uri.endsWith("cs")) {
         return [
-            csharp_ClassBaseVB
+            vb_baseVB
         ]
     }
     return []
@@ -265,7 +307,7 @@ connection.languages.typeHierarchy.onSupertypes(async (params) => {
 connection.languages.typeHierarchy.onSubtypes(async (params) => {
     if (params.item.uri.endsWith("vb")) {
         return [
-            csharp_ClassA
+            csharp_A
         ]
     }
     return []
