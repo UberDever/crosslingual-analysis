@@ -157,40 +157,20 @@ documents.onDidChangeContent(change => {
     console.log(change)
 });
 
-// This handler provides the initial list of the completion items.
-connection.onCompletion(
-    (textDocumentPosition: TextDocumentPositionParams): CompletionItem[] => {
-        const doc = textDocumentPosition.textDocument
+const python_path = withHome("dev/mag/crosslingual-analysis/projects/crossy/lsp-adapter/examples/Example 2/test.py")
+let python_doc = documents.get(python_path)
 
-        return [
-            {
-                label: 'водил',
-                kind: CompletionItemKind.Text,
-                data: 1
-            },
-            {
-                label: 'в кино',
-                kind: CompletionItemKind.Text,
-                data: 2
-            },
-            {
-                label: 'маму',
-                kind: CompletionItemKind.Text,
-                data: 3
-            },
-            {
-                label: 'твою',
-                kind: CompletionItemKind.Text,
-                data: 4
-            },
-            {
-                label: 'Я',
-                kind: CompletionItemKind.Text,
-                data: 5
-            }
-        ];
+// This handler provides the initial list of the completion items.
+connection.onCompletion((params: TextDocumentPositionParams): CompletionItem[] => {
+    const pos = params.position
+    if (params.textDocument.uri === python_path) {
+
+        const line = python_doc?.offsetAt
+        console.log(line)
     }
-);
+    return []
+});
+
 
 connection.onCompletionResolve(
     (item: CompletionItem): CompletionItem => {
