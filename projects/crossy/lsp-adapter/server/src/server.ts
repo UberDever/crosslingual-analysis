@@ -242,24 +242,33 @@ const csharp_ClassBaseVB: TypeHierarchyItem =
 };
 
 connection.languages.typeHierarchy.onPrepare(async (params) => {
-    console.log(params.position)
-    console.log(csharp_ClassA.range)
-    return [
-        csharp_ClassA,
-        csharp_ClassBaseVB
-    ]
+    if (params.textDocument.uri.endsWith("cs")) {
+        return [
+            csharp_ClassA
+        ]
+    } else {
+        return [
+            csharp_ClassBaseVB
+        ]
+    }
 })
 
 connection.languages.typeHierarchy.onSupertypes(async (params) => {
-    return [
-        csharp_ClassBaseVB
-    ]
+    if (params.item.uri.endsWith("cs")) {
+        return [
+            csharp_ClassBaseVB
+        ]
+    }
+    return []
 })
 
 connection.languages.typeHierarchy.onSubtypes(async (params) => {
-    return [
-        csharp_ClassA,
-    ]
+    if (params.item.uri.endsWith("vb")) {
+        return [
+            csharp_ClassA
+        ]
+    }
+    return []
 })
 
 // Make the text document manager listen on the connection
