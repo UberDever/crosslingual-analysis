@@ -141,22 +141,52 @@ documents.onDidClose(e => {
     documentSettings.delete(e.document.uri);
 });
 
-
-connection.languages.diagnostics.on(async (params) => {
-    const document = documents.get(params.textDocument.uri);
-    if (document !== undefined) {
-        return {
-            kind: DocumentDiagnosticReportKind.Full,
-            items: []
-        } satisfies DocumentDiagnosticReport;
-    } else {
-        // We don't know the document. We can either try to read it from disk
-        // or we don't report problems for it.
-        return {
-            kind: DocumentDiagnosticReportKind.Full,
-            items: []
-        } satisfies DocumentDiagnosticReport;
+const golang_path = withHome("dev/mag/crosslingual-analysis/projects/crossy/lsp-adapter/examples/Example 3/backend/server.go")
+const js_path = withHome("dev/mag/crosslingual-analysis/projects/crossy/lsp-adapter/examples/Example 3/frontend/script.js")
+const countTagRange: Range = {
+    start: {
+        line: 9, character: 21,
+    },
+    end: {
+        line: 9, character: 26,
     }
+}
+const countRange: Range = {
+    start: {
+        line: 13, character: 99,
+    },
+    end: {
+        line: 13, character: 104,
+    }
+}
+
+connection.languages.diagnostics.on(async (params): Promise<DocumentDiagnosticReport> => {
+    const document = new LspDocument(documents.get(params.textDocument.uri)!, params.textDocument.uri);
+    if (params.textDocument.uri === js_path) {
+        const countLine = document.getLine(countRange.start.line)
+        const countRegex = /\bdata\.\w+\b/g
+        const matches = countRegex.exec(countLine)
+        if (matches?.length === 1) {
+            const count = matches[0].split(".")[1]
+            if (count != "count") {
+                return {
+                    kind: DocumentDiagnosticReportKind.Full,
+                    items: [
+                        {
+                            severity: DiagnosticSeverity.Warning,
+                            message: `Expected field "count" but got "${count}"`,
+                            relatedInformation: [{ location: { uri: golang_path, range: countTagRange }, message: "struct tag declared here" }],
+                            range: { ...countRange, end: { ...countRange.end, character: countRange.start.character + 1 } }
+                        }
+                    ]
+                };
+            }
+        }
+    }
+    return {
+        kind: DocumentDiagnosticReportKind.Full,
+        items: []
+    };
 });
 
 // The content of a text document has changed. This event is emitted
@@ -175,9 +205,8 @@ export class LspDocument {
     private _filepath: string;
 
     constructor(doc: TextDocument, filepath: string) {
-        const { uri } = doc;
         this._document = doc;
-        this._uri = URI.parse(uri);
+        this._uri = URI.parse(doc.uri);
         this._filepath = filepath;
     }
 
@@ -270,7 +299,11 @@ const counterFunctionTypes = new Map(Object.entries({
 
 // This handler provides the initial list of the completion items.
 connection.onCompletion((params: CompletionParams): CompletionItem[] => {
-    const doc = new LspDocument(documents.get(python_path)!, "")
+    const d = documents.get(python_path)
+    if (!d) {
+        return []
+    }
+    const doc = new LspDocument(d, params.textDocument.uri)
     const pos = params.position
     const detail = (T: string, from: string) => {
         return T + " -- " + "From " + from
