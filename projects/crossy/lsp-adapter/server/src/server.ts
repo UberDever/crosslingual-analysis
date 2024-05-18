@@ -24,7 +24,9 @@ import {
     DeclarationParams,
     CompletionParams,
     TextDocumentItem,
-    TextDocumentContentChangeEvent
+    TextDocumentContentChangeEvent,
+    SignatureHelpParams,
+    SignatureHelp
 } from 'vscode-languageserver/node';
 
 import { URI } from 'vscode-uri'
@@ -258,6 +260,13 @@ export class LspDocument {
 }
 
 const accessRegex = /\b\w+\./g
+const counterFunctionTypes = new Map(Object.entries({
+    "counter_new": "Unit -> (Ptr Counter)",
+    "counter_free": "(Ptr Counter) -> Unit",
+    "counter_get": "(Ptr Counter) -> Integer",
+    "counter_reset": "(Ptr Counter) -> Unit",
+    "counter_inc": "(Ptr Counter) -> Unit",
+}))
 
 // This handler provides the initial list of the completion items.
 connection.onCompletion((params: CompletionParams): CompletionItem[] => {
@@ -276,27 +285,27 @@ connection.onCompletion((params: CompletionParams): CompletionItem[] => {
                     {
                         label: "counter_new",
                         kind: CompletionItemKind.Function,
-                        detail: detail("Unit -> (Ptr Counter)", cpp_path)
+                        detail: detail(counterFunctionTypes.get("counter_new")!, cpp_path)
                     },
                     {
                         label: "counter_free",
                         kind: CompletionItemKind.Function,
-                        detail: detail("(Ptr Counter) -> Unit", cpp_path)
+                        detail: detail(counterFunctionTypes.get("counter_free")!, cpp_path)
                     },
                     {
                         label: "counter_get",
                         kind: CompletionItemKind.Function,
-                        detail: detail("(Ptr Counter) -> Integer", cpp_path)
+                        detail: detail(counterFunctionTypes.get("counter_get")!, cpp_path)
                     },
                     {
                         label: "counter_reset",
                         kind: CompletionItemKind.Function,
-                        detail: detail("(Ptr Counter) -> Unit", cpp_path)
+                        detail: detail(counterFunctionTypes.get("counter_reset")!, cpp_path)
                     },
                     {
                         label: "counter_inc",
                         kind: CompletionItemKind.Function,
-                        detail: detail("(Ptr Counter) -> Unit", cpp_path)
+                        detail: detail(counterFunctionTypes.get("counter_inc")!, cpp_path)
                     },
                 ]
             }
@@ -310,6 +319,25 @@ connection.onCompletionResolve(
         return item
     }
 );
+
+connection.onSignatureHelp((params: SignatureHelpParams): SignatureHelp => {
+    const doc = new LspDocument(documents.get(python_path)!, "")
+    const pos = params.position
+    if (params.textDocument.uri === python_path) {
+        const line = doc.getLine(pos.line)
+        const libPrefix = "lib."
+        for (let [func, T] of counterFunctionTypes) {
+            if (line.includes(libPrefix + func)) {
+                return {
+                    signatures: [
+                        { label: T }
+                    ]
+                }
+            }
+        }
+    }
+    return { signatures: [] }
+})
 
 const csharp_path = withHome("dev/mag/crosslingual-analysis/projects/crossy/lsp-adapter/examples/Example 1/CSharp/Program.cs")
 const vb_path = withHome("dev/mag/crosslingual-analysis/projects/crossy/lsp-adapter/examples/Example 1/VB/Class1.vb")
