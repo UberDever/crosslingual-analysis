@@ -7,7 +7,7 @@ import (
 )
 
 type counter struct {
-	Count int `json:"count"`
+	Count int `json:"counter"`
 }
 
 func (c *counter) increment() {

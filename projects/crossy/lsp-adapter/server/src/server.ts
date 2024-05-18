@@ -26,7 +26,11 @@ import {
     TextDocumentItem,
     TextDocumentContentChangeEvent,
     SignatureHelpParams,
-    SignatureHelp
+    SignatureHelp,
+    RenameParams,
+    WorkspaceEdit,
+    PrepareRenameParams,
+    TextEdit
 } from 'vscode-languageserver/node';
 
 import { URI } from 'vscode-uri'
@@ -83,7 +87,23 @@ connection.onInitialize((params: InitializeParams) => {
                 interFileDependencies: false,
                 workspaceDiagnostics: false
             },
-            typeHierarchyProvider: true
+            typeHierarchyProvider: true,
+            renameProvider: true,
+            workspace: {
+                fileOperations: {
+                    willRename: {
+                        filters: [
+                            {
+                                scheme: 'file',
+                                pattern: {
+                                    glob: '**/*.{go,js}',
+                                    matches: 'file',
+                                },
+                            }
+                        ],
+                    },
+                },
+            },
         },
         serverInfo: {
             name: "Multilingual LSP"
@@ -160,6 +180,35 @@ const countRange: Range = {
     }
 }
 
+let countName = "count"
+
+connection.onRenameRequest(async (params: RenameParams): Promise<WorkspaceEdit> => {
+    if (params.textDocument.uri !== golang_path) {
+        return {}
+    }
+
+    let edits: { [uri: string]: TextEdit[]; } = {}
+    const createAndPush = (uri: string, edit: TextEdit) => {
+        if (!edits[uri]) {
+            edits[uri] = []
+        }
+        edits[uri].push(edit)
+    }
+    const jsDoc = new LspDocument(documents.get(js_path)!, js_path)
+    const countLine = jsDoc.getLine(countRange.start.line)
+    const countRegex = /\bdata\.\w+\b/g
+    const matches = countRegex.exec(countLine)
+    if (matches?.length === 1) {
+        const count = matches[0].split(".")[1]
+        if (count === countName) {
+            countName = params.newName
+            createAndPush(js_path, TextEdit.replace(countRange, params.newName))
+        }
+    }
+    console.log(params)
+    return { changes: edits }
+})
+
 connection.languages.diagnostics.on(async (params): Promise<DocumentDiagnosticReport> => {
     const document = new LspDocument(documents.get(params.textDocument.uri)!, params.textDocument.uri);
     if (params.textDocument.uri === js_path) {
@@ -168,7 +217,7 @@ connection.languages.diagnostics.on(async (params): Promise<DocumentDiagnosticRe
         const matches = countRegex.exec(countLine)
         if (matches?.length === 1) {
             const count = matches[0].split(".")[1]
-            if (count != "count") {
+            if (count !== countName) {
                 return {
                     kind: DocumentDiagnosticReportKind.Full,
                     items: [
