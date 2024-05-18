@@ -21,11 +21,16 @@ import {
     Range,
     Position,
     LocationLink,
-    DeclarationParams
+    DeclarationParams,
+    CompletionParams,
+    TextDocumentItem,
+    TextDocumentContentChangeEvent
 } from 'vscode-languageserver/node';
 
+import { URI } from 'vscode-uri'
+
 import {
-    TextDocument
+    TextDocument,
 } from 'vscode-languageserver-textdocument';
 import path = require('path');
 import os = require('os')
@@ -61,12 +66,13 @@ connection.onInitialize((params: InitializeParams) => {
 
     const result: InitializeResult = {
         capabilities: {
-            textDocumentSync: TextDocumentSyncKind.Full,
+            textDocumentSync: TextDocumentSyncKind.Incremental,
             declarationProvider: true,
             definitionProvider: true,
             // Tell the client that this server supports code completion.
             completionProvider: {
-                resolveProvider: true
+                resolveProvider: true,
+                triggerCharacters: ["."]
             },
             signatureHelpProvider: {
                 triggerCharacters: ["(", ","],
@@ -158,30 +164,150 @@ documents.onDidChangeContent(change => {
 });
 
 const python_path = withHome("dev/mag/crosslingual-analysis/projects/crossy/lsp-adapter/examples/Example 2/test.py")
-let python_doc = documents.get(python_path)
+const cpp_path = withHome("dev/mag/crosslingual-analysis/projects/crossy/lsp-adapter/examples/Example 2/lib.cpp")
+
+// from https://github.com/typescript-language-server/typescript-language-server/
+export class LspDocument {
+    private _document: TextDocument;
+    private _uri: URI;
+    private _filepath: string;
+
+    constructor(doc: TextDocument, filepath: string) {
+        const { uri } = doc;
+        this._document = doc;
+        this._uri = URI.parse(uri);
+        this._filepath = filepath;
+    }
+
+    get uri(): URI {
+        return this._uri;
+    }
+
+    get filepath(): string {
+        return this._filepath;
+    }
+
+    get languageId(): string {
+        return this._document.languageId;
+    }
+
+    get version(): number {
+        return this._document.version;
+    }
+
+    getText(range?: Range): string {
+        return this._document.getText(range);
+    }
+
+    positionAt(offset: number): Position {
+        return this._document.positionAt(offset);
+    }
+
+    offsetAt(position: Position): number {
+        return this._document.offsetAt(position);
+    }
+
+    get lineCount(): number {
+        return this._document.lineCount;
+    }
+
+    getLine(line: number): string {
+        const lineRange = this.getLineRange(line);
+        return this.getText(lineRange);
+    }
+
+    getLineRange(line: number): Range {
+        const lineStart = this.getLineStart(line);
+        const lineEnd = this.getLineEnd(line);
+        return Range.create(lineStart, lineEnd);
+    }
+
+    getLineEnd(line: number): Position {
+        const nextLine = line + 1;
+        const nextLineOffset = this.getLineOffset(nextLine);
+        // If next line doesn't exist then the offset is at the line end already.
+        return this.positionAt(nextLine < this._document.lineCount ? nextLineOffset - 1 : nextLineOffset);
+    }
+
+    getLineOffset(line: number): number {
+        const lineStart = this.getLineStart(line);
+        return this.offsetAt(lineStart);
+    }
+
+    getLineStart(line: number): Position {
+        return Position.create(line, 0);
+    }
+
+    getFullRange(): Range {
+        return Range.create(
+            Position.create(0, 0),
+            this.getLineEnd(Math.max(this.lineCount - 1, 0)),
+        );
+    }
+
+    applyEdit(version: number, change: TextDocumentContentChangeEvent): void {
+        const content = this.getText();
+        let newContent = change.text;
+        if (TextDocumentContentChangeEvent.isIncremental(change)) {
+            const start = this.offsetAt(change.range.start);
+            const end = this.offsetAt(change.range.end);
+            newContent = content.substr(0, start) + change.text + content.substr(end);
+        }
+        this._document = TextDocument.create(this._uri.toString(), this.languageId, version, newContent);
+    }
+}
+
+const accessRegex = /\b\w+\./g
 
 // This handler provides the initial list of the completion items.
-connection.onCompletion((params: TextDocumentPositionParams): CompletionItem[] => {
+connection.onCompletion((params: CompletionParams): CompletionItem[] => {
+    const doc = new LspDocument(documents.get(python_path)!, "")
     const pos = params.position
+    const detail = (T: string, from: string) => {
+        return T + " -- " + "From " + from
+    }
     if (params.textDocument.uri === python_path) {
-
-        const line = python_doc?.offsetAt
-        console.log(line)
+        const line = doc.getLine(pos.line)
+        const matches = accessRegex.exec(line)
+        if (matches) {
+            const id = matches[0]
+            if (id === "lib.") {
+                return [
+                    {
+                        label: "counter_new",
+                        kind: CompletionItemKind.Function,
+                        detail: detail("Unit -> (Ptr Counter)", cpp_path)
+                    },
+                    {
+                        label: "counter_free",
+                        kind: CompletionItemKind.Function,
+                        detail: detail("(Ptr Counter) -> Unit", cpp_path)
+                    },
+                    {
+                        label: "counter_get",
+                        kind: CompletionItemKind.Function,
+                        detail: detail("(Ptr Counter) -> Integer", cpp_path)
+                    },
+                    {
+                        label: "counter_reset",
+                        kind: CompletionItemKind.Function,
+                        detail: detail("(Ptr Counter) -> Unit", cpp_path)
+                    },
+                    {
+                        label: "counter_inc",
+                        kind: CompletionItemKind.Function,
+                        detail: detail("(Ptr Counter) -> Unit", cpp_path)
+                    },
+                ]
+            }
+        }
     }
     return []
 });
 
-
 connection.onCompletionResolve(
     (item: CompletionItem): CompletionItem => {
-        if (item.data === 1) {
-            item.detail = 'TypeScript details';
-            item.documentation = 'TypeScript documentation';
-        } else if (item.data === 2) {
-            item.detail = 'JavaScript details';
-            item.documentation = 'JavaScript documentation';
-        }
-        return item;
+        return item
     }
 );
 
