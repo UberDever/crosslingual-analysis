@@ -11,7 +11,7 @@ function updateCounter() {
             return response.json()
         })
         .then(data => {
-            document.getElementById('data').innerText = "The current value of counter is: " + data.countse;
+            document.getElementById('data').innerText = "The current value of counter is: " + data.count;
         })
         .catch(error => {
             console.error('Error:', error);

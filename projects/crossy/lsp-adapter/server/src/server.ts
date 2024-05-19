@@ -84,7 +84,7 @@ connection.onInitialize((params: InitializeParams) => {
                 triggerCharacters: ["(", ","],
             },
             diagnosticProvider: {
-                interFileDependencies: false,
+                interFileDependencies: true,
                 workspaceDiagnostics: false
             },
             typeHierarchyProvider: true,
@@ -182,6 +182,55 @@ const countRange: Range = {
 
 let countName = "count"
 
+function findCount(uri: string): [string, Range] | undefined {
+    console.log(uri)
+    if (uri === js_path) {
+        const d = documents.get(js_path)
+        if (!d) return undefined
+        const jsDoc = new LspDocument(d, js_path)
+        const countRegex = /\bdata\s*\.\s*(\w+)\b/g
+        const matches = jsDoc.getText().matchAll(countRegex)
+        for (const match of matches) {
+            if (!match.index) continue
+            const pos = jsDoc.positionAt(match.index)
+            const [data, count] = [match[0], match[1]]
+            return [
+                count,
+                {
+                    start: {
+                        line: pos.line,
+                        character: pos.character + data.length - count.length
+                    },
+                    end: {
+                        line: pos.line,
+                        character: pos.character + data.length
+                    }
+                }
+            ]
+        }
+    } else if (uri === golang_path) {
+        const d = documents.get(golang_path)
+        if (!d) return undefined
+        const doc = new LspDocument(d, golang_path)
+        const countRegex = /json:"(\w+)"/g
+        const matches = doc.getText().matchAll(countRegex)
+        for (const match of matches) {
+            if (!match.index) continue
+            const pos = doc.positionAt(match.index) // this reports incorrect position idk why
+            const shift = -1
+            const [tag, count] = [match[0], match[1]]
+            return [
+                count,
+                {
+                    start: { line: pos.line, character: pos.character + tag.length - count.length + shift },
+                    end: { line: pos.line, character: pos.character + tag.length + shift }
+                }
+            ]
+        }
+    }
+    return undefined
+}
+
 connection.onRenameRequest(async (params: RenameParams): Promise<WorkspaceEdit> => {
     if (params.textDocument.uri !== golang_path) {
         return {}
@@ -205,43 +254,44 @@ connection.onRenameRequest(async (params: RenameParams): Promise<WorkspaceEdit> 
             createAndPush(js_path, TextEdit.replace(countRange, params.newName))
         }
     }
-    console.log(params)
+
     return { changes: edits }
 })
 
 connection.languages.diagnostics.on(async (params): Promise<DocumentDiagnosticReport> => {
-    const document = new LspDocument(documents.get(params.textDocument.uri)!, params.textDocument.uri);
-    if (params.textDocument.uri === js_path) {
-        const countLine = document.getLine(countRange.start.line)
-        const countRegex = /\bdata\.\w+\b/g
-        const matches = countRegex.exec(countLine)
-        if (matches?.length === 1) {
-            const count = matches[0].split(".")[1]
-            if (count !== countName) {
-                return {
-                    kind: DocumentDiagnosticReportKind.Full,
-                    items: [
-                        {
-                            severity: DiagnosticSeverity.Warning,
-                            message: `Expected field "count" but got "${count}"`,
-                            relatedInformation: [{ location: { uri: golang_path, range: countTagRange }, message: "struct tag declared here" }],
-                            range: { ...countRange, end: { ...countRange.end, character: countRange.start.character + 1 } }
-                        }
-                    ]
-                };
-            }
-        }
-    }
-    return {
+    const empty: DocumentDiagnosticReport = {
         kind: DocumentDiagnosticReportKind.Full,
         items: []
     };
+    if (params.textDocument.uri === js_path) {
+        const countFromGo = findCount(golang_path)
+        if (!countFromGo) return empty
+        const countFromJS = findCount(js_path)
+        if (!countFromJS) return empty
+        const [countGo, countGoRange] = countFromGo
+        const [countJS, countJsRange] = countFromJS
+        if (countGo === countJS) {
+            return empty
+        }
+        return {
+            kind: DocumentDiagnosticReportKind.Full,
+            items: [
+                {
+                    severity: DiagnosticSeverity.Warning,
+                    message: `Expected field "${countGo}" but got "${countJS}"`,
+                    relatedInformation: [{ location: { uri: golang_path, range: countGoRange }, message: "struct tag declared here" }],
+                    range: { ...countJsRange, end: { ...countJsRange.end, character: countJsRange.start.character + 1 } }
+                }
+            ]
+        };
+    }
+    return empty
 });
 
 // The content of a text document has changed. This event is emitted
 // when the text document first opened or when its content has changed.
 documents.onDidChangeContent(change => {
-    console.log(change)
+    //console.log(change)
 });
 
 const python_path = withHome("dev/mag/crosslingual-analysis/projects/crossy/lsp-adapter/examples/Example 2/test.py")
