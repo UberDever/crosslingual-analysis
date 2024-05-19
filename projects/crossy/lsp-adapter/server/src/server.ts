@@ -183,7 +183,6 @@ const countRange: Range = {
 let countName = "count"
 
 function findCount(uri: string): [string, Range] | undefined {
-    console.log(uri)
     if (uri === js_path) {
         const d = documents.get(js_path)
         if (!d) return undefined
@@ -235,6 +234,19 @@ connection.onRenameRequest(async (params: RenameParams): Promise<WorkspaceEdit> 
     if (params.textDocument.uri !== golang_path) {
         return {}
     }
+    const countFromGo = findCount(golang_path)
+    if (!countFromGo) return {}
+    const [__, countGoRange] = countFromGo
+    if (!(params.position.line === countGoRange.start.line &&
+        params.position.line === countGoRange.end.line &&
+        params.position.character >= countGoRange.start.character &&
+        params.position.character <= countGoRange.end.character)) {
+        return {}
+    }
+    
+    const countFromJS = findCount(js_path)
+    if (!countFromJS) return {}
+    const [_, countJsRange] = countFromJS
 
     let edits: { [uri: string]: TextEdit[]; } = {}
     const createAndPush = (uri: string, edit: TextEdit) => {
@@ -243,17 +255,8 @@ connection.onRenameRequest(async (params: RenameParams): Promise<WorkspaceEdit> 
         }
         edits[uri].push(edit)
     }
-    const jsDoc = new LspDocument(documents.get(js_path)!, js_path)
-    const countLine = jsDoc.getLine(countRange.start.line)
-    const countRegex = /\bdata\.\w+\b/g
-    const matches = countRegex.exec(countLine)
-    if (matches?.length === 1) {
-        const count = matches[0].split(".")[1]
-        if (count === countName) {
-            countName = params.newName
-            createAndPush(js_path, TextEdit.replace(countRange, params.newName))
-        }
-    }
+    createAndPush(js_path, TextEdit.replace(countJsRange, params.newName))
+    createAndPush(golang_path, TextEdit.replace(countGoRange, params.newName))
 
     return { changes: edits }
 })
