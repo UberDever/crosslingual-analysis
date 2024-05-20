@@ -1,0 +1,23 @@
+{
+    "compilerOptions": {
+        "target": "es2020",
+        "lib": [
+            "es2020"
+        ],
+        "module": "commonjs",
+        "moduleResolution": "node",
+        "sourceMap": true,
+        "strict": true,
+        "outDir": "out",
+        "rootDir": "."
+    },
+    "include": [
+        "*.ts"
+    ],
+    "exclude": [
+        "Example 1",
+        "Example 2",
+        "Example 3",
+        "ontology"
+    ]
+}
