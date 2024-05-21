@@ -1,5 +1,6 @@
 import { Constraint, UsageConstraint, DirectEdgeConstraint, AssociationConstraint, TypeDeclarationConstraint, uinteger, TypeEqualConstraint, SourceFile, ResolutionConstraint, Variable, Substitution } from "./protocol"
 
+// TODO: test.py should reference `lib_dir/lib.so`
 const constraints: Constraint[] = [
     {
         identifier: { name: "OS", source: undefined },

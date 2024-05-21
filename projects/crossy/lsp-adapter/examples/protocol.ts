@@ -26,6 +26,7 @@ export interface SourceCode extends From {
     code: string
 }
 
+// TODO: здесь должны учитываться многие возможные локации (см LocationLink[])
 export type Source = SourceFile | SourceCode | undefined
 
 export interface Identifier {
