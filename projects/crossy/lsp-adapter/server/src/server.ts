@@ -163,24 +163,6 @@ documents.onDidClose(e => {
 
 const golang_path = withHome("dev/mag/crosslingual-analysis/projects/crossy/lsp-adapter/examples/Example 3/backend/server.go")
 const js_path = withHome("dev/mag/crosslingual-analysis/projects/crossy/lsp-adapter/examples/Example 3/frontend/script.js")
-const countTagRange: Range = {
-    start: {
-        line: 9, character: 21,
-    },
-    end: {
-        line: 9, character: 26,
-    }
-}
-const countRange: Range = {
-    start: {
-        line: 13, character: 99,
-    },
-    end: {
-        line: 13, character: 104,
-    }
-}
-
-let countName = "count"
 
 function findCount(uri: string): [string, Range] | undefined {
     if (uri === js_path) {
@@ -236,17 +218,17 @@ connection.onRenameRequest(async (params: RenameParams): Promise<WorkspaceEdit> 
     }
     const countFromGo = findCount(golang_path)
     if (!countFromGo) return {}
-    const [__, countGoRange] = countFromGo
+    const [countGo, countGoRange] = countFromGo
     if (!(params.position.line === countGoRange.start.line &&
         params.position.line === countGoRange.end.line &&
         params.position.character >= countGoRange.start.character &&
         params.position.character <= countGoRange.end.character)) {
         return {}
     }
-    
+
     const countFromJS = findCount(js_path)
     if (!countFromJS) return {}
-    const [_, countJsRange] = countFromJS
+    const [countJS, countJsRange] = countFromJS
 
     let edits: { [uri: string]: TextEdit[]; } = {}
     const createAndPush = (uri: string, edit: TextEdit) => {
@@ -255,8 +237,10 @@ connection.onRenameRequest(async (params: RenameParams): Promise<WorkspaceEdit> 
         }
         edits[uri].push(edit)
     }
-    createAndPush(js_path, TextEdit.replace(countJsRange, params.newName))
-    createAndPush(golang_path, TextEdit.replace(countGoRange, params.newName))
+    if (countGo === countJS) {
+        createAndPush(js_path, TextEdit.replace(countJsRange, params.newName))
+        createAndPush(golang_path, TextEdit.replace(countGoRange, params.newName))
+    }
 
     return { changes: edits }
 })
@@ -281,8 +265,7 @@ connection.languages.diagnostics.on(async (params): Promise<DocumentDiagnosticRe
             items: [
                 {
                     severity: DiagnosticSeverity.Warning,
-                    message: `Expected field "${countGo}" but got "${countJS}"`,
-                    relatedInformation: [{ location: { uri: golang_path, range: countGoRange }, message: "struct tag declared here" }],
+                    message: `Expected field "${countJS}" to be resolved to some declaration, but found none. MustResolve constraint is not satisfied`,
                     range: { ...countJsRange, end: { ...countJsRange.end, character: countJsRange.start.character + 1 } }
                 }
             ]
