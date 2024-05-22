@@ -4,25 +4,25 @@ import { Constraint, UsageConstraint, DirectEdgeConstraint, AssociationConstrain
 const constraints: Constraint[] = [
     {
         identifier: { name: "OS", source: undefined },
-        scope: { index: 0, type: "scope" },
+        scope: { index: 0, source: undefined },
         usage: "declaration"
     } satisfies UsageConstraint,
     {
         declaration: { name: "OS", source: undefined },
-        scope: { index: 1, type: "scope" }
+        scope: { index: 1, source: undefined }
     } satisfies AssociationConstraint,
     {
         identifier: { name: "Filesystem", source: undefined },
-        scope: { index: 1, type: "scope" },
+        scope: { index: 1, source: undefined },
         usage: "declaration"
     } satisfies UsageConstraint,
     {
         declaration: { name: "Filesystem", source: undefined },
-        scope: { index: 2, type: "scope" }
+        scope: { index: 2, source: undefined }
     } satisfies AssociationConstraint,
     {
-        from: { index: 2, type: "scope" },
-        to: { index: 1, type: "scope" },
+        from: { index: 2, source: undefined },
+        to: { index: 1, source: undefined },
         label: "parent"
     } satisfies DirectEdgeConstraint,
     {
@@ -30,7 +30,7 @@ const constraints: Constraint[] = [
             name: "build.sh",
             source: { uri: "Example 2/build.sh", language: undefined } satisfies SourceFile
         },
-        scope: { index: 2, type: "scope" },
+        scope: { index: 2, source: undefined },
         usage: "declaration"
     } satisfies UsageConstraint,
     {
@@ -38,7 +38,7 @@ const constraints: Constraint[] = [
             name: "build.sh",
             source: { uri: "Example 2/build.sh", language: undefined } satisfies SourceFile
         },
-        scope: { index: 3, type: "scope" }
+        scope: { index: 3, source: undefined }
     } satisfies AssociationConstraint,
     {
         identifier: {
@@ -50,7 +50,7 @@ const constraints: Constraint[] = [
                 }, language: "Shell"
             } satisfies SourceFile
         },
-        scope: { index: 3, type: "scope" },
+        scope: { index: 3, source: undefined },
         usage: "reference"
     } satisfies UsageConstraint,
     {
@@ -95,7 +95,7 @@ const constraints: Constraint[] = [
                 }, language: "Shell"
             } satisfies SourceFile
         },
-        scope: { index: 3, type: "scope" },
+        scope: { index: 3, source: undefined },
         usage: "declaration"
     } satisfies UsageConstraint,
     {
@@ -124,11 +124,11 @@ const constraints: Constraint[] = [
                 }, language: "Shell"
             } satisfies SourceFile
         },
-        scope: { index: 9, type: "scope" }
+        scope: { index: 9, source: undefined }
     } satisfies AssociationConstraint,
     {
         from: { index: 6, type: "sigma" },
-        to: { index: 9, type: "scope" },
+        to: { index: 9, source: undefined },
         label: "import"
     } satisfies DirectEdgeConstraint, // this models scope sameness
     {
@@ -136,7 +136,7 @@ const constraints: Constraint[] = [
             name: "lib.cpp",
             source: { uri: "Example 2/lib.cpp", language: undefined } satisfies SourceFile
         },
-        scope: { index: 2, type: "scope" },
+        scope: { index: 2, source: undefined },
         usage: "declaration"
     } satisfies UsageConstraint,
     {
@@ -144,7 +144,7 @@ const constraints: Constraint[] = [
             name: "lib.cpp",
             source: { uri: "Example 2/lib.cpp", language: undefined } satisfies SourceFile
         },
-        scope: { index: 10, type: "scope" }
+        scope: { index: 10, source: undefined }
     } satisfies AssociationConstraint,
     {
         identifier: {
@@ -156,7 +156,7 @@ const constraints: Constraint[] = [
                 }, language: "C++"
             } satisfies SourceFile
         },
-        scope: { index: 10, type: "scope" },
+        scope: { index: 10, source: undefined },
         usage: "declaration"
     } satisfies UsageConstraint,
     {
@@ -203,7 +203,7 @@ const constraints: Constraint[] = [
                 }, language: "C++"
             } satisfies SourceFile
         },
-        scope: { index: 10, type: "scope" },
+        scope: { index: 10, source: undefined },
         usage: "declaration"
     } satisfies UsageConstraint,
     {
@@ -250,7 +250,7 @@ const constraints: Constraint[] = [
                 }, language: "C++"
             } satisfies SourceFile
         },
-        scope: { index: 10, type: "scope" },
+        scope: { index: 10, source: undefined },
         usage: "declaration"
     } satisfies UsageConstraint,
     {
@@ -297,7 +297,7 @@ const constraints: Constraint[] = [
                 }, language: "C++"
             } satisfies SourceFile
         },
-        scope: { index: 10, type: "scope" },
+        scope: { index: 10, source: undefined },
         usage: "declaration"
     } satisfies UsageConstraint,
     {
@@ -344,7 +344,7 @@ const constraints: Constraint[] = [
                 }, language: "C++"
             } satisfies SourceFile
         },
-        scope: { index: 10, type: "scope" },
+        scope: { index: 10, source: undefined },
         usage: "declaration"
     } satisfies UsageConstraint,
     {
@@ -386,7 +386,7 @@ const constraints: Constraint[] = [
             name: "test.py",
             source: { uri: "Example 2/test.py", language: undefined } satisfies SourceFile
         },
-        scope: { index: 2, type: "scope" },
+        scope: { index: 2, source: undefined },
         usage: "declaration"
     } satisfies UsageConstraint,
     {
@@ -394,7 +394,7 @@ const constraints: Constraint[] = [
             name: "test.py",
             source: { uri: "Example 2/test.py", language: undefined } satisfies SourceFile
         },
-        scope: { index: 16, type: "scope" }
+        scope: { index: 16, source: undefined }
     } satisfies AssociationConstraint,
     {
         identifier: {
@@ -406,7 +406,7 @@ const constraints: Constraint[] = [
                 }, language: "Python 3"
             } satisfies SourceFile
         },
-        scope: { index: 16, type: "scope" },
+        scope: { index: 16, source: undefined },
         usage: "reference"
     } satisfies UsageConstraint,
     {
@@ -454,7 +454,7 @@ const constraints: Constraint[] = [
                 }, language: "Python 3"
             } satisfies SourceFile
         },
-        scope: { index: 16, type: "scope" },
+        scope: { index: 16, source: undefined },
         usage: "reference"
     } satisfies UsageConstraint,
     {
@@ -502,7 +502,7 @@ const constraints: Constraint[] = [
                 }, language: "Python 3"
             } satisfies SourceFile
         },
-        scope: { index: 16, type: "scope" },
+        scope: { index: 16, source: undefined },
         usage: "reference"
     } satisfies UsageConstraint,
     {
@@ -550,7 +550,7 @@ const constraints: Constraint[] = [
                 }, language: "Python 3"
             } satisfies SourceFile
         },
-        scope: { index: 16, type: "scope" },
+        scope: { index: 16, source: undefined },
         usage: "reference"
     } satisfies UsageConstraint,
     {
@@ -598,7 +598,7 @@ const constraints: Constraint[] = [
                 }, language: "Python 3"
             } satisfies SourceFile
         },
-        scope: { index: 16, type: "scope" },
+        scope: { index: 16, source: undefined },
         usage: "reference"
     } satisfies UsageConstraint,
     {
@@ -850,7 +850,7 @@ const substitution: Map<Variable, Substitution> = new Map<Variable, Substitution
             ]
         }
     }],
-    [{ index: 6, type: "sigma" }, { tag: "sigma", data: { index: 10, type: "scope" } }],
+    [{ index: 6, type: "sigma" }, { tag: "sigma", data: { index: 10, source: undefined } }],
     [{ index: 5, type: "delta" }, {
         tag: "delta", data: {
             name: "lib.cpp",

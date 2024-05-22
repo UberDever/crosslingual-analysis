@@ -3,25 +3,25 @@ import { Constraint, UsageConstraint, DirectEdgeConstraint, AssociationConstrain
 const constraints: Constraint[] = [
     {
         identifier: { name: "OS", source: undefined },
-        scope: { index: 0, type: "scope" },
+        scope: { index: 0, source: undefined },
         usage: "declaration"
     } satisfies UsageConstraint,
     {
         declaration: { name: "OS", source: undefined },
-        scope: { index: 1, type: "scope" }
+        scope: { index: 1, source: undefined }
     } satisfies AssociationConstraint,
     {
         identifier: { name: "Filesystem", source: undefined },
-        scope: { index: 1, type: "scope" },
+        scope: { index: 1, source: undefined },
         usage: "declaration"
     } satisfies UsageConstraint,
     {
         declaration: { name: "Filesystem", source: undefined },
-        scope: { index: 2, type: "scope" }
+        scope: { index: 2, source: undefined }
     } satisfies AssociationConstraint,
     {
-        from: { index: 2, type: "scope" },
-        to: { index: 1, type: "scope" },
+        from: { index: 2, source: undefined },
+        to: { index: 1, source: undefined },
         label: "parent"
     } satisfies DirectEdgeConstraint,
     {
@@ -29,7 +29,7 @@ const constraints: Constraint[] = [
             name: "server.go",
             source: { uri: "Example 3/backend/server.go", language: undefined } satisfies SourceFile
         },
-        scope: { index: 2, type: "scope" },
+        scope: { index: 2, source: undefined },
         usage: "declaration"
     } satisfies UsageConstraint,
     {
@@ -37,7 +37,7 @@ const constraints: Constraint[] = [
             name: "server.go",
             source: { uri: "Example 3/backend/server.go", language: undefined } satisfies SourceFile
         },
-        scope: { index: 3, type: "scope" }
+        scope: { index: 3, source: undefined }
     } satisfies AssociationConstraint,
     {
         identifier: {
@@ -49,7 +49,7 @@ const constraints: Constraint[] = [
                 }, language: "Golang"
             } satisfies SourceFile
         },
-        scope: { index: 3, type: "scope" },
+        scope: { index: 3, source: undefined },
         usage: "declaration"
     } satisfies UsageConstraint,
     {
@@ -62,7 +62,7 @@ const constraints: Constraint[] = [
                 }, language: "Golang"
             } satisfies SourceFile
         },
-        scope: { index: 4, type: "scope" }
+        scope: { index: 4, source: undefined }
     } satisfies AssociationConstraint,
     {
         identifier: {
@@ -74,7 +74,7 @@ const constraints: Constraint[] = [
                 }, language: "Golang"
             } satisfies SourceFile
         },
-        scope: { index: 4, type: "scope" },
+        scope: { index: 4, source: undefined },
         usage: "declaration"
     } satisfies UsageConstraint,
     {
@@ -87,7 +87,7 @@ const constraints: Constraint[] = [
                 }, language: "Golang"
             } satisfies SourceFile
         },
-        scope: { index: 5, type: "scope" }
+        scope: { index: 5, source: undefined }
     } satisfies AssociationConstraint,
     {
         identifier: {
@@ -99,7 +99,7 @@ const constraints: Constraint[] = [
                 }, language: "Golang"
             } satisfies SourceFile
         },
-        scope: { index: 5, type: "scope" },
+        scope: { index: 5, source: undefined },
         usage: "declaration"
     } satisfies UsageConstraint,
     {
@@ -112,7 +112,7 @@ const constraints: Constraint[] = [
                 }, language: "Golang"
             } satisfies SourceFile
         },
-        scope: { index: 6, type: "scope" }
+        scope: { index: 6, source: undefined }
     } satisfies AssociationConstraint,
     {
         identifier: {
@@ -124,7 +124,7 @@ const constraints: Constraint[] = [
                 }, language: "Golang"
             } satisfies SourceFile
         },
-        scope: { index: 6, type: "scope" },
+        scope: { index: 6, source: undefined },
         usage: "declaration"
     } satisfies UsageConstraint,
     {
@@ -153,7 +153,7 @@ const constraints: Constraint[] = [
                 }, language: "Golang"
             } satisfies SourceFile
         },
-        scope: { index: 4, type: "scope" },
+        scope: { index: 4, source: undefined },
         usage: "declaration"
     } satisfies UsageConstraint,
     {
@@ -166,7 +166,7 @@ const constraints: Constraint[] = [
                 }, language: "Golang"
             } satisfies SourceFile
         },
-        scope: { index: 8, type: "scope" }
+        scope: { index: 8, source: undefined }
     } satisfies AssociationConstraint,
 
     {
@@ -174,7 +174,7 @@ const constraints: Constraint[] = [
             name: "script.js",
             source: { uri: "Example 3/frontend/script.js", language: undefined } satisfies SourceFile
         },
-        scope: { index: 2, type: "scope" },
+        scope: { index: 2, source: undefined },
         usage: "declaration"
     } satisfies UsageConstraint,
     {
@@ -182,7 +182,7 @@ const constraints: Constraint[] = [
             name: "script.js",
             source: { uri: "Example 3/frontend/script.js", language: undefined } satisfies SourceFile
         },
-        scope: { index: 9, type: "scope" }
+        scope: { index: 9, source: undefined }
     } satisfies AssociationConstraint,
     {
         identifier: {
@@ -194,7 +194,7 @@ const constraints: Constraint[] = [
                 }, language: "JavaScript"
             } satisfies SourceFile
         },
-        scope: { index: 9, type: "scope" },
+        scope: { index: 9, source: undefined },
         usage: "reference"
     } satisfies UsageConstraint,
     {
@@ -215,7 +215,7 @@ const constraints: Constraint[] = [
     } satisfies AssociationConstraint,
     {
         from: { index: 11, type: "sigma" },
-        to: { index: 12, type: "scope" },
+        to: { index: 12, source: undefined },
         label: "import"
     } satisfies DirectEdgeConstraint,
     {
@@ -228,7 +228,7 @@ const constraints: Constraint[] = [
                 }, language: "JavaScript"
             } satisfies SourceFile
         },
-        scope: { index: 12, type: "scope" },
+        scope: { index: 12, source: undefined },
         usage: "reference"
     } satisfies UsageConstraint,
 
@@ -242,7 +242,7 @@ const constraints: Constraint[] = [
                 }, language: "JavaScript"
             } satisfies SourceFile
         },
-        scope: { index: 9, type: "scope" },
+        scope: { index: 9, source: undefined },
         usage: "reference"
     } satisfies UsageConstraint,
     {
@@ -263,7 +263,7 @@ const constraints: Constraint[] = [
     } satisfies AssociationConstraint,
     {
         from: { index: 14, type: "sigma" },
-        to: { index: 15, type: "scope" },
+        to: { index: 15, source: undefined },
         label: "import"
     } satisfies DirectEdgeConstraint,
 
@@ -277,7 +277,7 @@ const constraints: Constraint[] = [
                 }, language: "JavaScript"
             } satisfies SourceFile
         },
-        scope: { index: 15, type: "scope" },
+        scope: { index: 15, source: undefined },
         usage: "reference"
     } satisfies UsageConstraint,
     {
@@ -298,7 +298,7 @@ const constraints: Constraint[] = [
     } satisfies AssociationConstraint,
     {
         from: { index: 17, type: "sigma" },
-        to: { index: 18, type: "scope" },
+        to: { index: 18, source: undefined },
         label: "import"
     } satisfies DirectEdgeConstraint,
 
@@ -312,7 +312,7 @@ const constraints: Constraint[] = [
                 }, language: "JavaScript"
             } satisfies SourceFile
         },
-        scope: { index: 18, type: "scope" },
+        scope: { index: 18, source: undefined },
         usage: "reference"
     } satisfies UsageConstraint,
     {
@@ -333,7 +333,7 @@ const constraints: Constraint[] = [
     } satisfies AssociationConstraint,
     {
         from: { index: 20, type: "sigma" },
-        to: { index: 21, type: "scope" },
+        to: { index: 21, source: undefined },
         label: "import"
     } satisfies DirectEdgeConstraint,
     {
@@ -346,7 +346,7 @@ const constraints: Constraint[] = [
                 }, language: "JavaScript"
             } satisfies SourceFile
         },
-        scope: { index: 21, type: "scope" },
+        scope: { index: 21, source: undefined },
         usage: "reference"
     } satisfies UsageConstraint,
     {
@@ -380,7 +380,7 @@ const substitution: Map<Variable, Substitution> = new Map<Variable, Substitution
             } satisfies SourceFile
         }
     }],
-    [{ index: 11, type: "sigma" }, { tag: "sigma", data: { index: 4, type: "scope" } }],
+    [{ index: 11, type: "sigma" }, { tag: "sigma", data: { index: 4, source: undefined } }],
     [{ index: 13, type: "delta" }, {
         tag: "delta", data: {
             name: "localhost:3333/item",
@@ -392,7 +392,7 @@ const substitution: Map<Variable, Substitution> = new Map<Variable, Substitution
             } satisfies SourceFile
         }
     }],
-    [{ index: 14, type: "sigma" }, { tag: "sigma", data: { index: 4, type: "scope" } }],
+    [{ index: 14, type: "sigma" }, { tag: "sigma", data: { index: 4, source: undefined } }],
     [{ index: 16, type: "delta" }, {
         tag: "delta", data: {
             name: "GET",
@@ -404,7 +404,7 @@ const substitution: Map<Variable, Substitution> = new Map<Variable, Substitution
             } satisfies SourceFile
         }
     }],
-    [{ index: 17, type: "sigma" }, { tag: "sigma", data: { index: 5, type: "scope" } }],
+    [{ index: 17, type: "sigma" }, { tag: "sigma", data: { index: 5, source: undefined } }],
     [{ index: 19, type: "delta" }, {
         tag: "delta", data: {
             name: "application/json",
@@ -416,7 +416,7 @@ const substitution: Map<Variable, Substitution> = new Map<Variable, Substitution
             } satisfies SourceFile
         }
     }],
-    [{ index: 20, type: "sigma" }, { tag: "sigma", data: { index: 6, type: "scope" } }],
+    [{ index: 20, type: "sigma" }, { tag: "sigma", data: { index: 6, source: undefined } }],
     [{ index: 22, type: "tau" }, { tag: "tau", data: "Top" }],
 ])
 

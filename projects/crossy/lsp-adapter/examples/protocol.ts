@@ -44,7 +44,7 @@ export interface Variable {
 
 export interface Scope {
     index: uinteger
-    type: "scope"
+    source: Source
 }
 
 export type NameCollectionType = "declared" | "referenced" | "visible"

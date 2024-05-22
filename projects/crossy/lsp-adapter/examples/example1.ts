@@ -3,25 +3,25 @@ import { Constraint, UsageConstraint, DirectEdgeConstraint, AssociationConstrain
 const constraints: Constraint[] = [
     {
         identifier: { name: "OS", source: undefined },
-        scope: { index: 0, type: "scope" },
+        scope: { index: 0, source: undefined },
         usage: "declaration"
     } satisfies UsageConstraint,
     {
         declaration: { name: "OS", source: undefined },
-        scope: { index: 1, type: "scope" }
+        scope: { index: 1, source: undefined }
     } satisfies AssociationConstraint,
     {
         identifier: { name: "Filesystem", source: undefined },
-        scope: { index: 1, type: "scope" },
+        scope: { index: 1, source: undefined },
         usage: "declaration"
     } satisfies UsageConstraint,
     {
         declaration: { name: "Filesystem", source: undefined },
-        scope: { index: 2, type: "scope" }
+        scope: { index: 2, source: undefined }
     } satisfies AssociationConstraint,
     {
-        from: { index: 2, type: "scope" },
-        to: { index: 1, type: "scope" },
+        from: { index: 2, source: undefined },
+        to: { index: 1, source: undefined },
         label: "parent"
     } satisfies DirectEdgeConstraint,
     {
@@ -29,7 +29,7 @@ const constraints: Constraint[] = [
             name: "csharp.csproj",
             source: { uri: "examples/Example 1/CSharp/CSharp.csproj", language: undefined } satisfies SourceFile
         },
-        scope: { index: 2, type: "scope" },
+        scope: { index: 2, source: undefined },
         usage: "declaration"
     } satisfies UsageConstraint,
     {
@@ -37,11 +37,11 @@ const constraints: Constraint[] = [
             name: "csharp.csproj",
             source: { uri: "examples/Example 1/CSharp/CSharp.csproj", language: undefined } satisfies SourceFile
         },
-        scope: { index: 3, type: "scope" }
+        scope: { index: 3, source: undefined }
     } satisfies AssociationConstraint,
     {
-        from: { index: 3, type: "scope" },
-        to: { index: 2, type: "scope" },
+        from: { index: 3, source: undefined },
+        to: { index: 2, source: undefined },
         label: "parent"
     } satisfies DirectEdgeConstraint,
     {
@@ -54,7 +54,7 @@ const constraints: Constraint[] = [
                 }, language: undefined
             } satisfies SourceFile
         },
-        scope: { index: 3, type: "scope" },
+        scope: { index: 3, source: undefined },
         usage: "reference"
     } satisfies UsageConstraint,
     {
@@ -62,7 +62,7 @@ const constraints: Constraint[] = [
             name: "Class1.vb",
             source: { uri: "Example 1/VB/Class1.vb", language: undefined } satisfies SourceFile
         },
-        scope: { index: 2, type: "scope" },
+        scope: { index: 2, source: undefined },
         usage: "declaration"
     } satisfies UsageConstraint,
     {
@@ -70,11 +70,11 @@ const constraints: Constraint[] = [
             name: "Class1.vb",
             source: { uri: "Example 1/VB/Class1.vb", language: undefined } satisfies SourceFile
         },
-        scope: { index: 4, type: "scope" }
+        scope: { index: 4, source: undefined }
     } satisfies AssociationConstraint,
     {
-        from: { index: 4, type: "scope" },
-        to: { index: 2, type: "scope" },
+        from: { index: 4, source: undefined },
+        to: { index: 2, source: undefined },
         label: "parent"
     } satisfies DirectEdgeConstraint,
     {
@@ -87,7 +87,7 @@ const constraints: Constraint[] = [
                 }, language: "Visual Basic"
             } satisfies SourceFile
         },
-        scope: { index: 4, type: "scope" },
+        scope: { index: 4, source: undefined },
         usage: "declaration"
     } satisfies UsageConstraint,
     {
@@ -100,11 +100,11 @@ const constraints: Constraint[] = [
                 }, language: "Visual Basic"
             } satisfies SourceFile
         },
-        scope: { index: 5, type: "scope" }
+        scope: { index: 5, source: undefined }
     } satisfies AssociationConstraint,
     {
-        from: { index: 5, type: "scope" },
-        to: { index: 4, type: "scope" },
+        from: { index: 5, source: undefined },
+        to: { index: 4, source: undefined },
         label: "parent"
     } satisfies DirectEdgeConstraint,
     {
@@ -117,7 +117,7 @@ const constraints: Constraint[] = [
                 }, language: "Visual Basic"
             } satisfies SourceFile
         },
-        scope: { index: 5, type: "scope" },
+        scope: { index: 5, source: undefined },
         usage: "declaration"
     } satisfies UsageConstraint,
     {
@@ -146,7 +146,7 @@ const constraints: Constraint[] = [
                 }, language: "Visual Basic"
             } satisfies SourceFile
         },
-        scope: { index: 7, type: "scope" }
+        scope: { index: 7, source: undefined }
     } satisfies AssociationConstraint,
     {
         identifier: {
@@ -158,7 +158,7 @@ const constraints: Constraint[] = [
                 }, language: "Visual Basic"
             } satisfies SourceFile
         },
-        scope: { index: 7, type: "scope" },
+        scope: { index: 7, source: undefined },
         usage: "declaration"
     } satisfies UsageConstraint,
     {
@@ -182,7 +182,7 @@ const constraints: Constraint[] = [
             name: "Program.cs",
             source: { uri: "Example 1/CSharp/Program.cs", language: undefined } satisfies SourceFile
         },
-        scope: { index: 2, type: "scope" },
+        scope: { index: 2, source: undefined },
         usage: "declaration"
     } satisfies UsageConstraint,
     {
@@ -190,11 +190,11 @@ const constraints: Constraint[] = [
             name: "Program.cs",
             source: { uri: "Example 1/CSharp/Program.cs", language: undefined } satisfies SourceFile
         },
-        scope: { index: 9, type: "scope" }
+        scope: { index: 9, source: undefined }
     } satisfies AssociationConstraint,
     {
-        from: { index: 9, type: "scope" },
-        to: { index: 2, type: "scope" },
+        from: { index: 9, source: undefined },
+        to: { index: 2, source: undefined },
         label: "parent"
     } satisfies DirectEdgeConstraint,
     {
@@ -207,7 +207,7 @@ const constraints: Constraint[] = [
                 }, language: "C#"
             } satisfies SourceFile
         },
-        scope: { index: 9, type: "scope" },
+        scope: { index: 9, source: undefined },
         usage: "declaration"
     } satisfies UsageConstraint,
     {
@@ -220,11 +220,11 @@ const constraints: Constraint[] = [
                 }, language: "C#"
             } satisfies SourceFile
         },
-        scope: { index: 10, type: "scope" }
+        scope: { index: 10, source: undefined }
     } satisfies AssociationConstraint,
     {
-        from: { index: 10, type: "scope" },
-        to: { index: 9, type: "scope" },
+        from: { index: 10, source: undefined },
+        to: { index: 9, source: undefined },
         label: "parent"
     } satisfies DirectEdgeConstraint,
     {
@@ -237,7 +237,7 @@ const constraints: Constraint[] = [
                 }, language: "C#"
             } satisfies SourceFile
         },
-        scope: { index: 10, type: "scope" },
+        scope: { index: 10, source: undefined },
         usage: "declaration"
     } satisfies UsageConstraint,
     {
@@ -250,7 +250,7 @@ const constraints: Constraint[] = [
                 }, language: "C#"
             } satisfies SourceFile
         },
-        scope: { index: 11, type: "scope" }
+        scope: { index: 11, source: undefined }
     } satisfies AssociationConstraint,
     {
         identifier: {
@@ -262,7 +262,7 @@ const constraints: Constraint[] = [
                 }, language: "C#"
             } satisfies SourceFile
         },
-        scope: { index: 11, type: "scope" },
+        scope: { index: 11, source: undefined },
         usage: "reference"
     } satisfies UsageConstraint,
     {
@@ -283,7 +283,7 @@ const constraints: Constraint[] = [
     } satisfies AssociationConstraint,
     {
         from: { index: 13, type: "sigma" },
-        to: { index: 14, type: "scope" },
+        to: { index: 14, source: undefined },
         label: "import"
     } satisfies DirectEdgeConstraint,
     {
@@ -296,7 +296,7 @@ const constraints: Constraint[] = [
                 }, language: "C#"
             } satisfies SourceFile
         },
-        scope: { index: 14, type: "scope" },
+        scope: { index: 14, source: undefined },
         usage: "reference"
     } satisfies UsageConstraint,
     {
@@ -317,7 +317,7 @@ const constraints: Constraint[] = [
     } satisfies AssociationConstraint,
     {
         from: { index: 16, type: "sigma" },
-        to: { index: 11, type: "scope" },
+        to: { index: 11, source: undefined },
         label: "import"
     } satisfies DirectEdgeConstraint,
     {
@@ -330,7 +330,7 @@ const constraints: Constraint[] = [
                 }, language: "C#"
             } satisfies SourceFile
         },
-        scope: { index: 11, type: "scope" },
+        scope: { index: 11, source: undefined },
         usage: "reference"
     } satisfies UsageConstraint,
     {
@@ -359,7 +359,7 @@ const constraints: Constraint[] = [
                 }, language: "C#"
             } satisfies SourceFile
         },
-        scope: { index: 11, type: "scope" },
+        scope: { index: 11, source: undefined },
         usage: "reference"
     } satisfies UsageConstraint,
     {
@@ -388,7 +388,7 @@ const constraints: Constraint[] = [
                 }, language: "C#"
             } satisfies SourceFile
         },
-        scope: { index: 14, type: "scope" },
+        scope: { index: 14, source: undefined },
     } satisfies MustResolveConstraint,
 ]
 
@@ -406,7 +406,7 @@ const substitution: Map<Variable, Substitution> = new Map<Variable, Substitution
             } satisfies SourceFile
         }
     }],
-    [{ index: 13, type: "sigma" }, { tag: "sigma", data: { index: 5, type: "scope" } }],
+    [{ index: 13, type: "sigma" }, { tag: "sigma", data: { index: 5, source: undefined } }],
     [{ index: 15, type: "delta" }, {
         tag: "delta", data: {
             name: "BaseVB",
@@ -418,7 +418,7 @@ const substitution: Map<Variable, Substitution> = new Map<Variable, Substitution
             } satisfies SourceFile
         }
     }],
-    [{ index: 16, type: "sigma" }, { tag: "sigma", data: { index: 7, type: "scope" } }],
+    [{ index: 16, type: "sigma" }, { tag: "sigma", data: { index: 7, source: undefined } }],
     [{ index: 17, type: "tau" }, { tag: "tau", data: "Integer" }],
     [{ index: 18, type: "tau" }, { tag: "tau", data: "Top" }],
 ])

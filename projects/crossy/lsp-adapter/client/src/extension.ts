@@ -4,11 +4,14 @@ import { workspace, ExtensionContext } from 'vscode';
 import {
     LanguageClient,
     LanguageClientOptions,
+    NotificationMessage,
     ServerOptions,
     TransportKind
 } from 'vscode-languageclient/node';
 
 let client: LanguageClient;
+
+//TODO: custom commands https://code.visualstudio.com/api/extension-guides/command
 
 export function activate(context: ExtensionContext) {
     // The server is implemented in node
@@ -44,7 +47,7 @@ export function activate(context: ExtensionContext) {
         serverOptions,
         clientOptions
     );
-
+    
     // Start the client. This will also launch the server
     client.start();
 }
